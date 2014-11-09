@@ -21,7 +21,8 @@ Dependencies are: node, npm, ruby, bundle, virtualenv, git
 
 On Debian/Ubuntu systems you need:
 
-    sudo apt-get install nodejs npm ruby bundler virtualenv git
+    sudo apt-get install nodejs npm ruby bundler git
+    easy_install virtualenv
 
 Once you have that, run:
 
