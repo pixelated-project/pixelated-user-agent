@@ -10,10 +10,12 @@ $ vagrant up
 ```
 
 # Running the server
-Activate virtualenv and run Pixelated server
+Activate virtualenv and run Pixelated server:
 ```sh
 $ cd /vagrant/service
+$ virtualenv ./.virtualenv
 $ source .virtualenv/bin/activate
+$ pip install -r requirements.txt
 $ pixelated-user-agent --host 0.0.0.0
 ```
 
