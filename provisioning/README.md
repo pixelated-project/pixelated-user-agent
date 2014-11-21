@@ -10,13 +10,14 @@ $ vagrant up
 ```
 
 # Running the server
-Activate virtualenv and run Pixelated server
+Activate virtualenv and run Pixelated server:
 ```sh
 $ cd /vagrant/service
+$ virtualenv ./.virtualenv
 $ source .virtualenv/bin/activate
 $ pixelated-user-agent --host 0.0.0.0
 ```
 
 After this you will be asked to setup a LEAP provider. Once entering valid LEAP credentials, you should have the server running.
 
-You should now be able to access the web app by typing localhost:3333 on any browser running on your host machine.
+You should now be able to access the web app by accessing http://localhost:3333 in your favourite browser on your host machine.
