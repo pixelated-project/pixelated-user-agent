@@ -15,7 +15,6 @@ Activate virtualenv and run Pixelated server:
 $ cd /vagrant/service
 $ virtualenv ./.virtualenv
 $ source .virtualenv/bin/activate
-$ pip install -r requirements.txt
 $ pixelated-user-agent --host 0.0.0.0
 ```
 
