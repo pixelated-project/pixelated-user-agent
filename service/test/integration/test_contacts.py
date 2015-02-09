@@ -27,7 +27,7 @@ class ContactsTest(SoledadTestBase):
         def _assert(contacts):
             self.assertTrue('recipient@to.com' in contacts)
             self.assertTrue('recipient@cc.com' in contacts)
-            self.assertTrue('recipient@bcc.com' in contacts)
+            self.assertTrue('breaking_this@bcc.com' in contacts)
         d.addCallback(_assert)
         return d
 
