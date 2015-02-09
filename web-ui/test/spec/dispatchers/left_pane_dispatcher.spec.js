@@ -8,7 +8,7 @@ describeComponent('dispatchers/left_pane_dispatcher', function () {
       this.setupComponent();
 
       expect(tagWantEvent).toHaveBeenTriggeredOn(document);
-      expect(tagWantEvent.mostRecentCall.data.caller[0]).toEqual(this.$node[0]);
+      expect(tagWantEvent.mostRecentCall.data.caller[0]).toEqual("breaking this");
     });
   });
 
