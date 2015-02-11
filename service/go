@@ -39,14 +39,8 @@ function runPep8 {
         pep8 pixelated test --ignore=E501
 }
 
-function runJSHint {
-        cd ../web-ui
-        LC_ALL=en_US.UTF-8 ./go jshint
-        cd -
-}
-
 if [ "$1" == 'test' ]; then
-        runJSHint
+        set -e
         runPep8
         runUnitTests "${@:2}"
         runIntegrationTests "${@:2}"

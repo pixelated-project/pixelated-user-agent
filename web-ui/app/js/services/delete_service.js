@@ -40,8 +40,8 @@ define(['flight/lib/component', 'page/events', 'views/i18n'], function (defineCo
     };
 
     this.deleteManyEmails = function (event, data) {
-      var emails = _.values(data.checkedMails),
-         firstEmail = emails[_.first(_.keys(emails))];
+      var emails = _.values(data.checkedMails);
+      var firstEmail = emails[_.first(_.keys(emails))];
 
       this.trigger(document, events.mail.deleteMany, {
         mails: emails,
