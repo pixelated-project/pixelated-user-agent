@@ -4,6 +4,17 @@
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
 
+new_plugin_installed = false
+unless Vagrant.has_plugin?('vagrant-vbguest')
+  plugin = 'vagrant-vbguest'
+  puts "Missing plugin #{plugin}, installing..."
+
+  `vagrant plugin install #{plugin}`
+
+  new_plugin_installed = true
+end
+exec "vagrant #{ARGV.join' '}" if new_plugin_installed
+
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # All Vagrant configuration is done here. The most common configuration
   # options are documented and commented below. For a complete reference,
@@ -19,10 +30,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # for details
 
   config.vm.box = "leap-jessie-amd64"
-
-  unless Vagrant.has_plugin?("vagrant-vbguest")
-    raise 'plugin vagrant-vbguest is not installed! Please run `vagrant plugin install vagrant-vbguest`'
-  end
 
   config.vbguest.auto_update = false
 
