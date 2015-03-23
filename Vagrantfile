@@ -31,6 +31,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vbguest.auto_update = false
 
+  config.vbguest.auto_update = false
+
   config.vm.define "source", primary: true do |source|
     source.vm.provider :virtualbox do |v, override|
       override.vm.box_url = "https://downloads.leap.se/platform/vagrant/virtualbox/leap-wheezy.box"
