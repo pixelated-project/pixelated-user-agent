@@ -1,0 +1,53 @@
+From: Pixelated Team <pixelated-team@pixelated-project.org>
+Date: Sat, 21 Mar 2015 19:30:09 -0300
+Subject: Welcome to Pixelated Mail
+To: Replace <will.be@the.user>
+Content-Type: multipart/alternative; boundary=000boundary000
+
+--000boundary000
+Content-Type: text/plain; charset=UTF-8
+
+Welcome to Pixelated Mail a modern email with encryption. Pixelated Mail is an open source project that aims to provide secure email on the browser with all the functionality we've come to expect of a modern email client.
+
+How to use it
+Pixelated Mail should provide functionality that is similar to what you've come to expect of your email software. To the left, you will find a navigation bar that provides access to all your mailboxes and tags. Clicking on them will load the corresponding messages on the middle pane - the mail list. Clicking on a message will load it on this pane, but you know it already!
+
+To compose a message look for the big blue button on the top left. You can add tags to received messages by clicking on the "+" sign under the message subject. You can also find the encryption status of messages just above the sender/recipient information.
+
+A bit more about Pixelated
+Pixelated is an open source project licensed under AGPL 3.0. It is composed of 3 main parts, the User Agent (what you are using right now), the Dispatcher (what allows you to log in with different accounts to the same instance) and the Platform (which provides the email service you will use to send and receive messages - the server behind the @ sign on your new mail address). You can learn more by visiting https://pixelated-project.org/.
+
+Enjoy your secure messaging!
+
+--000boundary000
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+Welcome to Pixelated Mail a modern email with encryption. Pixelated Mail is=
+ an open source project that aims to provide secure email on the browser wi=
+th all the functionality we've come to expect of a modern email client.
+
+<b>How to use it</b>
+Pixelated Mail should provide functionality that is similar to what you've =
+come to expect of your email software. To the left, you will find a navigat=
+ion bar that provides access to all your mailboxes and tags. Clicking on th=
+em will load the corresponding messages on the middle pane - the mail list.=
+ Clicking on a message will load it on this pane, but you know it already!
+
+To compose a message look for the big blue button on the top left. You can =
+add tags to received messages by clicking on the "+" sign under the message=
+ subject. You can also find the encryption status of messages just above th=
+e sender/recipient information.
+
+<b>A bit more about Pixelated</b>
+Pixelated is an open source project licensed under AGPL 3.0. It is composed=
+ of 3 main parts, the User Agent (what you are using right now), the Dispat=
+cher (what allows you to log in with different accounts to the same instanc=
+e) and the Platform (which provides the email service you will use to send =
+and receive messages - the server behind the @ sign on your new mail addres=
+s). You can learn more by visiting <a src=3D"https://pixelated-project.org/=
+">https://pixelated-project.org/</a>.
+
+Enjoy your secure messaging!
+
+--000boundary000--
