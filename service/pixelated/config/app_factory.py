@@ -39,6 +39,7 @@ from leap.common.events import (
     events_pb2 as proto
 )
 from twisted.web.server import Site
+from .welcome_mail import check_welcome_mail_wrapper
 
 CREATE_KEYS_IF_KEYS_DONT_EXISTS_CALLBACK = 12345
 
@@ -116,6 +117,9 @@ def init_app(app, leap_home, leap_session):
              callback=init_index_and_remove_dupes(querier=soledad_querier,
                                                   search_engine=search_engine,
                                                   mail_service=mail_service))
+
+    register(signal=proto.SOLEDAD_DONE_DATA_SYNC,
+             callback=check_welcome_mail_wrapper(pixelated_mailboxes.inbox()))
 
     register(signal=proto.SOLEDAD_DONE_DATA_SYNC, uid=CREATE_KEYS_IF_KEYS_DONT_EXISTS_CALLBACK,
              callback=look_for_user_key_and_create_if_cant_find(leap_session))
