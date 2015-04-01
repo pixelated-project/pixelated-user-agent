@@ -17,6 +17,11 @@ To compose a message look for the big blue button on the top left. You can add t
 A bit more about Pixelated
 Pixelated is an open source project licensed under AGPL 3.0. It is composed of 3 main parts, the User Agent (what you are using right now), the Dispatcher (what allows you to log in with different accounts to the same instance) and the Platform (which provides the email service you will use to send and receive messages - the server behind the @ sign on your new mail address). You can learn more by visiting https://pixelated-project.org/.
 
+About this message and understanding examples of message status
+This message was not encrypted, in other words, it could have been read by others at some point during transmission.
+However you can check the authenticity of this message, because the message has a certified sender.
+Whether it is green, it means that the text you are reading has not changed on the way until delivered to you.
+
 Enjoy your secure messaging!
 
 --000boundary000
@@ -47,6 +52,12 @@ e) and the Platform (which provides the email service you will use to send =
 and receive messages - the server behind the @ sign on your new mail addres=
 s). You can learn more by visiting <a src=3D"https://pixelated-project.org/=
 ">https://pixelated-project.org/</a>.
+
+<b>About this message and understanding examples of message status</b>
+This message was not encrypted, in other words, it could have been read by others at some point during transmission.
+However you can check the authenticity of this message, because the message has a certified sender.
+Whether it is green, it means that the text you are reading has not changed on the way until delivered to you.
+
 
 Enjoy your secure messaging!
 
