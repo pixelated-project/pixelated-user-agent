@@ -48,7 +48,7 @@ From here on you can run the tests for the UI by going to the **web-ui** folder 
 Running the user agent:
 
 ```
-$ pixelated-user-agent --host 0.0.0.0 -lc ./service/pixelated/certificates/dev.pixelated-project.org.ca.crt
+$ pixelated-user-agent --host 0.0.0.0 -lc /vagrant/service/pixelated/certificates/dev.pixelated-project.org.ca.crt
 > 2015-01-23 11:18:07+0100 [-] Log opened.
 > 2015-01-23 11:18:07+0100 [-] Which provider do you want to connect to:
 dev.pixelated-project.org
