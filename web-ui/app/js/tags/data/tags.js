@@ -57,6 +57,7 @@ define(['flight/lib/component', 'page/events', 'helpers/monitored_ajax', 'mixins
 
     this.after('initialize', function () {
       this.on(document, events.tags.want, this.fetchTags);
+      this.on(document, events.mail.sent, this.fetchTags);
     });
   }
 
