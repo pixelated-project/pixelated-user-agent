@@ -14,12 +14,6 @@
       &:before {
         content: "\f023  \f00c";
       }
-      &.encryption-failure {
-        background: $error;
-        &:before {
-          content: "\f023  \f05e";
-        }
-      }
       &.encryption-error {
         background: $attention;
         &:before {

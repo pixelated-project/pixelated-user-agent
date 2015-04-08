@@ -43,7 +43,7 @@
     "no_recipient": "<Inga mottagare>",
     "you": "du",
     "encrypted": "krypterad",
-    "encrypted encryption-failure": "Du har inte tillstånd att see det här meddelandet.",
+    "encrypted encryption-error": "Du har inte tillstånd att see det här meddelandet.",
     "encrypted encryption-valid": "Meddelandet skickades säkert.",
     "not-encrypted": "Meddelandet var läsbart medans det var på väg.",
     "signed": "Certifierad avsändare.",
