@@ -98,6 +98,7 @@ define(
       this.after('initialize', function() {
         this.on(document, events.tags.received, this.displayTags);
         this.on(document, events.ui.tag.select, this.updateCurrentTag);
+        this.on(document, events.ui.tag.select, events.ui.mails.uncheckAll);
         this.renderTagListTemplate();
       });
     }

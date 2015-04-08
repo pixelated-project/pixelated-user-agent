@@ -62,6 +62,13 @@ describeComponent('tags/ui/tag_list', function () {
       expect(this.component.attr.currentTag).toEqual('amazing');
     });
 
+    it('should uncheck all emails when a new tag is selected', function () {
+      var uncheckAllEvent = spyOnEvent(document, Pixelated.events.ui.mails.uncheckAll);
+      $(document).trigger(Pixelated.events.ui.tag.select, { tag: 'amazing'});
+
+      expect(uncheckAllEvent).toHaveBeenTriggeredOn(document);
+    });
+
     it('resets the tag lists when loading tags', function () {
       var tagList = [tag('tag1', 1, false), tag('tag2', 2, true), tag('tag3', 3, true)];
       $(document).trigger(Pixelated.events.tags.received, {tags: tagList});
