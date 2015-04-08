@@ -47,4 +47,12 @@ describeComponent('tags/data/tags', function () {
     tags.push(this.component.all);
     expect(eventSpy.mostRecentCall.data).toEqual(jasmine.objectContaining({tags: tags}));
   });
+
+  it('should reload taglist on mail sent', function(){
+    spyOn($, 'ajax').and.returnValue($.Deferred());
+
+    $(document).trigger(Pixelated.events.mail.sent);
+
+    expect($.ajax.calls.mostRecent().args[0]).toEqual('/tags');
+  });
 });
