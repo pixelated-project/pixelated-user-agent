@@ -1,25 +1,26 @@
 <span>
-    <input type="checkbox" {{#if isChecked }}checked="true"{{/if}} />
+  <input type="checkbox" {{#if isChecked }}checked="true"{{/if}} />
 </span>
 <span>
-    <a href="/#/{{ tag }}/mail/{{ ident }}">
-        <span class="received-date">{{ header.formattedDate }}
-          {{#if attachments}}
-            <div class="attachment-indicator">
-              <i class="fa fa-paperclip"></i>
-            </div>
-          {{/if}}
-        </span>
-        <div class="from">{{#if header.from }}{{ header.from }}{{else}}{{t "you"}}{{/if}}</div>
-        <div class="subject-and-tags">
-          {{ header.subject }}
+  <a href="/#/{{ tag }}/mail/{{ ident }}">
+    <span class="received-date">{{ header.formattedDate }}
+      {{#if attachments}}
+        <div class="attachment-indicator">
+          <i class="fa fa-paperclip"></i>
         </div>
-        <div class="subject-and-tags">
-          <ul class="tags">
-            {{#each tagsForListView }}
-                <li class="tag" data-tag="{{this}}">{{ this }}</li>
-            {{/each }}
-          </ul>
-        </div>
-    </a>
+      {{/if}}
+    </span>
+    <div class="from">{{#if header.from }}{{ header.from }}{{else}}{{t "you"}}{{/if}}</div>
+    <div class="subject-and-tags">
+      <i class="fa fa-trash-o"></i>
+      {{ header.subject }}
+    </div>
+    <div class="subject-and-tags">
+      <ul class="tags">
+        {{#each tagsForListView }}
+            <li class="tag" data-tag="{{this}}">{{ this }}</li>
+        {{/each }}
+      </ul>
+    </div>
+  </a>
 </span>
