@@ -81,7 +81,7 @@ class LeapSmtp(object):
 
         self._smtp_service, self._smtp_port = setup_smtp_gateway(
             port=self.TWISTED_PORT,
-            userid=email,
+            userid=str(email),
             keymanager=self._keymanager,
             smtp_host=self._hostname.encode('UTF-8'),
             smtp_port=self._port,
