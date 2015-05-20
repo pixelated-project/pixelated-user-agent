@@ -23,7 +23,7 @@ from whoosh.filedb.filestore import FileStorage
 from whoosh.filedb.structfile import StructFile, BufferFile
 from leap.soledad.client.crypto import encrypt_sym
 from leap.soledad.client.crypto import decrypt_sym
-from leap.soledad.client.crypto import EncryptionMethods
+from leap.soledad.common.crypto import EncryptionMethods
 from whoosh.util import random_name
 
 

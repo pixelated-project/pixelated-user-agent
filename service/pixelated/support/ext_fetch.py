@@ -1,5 +1,4 @@
-import leap.mail.imap.fetch as fetch
-
+from leap.mail.incoming.service import IncomingMail
 
 def mark_as_encrypted_inline(f):
 
@@ -31,5 +30,5 @@ def mark_as_encrypted_multipart(f):
     return w
 
 
-fetch.LeapIncomingMail._maybe_decrypt_inline_encrypted_msg = mark_as_encrypted_inline(fetch.LeapIncomingMail._maybe_decrypt_inline_encrypted_msg)
-fetch.LeapIncomingMail._decrypt_multipart_encrypted_msg = mark_as_encrypted_multipart(fetch.LeapIncomingMail._decrypt_multipart_encrypted_msg)
+IncomingMail._maybe_decrypt_inline_encrypted_msg = mark_as_encrypted_inline(IncomingMail._maybe_decrypt_inline_encrypted_msg)
+IncomingMail._decrypt_multipart_encrypted_msg = mark_as_encrypted_multipart(IncomingMail._decrypt_multipart_encrypted_msg)

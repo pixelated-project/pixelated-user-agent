@@ -97,7 +97,7 @@ def init_app(app, leap_home, leap_session):
     leap_session.start_background_jobs()
     keymanager = leap_session.nicknym.keymanager
 
-    soledad_querier = SoledadQuerier(soledad=leap_session.account._soledad)
+    soledad_querier = SoledadQuerier(soledad=leap_session.soledad_session.soledad)
 
     search_engine = SearchEngine(soledad_querier, agent_home=leap_home)
     pixelated_mail_sender = MailSender(leap_session.account_email(),

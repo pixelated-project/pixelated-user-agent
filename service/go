@@ -20,7 +20,6 @@ function setuppy {
         pip install -r test_requirements.txt
         python setup.py develop $*
         pip uninstall -y scrypt; pip install scrypt
-        pip uninstall -y gnupg; pip install gnupg==1.2.5
         echo "Done."
 }
 
