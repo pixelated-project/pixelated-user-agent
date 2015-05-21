@@ -18,7 +18,7 @@ from uuid import uuid4
 from email.mime.text import MIMEText
 from email.header import decode_header
 
-from leap.mail.imap.fields import fields
+from leap.mail.adaptors import soledad_indexes as fields
 import leap.mail.walk as walk
 import dateutil.parser as dateparser
 from datetime import datetime
