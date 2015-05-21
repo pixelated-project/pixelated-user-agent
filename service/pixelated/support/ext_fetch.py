@@ -1,5 +1,6 @@
 from leap.mail.incoming.service import IncomingMail
 
+
 def mark_as_encrypted_inline(f):
 
     def w(*args, **kwargs):
