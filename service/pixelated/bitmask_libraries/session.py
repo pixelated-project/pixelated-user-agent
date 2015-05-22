@@ -19,7 +19,6 @@ import sys
 
 import os
 from leap.mail.incoming.service import IncomingMail
-from leap.mail.imap.memorystore import MemoryStore
 from pixelated.bitmask_libraries.config import LeapConfig
 from pixelated.bitmask_libraries.provider import LeapProvider
 from pixelated.bitmask_libraries.certs import refresh_ca_bundle
