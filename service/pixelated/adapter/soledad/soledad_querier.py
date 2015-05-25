@@ -17,13 +17,18 @@ from pixelated.adapter.soledad.soledad_duplicate_removal_mixin import SoledadDup
 from pixelated.adapter.soledad.soledad_reader_mixin import SoledadReaderMixin
 from pixelated.adapter.soledad.soledad_search_key_masterkey_retrieval_mixin import SoledadSearchIndexMasterkeyRetrievalMixin
 from pixelated.adapter.soledad.soledad_writer_mixin import SoledadWriterMixin
+from leap.mail.adaptors.soledad import SoledadIndexMixin
+
+from leap.mail.adaptors import soledad_indexes as indexes
 
 
 class SoledadQuerier(SoledadWriterMixin,
                      SoledadReaderMixin,
                      SoledadDuplicateRemovalMixin,
                      SoledadSearchIndexMasterkeyRetrievalMixin,
+                     SoledadIndexMixin,
                      object):
 
     def __init__(self, soledad):
+        self.indexes = indexes.MAIL_INDEXES
         self.soledad = soledad

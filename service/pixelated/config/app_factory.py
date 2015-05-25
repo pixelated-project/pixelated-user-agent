@@ -59,19 +59,6 @@ def update_index_partial(search_engine, mail_service):
     return wrapper
 
 
-def init_leap_session(app, leap_home):
-    try:
-        leap_session = LeapSession.open(app.config['LEAP_USERNAME'],
-                                        app.config['LEAP_PASSWORD'],
-                                        app.config['LEAP_SERVER_NAME'],
-                                        leap_home=leap_home)
-    except ConnectionError, error:
-        print("Can't connect to the requested provider", error)
-        reactor.stop()
-        sys.exit(1)
-    return leap_session
-
-
 def look_for_user_key_and_create_if_cant_find(leap_session):
     def wrapper(*args, **kwargs):
         leap_session.nicknym.generate_openpgp_key()
