@@ -13,8 +13,10 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
-from leap.keymanager import KeyManager, openpgp, KeyNotFound
+from leap.keymanager import KeyManager, openpgp
+from leap.keymanager.errors import KeyNotFound
 from .certs import which_api_CA_bundle
+from twisted.internet import defer
 
 
 class NickNym(object):
@@ -27,25 +29,29 @@ class NickNym(object):
                                      provider.api_version,
                                      uuid, config.gpg_binary)
 
+    @defer.inlineCallbacks
     def generate_openpgp_key(self):
-        if not self._key_exists(self._email):
-            print "Generating keys - this could take a while..."
-            self._gen_key()
-            self._send_key_to_leap()
+        deferred = self._key_exists()
+        deferred.addErrback(self._key_not_found)
+        _ = yield deferred
 
-    def _key_exists(self, email):
-        try:
-            self.keymanager.get_key(email, openpgp.OpenPGPKey, private=True, fetch_remote=False)
-            return True
-        except KeyNotFound:
-            return False
+    def _key_exists(self):
+        return self.keymanager.get_key(self._email, openpgp.OpenPGPKey, private=True, fetch_remote=False)
+
+    @defer.inlineCallbacks
+    def _key_not_found(self, failure):
+        failure.trap(KeyNotFound)
+        deferred = self._gen_key()
+        deferred.addCallback(self._send_key_to_leap)
+        _ = yield deferred
 
     def _gen_key(self):
-        self.keymanager.gen_key(openpgp.OpenPGPKey)
+        print "Generating keys - this could take a while..."
+        return self.keymanager.gen_key(openpgp.OpenPGPKey)
 
-    def _send_key_to_leap(self):
-        self.keymanager.send_key(openpgp.OpenPGPKey)
-
+    def _send_key_to_leap(self, result):
+        print "Sending key to leap"
+        return self.keymanager.send_key(openpgp.OpenPGPKey)
 
 def _discover_nicknym_server(provider):
     return 'https://nicknym.%s:6425/' % provider.domain

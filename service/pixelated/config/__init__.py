@@ -74,7 +74,7 @@ def initialize():
         def start_user_agent_app(leap_session, _):
             app_factory.create_app(app, args, leap_session)
 
-        d = deferToThread(init_soledad)
+        d = init_soledad()
         d.addCallback(stop_loading_app)
         d.addErrback(error_handler)
 
