@@ -74,9 +74,10 @@ def initialize():
         def start_user_agent_app(leap_session, _):
             app_factory.create_app(app, args, leap_session)
 
-        d = init_soledad()
+        d = deferToThread(init_soledad)
         d.addCallback(stop_loading_app)
         d.addErrback(error_handler)
+        return d
 
     reactor.callWhenRunning(load_app)
     reactor.run()

@@ -25,6 +25,7 @@ from pixelated.bitmask_libraries.certs import refresh_ca_bundle
 from twisted.internet import reactor
 from .nicknym import NickNym
 from leap.auth import SRPAuth
+from leap.mail.mail import Account
 from .soledad import SoledadSessionFactory, SoledadSession
 from .smtp import LeapSmtp
 from .config import DEFAULT_LEAP_HOME
@@ -62,7 +63,7 @@ class LeapSession(object):
     - ``incoming_mail_fetcher`` Background job for fetching incoming mails from LEAP server (LeapIncomingMail)
     """
 
-    def __init__(self, provider, user_auth, soledad_session, nicknym, incoming_mail_fetcher, smtp):
+    def __init__(self, provider, user_auth, soledad_session, nicknym, incoming_mail_fetcher, smtp, account):
         """
         Constructor.
 
@@ -71,6 +72,7 @@ class LeapSession(object):
 
         """
         self.smtp = smtp
+        self.account = account
         self.config = provider.config
         self.provider = provider
         self.user_auth = user_auth
@@ -126,6 +128,8 @@ class LeapSessionFactory(object):
 
         soledad = SoledadSessionFactory.create(self._provider, auth.token, auth.uuid, password)
 
+        account = Account(soledad.soledad)
+
         nicknym = self._create_nicknym(auth.username, auth.token, auth.uuid, soledad)
         incoming_mail_fetcher = self._create_incoming_mail_fetcher(nicknym, soledad, auth, auth.username)
 
@@ -133,7 +137,7 @@ class LeapSessionFactory(object):
 
         smtp.ensure_running()
 
-        return LeapSession(self._provider, auth, soledad, nicknym, incoming_mail_fetcher, smtp)
+        return LeapSession(self._provider, auth, soledad, nicknym, incoming_mail_fetcher, smtp, account)
 
     def _lookup_session(self, key):
         global SESSIONS

@@ -15,7 +15,6 @@
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 
 from pixelated.bitmask_libraries.session import open as open_leap_session
-from pixelated.adapter.soledad.soledad_querier import SoledadQuerier
 
 
 def init_soledad_and_user_key(app, leap_home):
@@ -28,10 +27,4 @@ def init_soledad_and_user_key(app, leap_home):
 
     soledad.sync(defer_decryption=False)
 
-    def get_leap_session(_):
-        return leap_session
-
-    querier = SoledadQuerier(soledad)
-    deferred = querier.initialize_store(soledad)
-    deferred.addCallback(get_leap_session)
-    return deferred
+    return leap_session
