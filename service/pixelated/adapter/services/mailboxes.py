@@ -23,8 +23,16 @@ class Mailboxes(object):
         self.account = account
         self.querier = soledad_querier
         self.search_engine = search_engine
-        for mailbox_name in account.mailboxes:
-            MailboxIndexerListener.listen(self.account, mailbox_name, soledad_querier)
+        self.index_mailboxes()
+
+    def index_mailboxes(self):
+        deferred = self.account.list_all_mailbox_names()
+        deferred.addCallback(self._index_mailboxes)
+        return deferred
+
+    def _index_mailboxes(self, mailboxes):
+        for mailbox_name in mailboxes:
+            MailboxIndexerListener.listen(self.account, mailbox_name, self.querier)
 
     def _create_or_get(self, mailbox_name):
         mailbox_name = mailbox_name.upper()
@@ -44,9 +52,6 @@ class Mailboxes(object):
 
     def sent(self):
         return self._create_or_get('SENT')
-
-    def mailboxes(self):
-        return [self._create_or_get(leap_mailbox_name) for leap_mailbox_name in self.account.mailboxes]
 
     def move_to_trash(self, mail_id):
         return self._move_to(mail_id, self.trash())
