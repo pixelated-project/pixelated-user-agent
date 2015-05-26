@@ -53,5 +53,6 @@ class NickNym(object):
         print "Sending key to leap"
         return self.keymanager.send_key(openpgp.OpenPGPKey)
 
+
 def _discover_nicknym_server(provider):
     return 'https://nicknym.%s:6425/' % provider.domain

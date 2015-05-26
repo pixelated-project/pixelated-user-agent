@@ -18,6 +18,7 @@ from pixelated.support.encrypted_file_storage import EncryptedFileStorage
 
 import os
 import re
+from twisted.internet import defer
 from pixelated.adapter.model.status import Status
 from pixelated.adapter.search.contacts import contacts_suggestions
 from whoosh.index import FileIndex
@@ -111,8 +112,14 @@ class SearchEngine(object):
             flags=KEYWORD(stored=True, commas=True),
             raw=TEXT(stored=False))
 
+    @defer.inlineCallbacks
     def _create_index(self):
-        masterkey = self.soledad_querier.get_index_masterkey()
+        deferred = self.soledad_querier.get_index_masterkey()
+        deferred.addCallback(self.create_storage)
+        file_index = yield deferred
+        defer.returnValue(file_index)
+
+    def create_storage(self, masterkey):
         storage = EncryptedFileStorage(self.index_folder, masterkey)
         return FileIndex.create(storage, self._mail_schema(), indexname='mails')
 

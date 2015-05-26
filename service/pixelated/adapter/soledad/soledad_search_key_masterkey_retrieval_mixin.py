@@ -16,12 +16,17 @@
 from pixelated.adapter.soledad.soledad_facade_mixin import SoledadDbFacadeMixin
 import os
 import base64
+from twisted.internet import defer
 
 
 class SoledadSearchIndexMasterkeyRetrievalMixin(SoledadDbFacadeMixin, object):
 
     def get_index_masterkey(self):
-        result = self.get_search_index_masterkey()
+        deferred = self.get_search_index_masterkey()
+        deferred.addCallback(self._ensure_masterkey_exists)
+        return deferred
+
+    def _ensure_masterkey_exists(self, result):
         index_key_doc = result[0] if result else None
 
         if not index_key_doc:
