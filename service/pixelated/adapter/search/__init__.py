@@ -41,7 +41,7 @@ class SearchEngine(object):
         self.index_folder = os.path.join(agent_home, 'search_index')
         if not os.path.exists(self.index_folder):
             os.makedirs(self.index_folder)
-        self._index = self._create_index()
+        self._create_index()
         self._write_lock = Lock()
 
     def _add_to_tags(self, tags, group, skip_default_tags, count_type, query=None):
@@ -116,8 +116,7 @@ class SearchEngine(object):
     def _create_index(self):
         deferred = self.soledad_querier.get_index_masterkey()
         deferred.addCallback(self.create_storage)
-        file_index = yield deferred
-        defer.returnValue(file_index)
+        self._index = yield deferred
 
     def create_storage(self, masterkey):
         storage = EncryptedFileStorage(self.index_folder, masterkey)

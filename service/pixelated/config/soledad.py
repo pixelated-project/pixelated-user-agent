@@ -25,6 +25,4 @@ def init_soledad_and_user_key(app, leap_home):
     soledad = leap_session.soledad_session.soledad
     leap_session.nicknym.generate_openpgp_key()
 
-    soledad.sync(defer_decryption=False)
-
     return leap_session
