@@ -18,6 +18,7 @@ from pixelated.support.encrypted_file_storage import EncryptedFileStorage
 
 import os
 import re
+from functools import partial
 from twisted.internet import defer
 from pixelated.adapter.model.status import Status
 from pixelated.adapter.search.contacts import contacts_suggestions
@@ -158,6 +159,11 @@ class SearchEngine(object):
         return unicode(field_value.decode('utf-8'))
 
     def index_mails(self, mails, callback=None):
+        deferred = mails
+        deferred.addCallback(partial(self._index_mails, callback=callback))
+        return deferred
+
+    def _index_mails(self, mails, callback=None):
         try:
             with self._write_lock:
                 with self._index.writer() as writer:
