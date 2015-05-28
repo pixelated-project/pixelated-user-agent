@@ -23,7 +23,6 @@ class Mailboxes(object):
         self.account = account
         self.querier = soledad_querier
         self.search_engine = search_engine
-        self.index_mailboxes()
 
     def index_mailboxes(self):
         deferred = self.account.list_all_mailbox_names()

@@ -18,4 +18,4 @@ from leap.common.events import server as events_server
 
 
 def init_events_server():
-    events_server.ensure_server(port=8090)
+    events_server.ensure_server()

@@ -18,6 +18,8 @@ import logging
 import quopri
 import re
 
+from twisted.internet import defer
+
 from pixelated.adapter.model.mail import PixelatedMail
 from pixelated.adapter.soledad.soledad_facade_mixin import SoledadDbFacadeMixin
 
@@ -26,34 +28,66 @@ logger = logging.getLogger(__name__)
 
 
 class SoledadReaderMixin(SoledadDbFacadeMixin, object):
+    """
+    Explaining the documents:
 
+    - fdoc: Flags document, these documents are the basis of the mail and have
+    the first mail identifier, the c-hash (or content hash)
+    - hdoc: Headers document, these are identified by the c-hash and contain the
+    headers of a mail, they also have a list of p-hashes (body identifier)
+    - bdoc: Body documents, each mail part is a body document, they have a mime
+    type and a content basically and are identified by a p-hash
+    """
+    @defer.inlineCallbacks
     def all_mails(self):
-        fdocs_chash = [(fdoc, fdoc.content['chash']) for fdoc in self.get_all_flags()]
-        if len(fdocs_chash) == 0:
+        deferred = self.get_all_flags()
+        deferred.addCallback(self._build_fdocs_chashes)
+        deferred.addCallback(self._build_fdocs_hdocs)
+        deferred.addCallback(self._build_fdocs_hdocs_phashes)
+        deferred.addCallback(self._build_fdocs_hdocs_bdocs)
+        deferred.addCallback(self._build_mails)
+        mails = yield deferred
+        defer.returnValue(mails)
+
+    def _build_fdocs_chashes(self, fdocs):
+        return [(fdoc, fdoc.content['chash']) for fdoc in fdocs]
+
+    def _build_fdocs_hdocs(self, fdocs_chashes):
+        if not fdocs_chashes:
             return []
-        return self._build_mails_from_fdocs(fdocs_chash)
 
-    def _build_mails_from_fdocs(self, fdocs_chash):
-        if len(fdocs_chash) == 0:
+        deferred_list = defer.DeferredList([self.get_header_by_chash(chash) for _, chash in fdocs_chashes])
+
+        fdocs, _ = zip(*fdocs_chashes)
+
+        deferred_list.addCallback(partial(self._fdocs_hdocs, fdocs))
+        return deferred_list
+
+    def _build_fdocs_hdocs_phashes(self, fdocs_hdocs):
+        return [(fdoc, hdoc, hdoc.content.get('body')) for fdoc, hdoc in fdocs_hdocs]
+
+    def _build_fdocs_hdocs_bdocs(self, fdocs_hdocs_phashes):
+        if not fdocs_hdocs_phashes:
             return []
 
-        fdocs_hdocs = []
-        for fdoc, chash in fdocs_chash:
-            hdoc = self.get_header_by_chash(chash)
-            if not hdoc:
-                continue
-            fdocs_hdocs.append((fdoc, hdoc))
+        deferred_list = defer.DeferredList([self.get_content_by_phash(phash) for _, _, phash in fdocs_hdocs_phashes])
 
-        fdocs_hdocs_bodyphash = [(f[0], f[1], f[1].content.get('body')) for f in fdocs_hdocs]
-        fdocs_hdocs_bdocs_parts = []
-        for fdoc, hdoc, body_phash in fdocs_hdocs_bodyphash:
-            bdoc = self.get_content_by_phash(body_phash)
-            if not bdoc:
-                continue
-            parts = self._extract_parts(hdoc.content)
-            fdocs_hdocs_bdocs_parts.append((fdoc, hdoc, bdoc, parts))
+        fdocs, hdocs, _ = zip(*fdocs_chashes)
 
-        return [PixelatedMail.from_soledad(*raw_mail, soledad_querier=self) for raw_mail in fdocs_hdocs_bdocs_parts]
+        deferred_list.addCallback(partial(self._fdocs_hdocs_bdocs, fdocs, hdocs))
+        return deferred_list
+
+    def _build_mails(self, fdocs_hdocs_bdocs):
+        if not fdocs_hdocs_bdocs:
+            return []
+
+        return [PixelatedMail.from_soledad(fdoc, hdoc, bdoc, soledad_querier=self) for fdoc, hdoc, bdoc in fdocs_hdocs_bdocs]
+
+    def _fdocs_hdocs(self, fdocs, hdocs):
+        return zip(fdocs, hdocs)
+
+    def _fdocs_hdocs_bdocs(self, fdocs, hdocs, bdocs):
+        return zip(fdocs, hdocs, bdocs)
 
     def mail_exists(self, ident):
         return self.get_flags_by_chash(ident)

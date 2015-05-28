@@ -1,10 +1,6 @@
 import leap.soledad.client as client
 import logging
 import urlparse
-from leap.soledad.client.events import (
-    SOLEDAD_DONE_DATA_SYNC,
-    signal
-)
 
 
 def patched_sync(self, autocreate=False, defer_decryption=True):

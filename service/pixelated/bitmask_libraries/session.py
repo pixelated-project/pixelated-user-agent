@@ -22,6 +22,7 @@ from leap.mail.incoming.service import IncomingMail
 from pixelated.bitmask_libraries.config import LeapConfig
 from pixelated.bitmask_libraries.provider import LeapProvider
 from pixelated.bitmask_libraries.certs import refresh_ca_bundle
+from pixelated.adapter.listeners.mailbox_indexer_listener import MailboxIndexerListener
 from twisted.internet import reactor
 from .nicknym import NickNym
 from leap.auth import SRPAuth
@@ -132,6 +133,8 @@ class LeapSessionFactory(object):
 
         nicknym = self._create_nicknym(auth.username, auth.token, auth.uuid, soledad)
         incoming_mail_fetcher = self._create_incoming_mail_fetcher(nicknym, soledad, auth, auth.username)
+
+        MailboxIndexerListener.MAIL_FETCHER = incoming_mail_fetcher
 
         smtp = LeapSmtp(self._provider, auth.username, auth.session_id, nicknym.keymanager)
 

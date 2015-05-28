@@ -15,6 +15,9 @@
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 
 
+from functools import partial
+
+
 class SoledadDbFacadeMixin(object):
 
     def get_all_flags(self):

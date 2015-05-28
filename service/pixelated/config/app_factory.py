@@ -32,26 +32,22 @@ from pixelated.adapter.services.draft_service import DraftService
 from pixelated.adapter.listeners.mailbox_indexer_listener import MailboxIndexerListener
 import pixelated.bitmask_libraries.session as LeapSession
 from requests.exceptions import ConnectionError
-from leap.common.events import (
-    register,
-    unregister,
-    events_pb2 as proto
-)
+from leap.common.events import register, unregister
+from leap.common.events import catalog as events
 from twisted.web.server import Site
 from .welcome_mail import check_welcome_mail
 
 CREATE_KEYS_IF_KEYS_DONT_EXISTS_CALLBACK = 12345
-INIT_INDEX_AND_REMOVE_DUPES_CALLBACK = 12346
+INIT_INDEX_CALLBACK = 12346
 CHECK_WELCOME_MAIL_CALLBACK = 12347
 
 
-def init_index_and_remove_dupes(querier, search_engine, mail_service):
+def init_index(querier, search_engine, mail_service):
     def wrapper(*args, **kwargs):
-        querier.remove_duplicates()
         search_engine.index_mails(mails=mail_service.all_mails(),
                                   callback=querier.mark_all_as_not_recent)
-        unregister(proto.SOLEDAD_DONE_DATA_SYNC,
-                   uid=INIT_INDEX_AND_REMOVE_DUPES_CALLBACK)
+        unregister(events.SOLEDAD_DONE_DATA_SYNC,
+                   uid=INIT_INDEX_CALLBACK)
 
     return wrapper
 
@@ -59,7 +55,7 @@ def init_index_and_remove_dupes(querier, search_engine, mail_service):
 def check_welcome_mail_wrapper(mailbox):
     def wrapper(*args, **kwargs):
         check_welcome_mail(mailbox)
-        unregister(proto.SOLEDAD_DONE_DATA_SYNC,
+        unregister(events.SOLEDAD_DONE_DATA_SYNC,
                    uid=CHECK_WELCOME_MAIL_CALLBACK)
     return wrapper
 
@@ -67,7 +63,7 @@ def check_welcome_mail_wrapper(mailbox):
 def look_for_user_key_and_create_if_cant_find(leap_session):
     def wrapper(*args, **kwargs):
         leap_session.nicknym.generate_openpgp_key()
-        unregister(proto.SOLEDAD_DONE_DATA_SYNC, uid=CREATE_KEYS_IF_KEYS_DONT_EXISTS_CALLBACK)
+        unregister(events.SOLEDAD_DONE_DATA_SYNC, uid=CREATE_KEYS_IF_KEYS_DONT_EXISTS_CALLBACK)
 
     return wrapper
 
@@ -99,17 +95,17 @@ def init_app(app, leap_home, leap_session):
 
     app.resource.initialize(soledad_querier, keymanager, search_engine, mail_service, draft_service)
 
-    register(signal=proto.SOLEDAD_DONE_DATA_SYNC,
-             uid=INIT_INDEX_AND_REMOVE_DUPES_CALLBACK,
-             callback=init_index_and_remove_dupes(querier=soledad_querier,
-                                                  search_engine=search_engine,
-                                                  mail_service=mail_service))
+    register(events.SOLEDAD_DONE_DATA_SYNC,
+             uid=INIT_INDEX_CALLBACK,
+             callback=init_index(querier=soledad_querier,
+                                 search_engine=search_engine,
+                                 mail_service=mail_service))
 
-    register(signal=proto.SOLEDAD_DONE_DATA_SYNC,
+    register(events.SOLEDAD_DONE_DATA_SYNC,
              uid=CHECK_WELCOME_MAIL_CALLBACK,
              callback=check_welcome_mail_wrapper(pixelated_mailboxes.inbox()))
 
-    register(signal=proto.SOLEDAD_DONE_DATA_SYNC,
+    register(events.SOLEDAD_DONE_DATA_SYNC,
              uid=CREATE_KEYS_IF_KEYS_DONT_EXISTS_CALLBACK,
              callback=look_for_user_key_and_create_if_cant_find(leap_session))
 
