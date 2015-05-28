@@ -55,7 +55,7 @@ setup(name='pixelated-user-agent',
       ],
       test_suite='nose.collector',
       install_requires=[
-           'leap.common==0.3.11',
+           'leap.common==0.4.0',
            'gnupg==2.0.3',
            'Twisted==15.2.0',
            'requests==2.0.0',
