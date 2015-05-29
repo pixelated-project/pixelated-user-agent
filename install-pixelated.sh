@@ -24,7 +24,7 @@ then
   export USERNAME=`whoami`
 fi
 
-usage() { echo "Usage: $0 [-v <virtualenv path>]" 1>&2; exit 1; }
+usage() { echo "Usage: $0 [-v <virtualenv path>] [-n <custom node modules directory>]" 1>&2; exit 1; }
 
 VIRTUALENV_PATH=".virtualenv"
 CUSTOM_NODE_MODULES_LOCATION=""
@@ -48,6 +48,8 @@ function check_installed() {
         which $1
         if [ $? -ne 0 ]; then
                 echo "## You must have ${1} installed and in the PATH to run Pixelated-User-Agent"
+                echo "## Check our wiki for more information on dependencies:"
+                echo "## https://github.com/pixelated-project/pixelated-user-agent/wiki/Installing-dependencies"
                 echo "## exiting..."
                 exit 1
         fi

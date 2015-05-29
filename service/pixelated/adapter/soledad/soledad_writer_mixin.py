@@ -21,7 +21,7 @@ class SoledadWriterMixin(SoledadDbFacadeMixin, object):
     def mark_all_as_not_recent(self):
         for mailbox in ['INBOX', 'DRAFTS', 'SENT', 'TRASH']:
             rct = self.get_recent_by_mbox(mailbox)
-            if len(rct) == 0:
+            if not rct or not rct[0].content['rct']:
                 return
             rct = rct[0]
             rct.content['rct'] = []

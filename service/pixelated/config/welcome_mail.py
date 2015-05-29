@@ -40,9 +40,3 @@ def build_welcome_mail():
         if payload.get_content_type() == 'text/plain':
             welcome_mail.body = payload.as_string()
     return welcome_mail
-
-
-def check_welcome_mail_wrapper(mailbox):
-    def wrapper(*args, **kwargs):
-        check_welcome_mail(mailbox)
-    return wrapper
