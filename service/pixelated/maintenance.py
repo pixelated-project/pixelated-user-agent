@@ -29,6 +29,8 @@ from twisted.internet import reactor, defer
 from twisted.internet.threads import deferToThread
 
 from leap.mail.imap.fields import WithMsgFields
+from leap.common.events import register, unregister
+from leap.common.events import catalog as events
 
 # monkey patching some specifics
 import pixelated.support.ext_protobuf
@@ -90,37 +92,42 @@ def create_execute_command(args, app):
 
             return args
 
-        tearDown = defer.Deferred()
-
         prepare = deferToThread(init_soledad)
         prepare.addCallback(get_soledad_handle)
         prepare.addCallback(soledad_sync)
-        add_command_callback(args, prepare, tearDown)
-        tearDown.addCallback(soledad_sync)
-        tearDown.addCallback(shutdown)
-        tearDown.addErrback(shutdown_on_error)
+
+        def execute_command_callback():
+            def wrapper(*_):
+                d = command_callback(args)
+                tearDown = defer.Deferred()
+                # tearDown.addCallback(soledad_sync) Need soledad args from init_soledad
+                tearDown.addCallback(shutdown)
+                d.chainDeferred(tearDown)
+                d.addErrback(shutdown_on_error)
+                reactor.callWhenRunning(d.callback, None)
+            return wrapper
+
+        register(events.SOLEDAD_DONE_DATA_SYNC,
+                 uid=1337,
+                 callback=execute_command_callback())
 
     return execute_command
 
 
-def add_command_callback(args, prepareDeferred, finalizeDeferred):
+def command_callback(args):
+    d = defer.Deferred()
     if args.command == 'reset':
-        prepareDeferred.addCallback(delete_all_mails)
-        prepareDeferred.addCallback(flush_to_soledad, finalizeDeferred)
+        d.addCallback(delete_all_mails)
     elif args.command == 'load-mails':
-        prepareDeferred.addCallback(load_mails, args.file)
-        prepareDeferred.addCallback(flush_to_soledad, finalizeDeferred)
+        d.addCallback(load_mails, args.file)
     elif args.command == 'dump-soledad':
-        prepareDeferred.addCallback(dump_soledad)
-        prepareDeferred.chainDeferred(finalizeDeferred)
+        d.addCallback(dump_soledad)
     elif args.command == 'sync':
         # nothing to do here, sync is already part of the chain
-        prepareDeferred.chainDeferred(finalizeDeferred)
+        pass
     else:
         print 'Unsupported command: %s' % args.command
-        prepareDeferred.chainDeferred(finalizeDeferred)
-
-    return finalizeDeferred
+    return d
 
 
 def delete_all_mails(args):
@@ -139,7 +146,9 @@ def is_keep_file(mail):
 
 
 def add_mail_folder(account, maildir, folder_name, deferreds):
-    if folder_name not in account.mailboxes:
+    import ipdb; ipdb.set_trace()
+    mailboxes_names = yield account.list_all_mailboxes()
+    if folder_name not in mailboxes_names:
         account.addMailbox(folder_name)
 
     mbx = account.getMailbox(folder_name)
