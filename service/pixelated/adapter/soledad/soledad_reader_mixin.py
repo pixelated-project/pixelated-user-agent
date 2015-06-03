@@ -18,6 +18,7 @@ import logging
 import quopri
 import re
 
+from functools import partial
 from twisted.internet import defer
 
 from pixelated.adapter.model.mail import PixelatedMail

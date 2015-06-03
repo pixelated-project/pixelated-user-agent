@@ -15,7 +15,7 @@
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 
 
-from functools import partial
+from twisted.internet import defer
 
 
 class SoledadDbFacadeMixin(object):
@@ -36,10 +36,11 @@ class SoledadDbFacadeMixin(object):
         if len(flags):
             return flags[0]
 
+    @defer.inlineCallbacks
     def get_header_by_chash(self, chash):
-        header = self.soledad.get_from_index('by-type-and-contenthash', 'head', chash) if chash else []
+        header = yield self.soledad.get_from_index('by-type-and-contenthash', 'head', chash) if chash else []
         if len(header):
-            return header[0]
+            defer.returnValue(header[0])
 
     def get_recent_by_mbox(self, mbox):
         return self.soledad.get_from_index('by-type-and-mbox', 'rct', mbox) if mbox else []
@@ -64,8 +65,8 @@ class SoledadDbFacadeMixin(object):
 
     def get_lastuid(self, mbox):
         if isinstance(mbox, str):
-            mbox = self.get_mbox(mbox)[0]
-        return mbox.content['lastuid']
+            mbox = (yield self.get_mbox(mbox))[0]
+        defer.returnValue(mbox.content['lastuid'])
 
     def get_search_index_masterkey(self):
         return self.soledad.get_from_index('by-type', 'index_key')
