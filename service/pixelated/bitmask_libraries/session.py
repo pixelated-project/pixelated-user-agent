@@ -16,6 +16,7 @@
 import errno
 import traceback
 import sys
+from twisted.internet import defer
 
 import os
 from leap.mail.incoming.service import IncomingMail
@@ -26,7 +27,7 @@ from pixelated.adapter.listeners.mailbox_indexer_listener import MailboxIndexerL
 from twisted.internet import reactor
 from .nicknym import NickNym
 from leap.auth import SRPAuth
-from leap.mail.mail import Account
+from leap.mail.imap.account import IMAPAccount
 from .soledad import SoledadSessionFactory, SoledadSession
 from .smtp import LeapSmtp
 from .config import DEFAULT_LEAP_HOME
@@ -129,7 +130,9 @@ class LeapSessionFactory(object):
 
         soledad = SoledadSessionFactory.create(self._provider, auth.token, auth.uuid, password)
 
-        account = Account(soledad.soledad)
+        user_mail = ('%s@%s') % (auth.username, self._provider.domain)
+        done = defer.Deferred()
+        account = IMAPAccount(user_mail, soledad.soledad, done)
 
         nicknym = self._create_nicknym(auth.username, auth.token, auth.uuid, soledad)
         incoming_mail_fetcher = self._create_incoming_mail_fetcher(nicknym, soledad, auth, auth.username)

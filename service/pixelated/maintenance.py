@@ -29,6 +29,7 @@ from twisted.internet import reactor, defer
 from twisted.internet.threads import deferToThread
 
 from leap.mail.imap.fields import WithMsgFields
+from twisted.mail import imap4
 from leap.common.events import register, unregister
 from leap.common.events import catalog as events
 
@@ -75,7 +76,7 @@ def parse_args():
 
 
 def create_execute_command(args, app):
-    def execute_command():
+    def prepare_and_wait():
 
         def init_soledad():
             return init_soledad_and_user_key(app, args.home)
@@ -92,42 +93,52 @@ def create_execute_command(args, app):
 
             return args
 
+        tearDown = defer.Deferred()
+
         prepare = deferToThread(init_soledad)
         prepare.addCallback(get_soledad_handle)
         prepare.addCallback(soledad_sync)
 
-        def execute_command_callback():
+        def execute_command_callback(session):
             def wrapper(*_):
-                d = command_callback(args)
                 tearDown = defer.Deferred()
-                # tearDown.addCallback(soledad_sync) Need soledad args from init_soledad
+                tearDown.addCallback(soledad_sync)
                 tearDown.addCallback(shutdown)
-                d.chainDeferred(tearDown)
-                d.addErrback(shutdown_on_error)
-                reactor.callWhenRunning(d.callback, None)
+
+                command = execute_command(args, tearDown)
+                command.addErrback(shutdown_on_error)
+                reactor.callWhenRunning(command.callback, session)
             return wrapper
 
-        register(events.SOLEDAD_DONE_DATA_SYNC,
-                 uid=1337,
-                 callback=execute_command_callback())
+        def register_command(session):
+            print "registering command event on done"
+            register(events.SOLEDAD_DONE_DATA_SYNC,
+                     uid=1337,
+                     callback=execute_command_callback(session))
 
-    return execute_command
+        prepare.addCallback(register_command)
+
+    return prepare_and_wait
 
 
-def command_callback(args):
-    d = defer.Deferred()
+def execute_command(args, tearDown):
+    prepareDeferred = defer.Deferred()
     if args.command == 'reset':
-        d.addCallback(delete_all_mails)
+        prepareDeferred.addCallback(delete_all_mails)
+        # prepareDeferred.addCallback(flush_to_soledad, tearDown)
     elif args.command == 'load-mails':
-        d.addCallback(load_mails, args.file)
+        prepareDeferred.addCallback(load_mails, args.file)
+        # prepareDeferred.addCallback(flush_to_soledad, tearDown)
     elif args.command == 'dump-soledad':
-        d.addCallback(dump_soledad)
+        prepareDeferred.addCallback(dump_soledad)
     elif args.command == 'sync':
-        # nothing to do here, sync is already part of the chain
         pass
+        # nothing to do here, sync is already part of the chain
     else:
         print 'Unsupported command: %s' % args.command
-    return d
+
+    prepareDeferred.chainDeferred(tearDown)
+    return prepareDeferred
 
 
 def delete_all_mails(args):
@@ -145,13 +156,14 @@ def is_keep_file(mail):
     return mail['subject'] is None
 
 
+@defer.inlineCallbacks
 def add_mail_folder(account, maildir, folder_name, deferreds):
-    import ipdb; ipdb.set_trace()
-    mailboxes_names = yield account.list_all_mailboxes()
-    if folder_name not in mailboxes_names:
+    try:
+        mbx = yield account.getMailbox(folder_name)
+    except imap4.MailboxException:
         account.addMailbox(folder_name)
+        mbx = yield account.getMailbox(folder_name)
 
-    mbx = account.getMailbox(folder_name)
     for mail in maildir:
         if is_keep_file(mail):
             continue
@@ -162,7 +174,7 @@ def add_mail_folder(account, maildir, folder_name, deferreds):
         if 'R' in mail.get_flags():
             flags = (WithMsgFields.ANSWERED_FLAG,) + flags
 
-        deferreds.append(mbx.addMessage(mail.as_string(), flags=flags, notify_on_disk=False))
+        deferreds.append(mbx.addMessage(mail.as_string(), flags=flags, notify_just_mdoc=False))
 
 
 @defer.inlineCallbacks
