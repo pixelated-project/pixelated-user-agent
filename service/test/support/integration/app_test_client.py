@@ -25,6 +25,7 @@ from leap.mail.imap.account import IMAPAccount
 from leap.soledad.client import Soledad
 from mock import MagicMock, Mock
 from twisted.internet import reactor
+from twisted.internet import defer
 from twisted.internet.defer import succeed
 from twisted.web.resource import getChildForRequest
 from twisted.web.server import Site
@@ -126,8 +127,10 @@ class AppTestClient(object):
     def add_document_to_soledad(self, _dict):
         self.soledad_querier.soledad.create_doc(_dict)
 
+    @defer.inlineCallbacks
     def add_mail_to_inbox(self, input_mail):
-        mail = self.mailboxes.inbox().add(input_mail)
+        inbox = yield self.mailboxes.inbox()
+        mail = inbox.add(input_mail)
         if input_mail.tags:
             mail.update_tags(input_mail.tags)
             self.search_engine.index_mail(mail)
@@ -163,13 +166,16 @@ class AppTestClient(object):
         tags = 'tag:%s' % tag
         return self.search(tags, page, window)
 
+    @defer.inlineCallbacks
     def search(self, query, page=1, window=100):
         res, req = self.get("/mails", {
             'q': [query],
             'w': [str(window)],
             'p': [str(page)]
         })
-        return [ResponseMail(m) for m in res['mails']]
+        res = yield res
+
+        defer.returnValue([ResponseMail(m) for m in res['mails']])
 
     def get_attachment(self, ident, encoding):
         res, req = self.get("/attachment/%s" % ident, {'encoding': [encoding]}, as_json=False)
