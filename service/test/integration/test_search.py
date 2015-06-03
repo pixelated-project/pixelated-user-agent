@@ -15,6 +15,7 @@
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 
 from test.support.integration import SoledadTestBase, MailBuilder
+from twisted.internet import defer
 
 
 class SearchTest(SoledadTestBase):
@@ -123,16 +124,21 @@ class SearchTest(SoledadTestBase):
             if tag['name'] == mailbox:
                 return tag['counts']
 
+    @defer.inlineCallbacks
     def test_order_by_date(self):
         input_mail = MailBuilder().with_date('2014-10-15T15:15').build_input_mail()
         input_mail2 = MailBuilder().with_date('2014-10-15T15:16').build_input_mail()
 
-        self.add_mail_to_inbox(input_mail)
-        self.add_mail_to_inbox(input_mail2)
+        yield self.add_mail_to_inbox(input_mail)
+        yield self.add_mail_to_inbox(input_mail2)
 
-        results = self.get_mails_by_tag('inbox')
-        self.assertEqual(results[0].ident, input_mail2.ident)
-        self.assertEqual(results[1].ident, input_mail.ident)
+        deferred = self.get_mails_by_tag('inbox')
+
+        def _test(results):
+            self.assertEqual(results[0].ident, input_mail2.ident)
+            self.assertEqual(results[1].ident, input_mail.ident)
+
+        deferred.addCallback(_test)
 
     def test_search_base64_body(self):
         body = u'bl\xe1'
