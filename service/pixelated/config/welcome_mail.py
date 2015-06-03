@@ -18,9 +18,12 @@ from pixelated.adapter.model.mail import InputMail
 from pixelated.support.date import iso_now
 from email import message_from_file
 from email.MIMEMultipart import MIMEMultipart
+from twisted.internet.defer import inlineCallbacks
 
 
+@inlineCallbacks
 def check_welcome_mail(mailbox):
+    mailbox = yield mailbox
     if mailbox.fresh:
         welcome_mail = build_welcome_mail()
         mailbox.add(welcome_mail)
