@@ -21,7 +21,7 @@ import shutil
 import time
 import uuid
 
-from leap.mail.imap.account import SoledadBackedAccount
+from leap.mail.imap.account import IMAPAccount
 from leap.soledad.client import Soledad
 from mock import MagicMock, Mock
 from twisted.internet import reactor
@@ -66,7 +66,7 @@ class AppTestClient(object):
         self.search_engine = SearchEngine(self.soledad_querier, agent_home=soledad_test_folder)
         self.mail_sender = self._create_mail_sender()
 
-        self.account = SoledadBackedAccount(self.ACCOUNT, self.soledad, MagicMock())
+        self.account = IMAPAccount(self.ACCOUNT, self.soledad, MagicMock())
         self.mailboxes = Mailboxes(self.account, self.soledad_querier, self.search_engine)
         self.draft_service = DraftService(self.mailboxes)
 
@@ -242,5 +242,6 @@ def initialize_soledad(tempdir):
         local_db_path,
         server_url,
         cert_file,
-        defer_encryption=False)
+        defer_encryption=False,
+        syncable=False)
     return _soledad
