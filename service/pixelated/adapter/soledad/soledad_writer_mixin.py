@@ -31,16 +31,19 @@ class SoledadWriterMixin(SoledadDbFacadeMixin, object):
     def save_mail(self, mail):
         self.put_doc(mail.fdoc)
 
+    @defer.inlineCallbacks
     def create_mail(self, mail, mailbox_name):
-        mbox_doc = self.get_mbox(mailbox_name)[0]
-        uid = self.get_lastuid(mbox_doc)
+        mbox_doc = yield self.get_mbox(mailbox_name)
+        mbox_doc = mbox_doc[0]
+        uid = yield self.get_lastuid(mbox_doc)
 
         [self.create_doc(doc) for doc in mail.get_for_save(next_uid=uid, mailbox=mailbox_name)]
 
         mbox_doc.content['lastuid'] = uid + 1
         self.put_doc(mbox_doc)
 
-        return self.mail(mail.ident)
+        mail = yield self.mail(mail.ident)
+        defer.returnValue(mail)
 
     def remove_mail(self, mail):
         # FIX-ME: Must go through all the part_map phash to delete all the cdocs

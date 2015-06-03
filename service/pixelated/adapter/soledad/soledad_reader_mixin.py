@@ -96,7 +96,7 @@ class SoledadReaderMixin(SoledadDbFacadeMixin, object):
 
         deferred_list = defer.DeferredList([self.get_content_by_phash(phash) for _, _, phash in fdocs_hdocs_phashes])
 
-        fdocs, hdocs, _ = zip(*fdocs_chashes)
+        fdocs, hdocs, _ = zip(*fdocs_hdocs_phashes)
 
         deferred_list.addCallback(partial(self._fdocs_hdocs_bdocs, fdocs, hdocs))
         return deferred_list
