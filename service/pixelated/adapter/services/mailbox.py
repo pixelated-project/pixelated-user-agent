@@ -13,6 +13,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
+from twisted.internet import defer
 
 
 class Mailbox(object):
@@ -30,10 +31,11 @@ class Mailbox(object):
     def mail(self, mail_id):
         return self.querier.mail(mail_id)
 
+    @defer.inlineCallbacks
     def add(self, mail):
-        added_mail = self.querier.create_mail(mail, self.mailbox_name)
+        added_mail = yield self.querier.create_mail(mail, self.mailbox_name)
         self.search_engine.index_mail(added_mail)
-        return added_mail
+        defer.returnValue(added_mail)
 
     def remove(self, ident):
         mail = self.querier.mail(ident)
