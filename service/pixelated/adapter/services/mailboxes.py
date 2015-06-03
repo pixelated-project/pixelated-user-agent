@@ -13,6 +13,8 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
+from twisted.internet import defer
+from twisted.mail import imap4
 from pixelated.adapter.services.mailbox import Mailbox
 from pixelated.adapter.listeners.mailbox_indexer_listener import MailboxIndexerListener
 
@@ -33,12 +35,16 @@ class Mailboxes(object):
         for mailbox_name in mailboxes:
             MailboxIndexerListener.listen(self.account, mailbox_name, self.querier)
 
+    @defer.inlineCallbacks
     def _create_or_get(self, mailbox_name):
         mailbox_name = mailbox_name.upper()
-        if mailbox_name not in self.account.mailboxes:
+        try:
+            mbx = yield self.account.getMailbox(mailbox_name.copy())
+        except imap4.MailboxException:
             self.account.addMailbox(mailbox_name)
+            mbx = yield self.account.getMailbox(mailbox_name.copy())
         MailboxIndexerListener.listen(self.account, mailbox_name, self.querier)
-        return Mailbox.create(mailbox_name, self.querier, self.search_engine)
+        defer.returnValue(Mailbox.create(mailbox_name, self.querier, self.search_engine))
 
     def inbox(self):
         return self._create_or_get('INBOX')
