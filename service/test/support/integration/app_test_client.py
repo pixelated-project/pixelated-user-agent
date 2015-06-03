@@ -147,7 +147,8 @@ class AppTestClient(object):
 
     def _create_soledad_querier(self, soledad, index_key):
         soledad_querier = SoledadQuerier(soledad)
-        soledad_querier.get_index_masterkey = lambda: index_key
+        deferred_key = defer.maybeDeferred(lambda: index_key)
+        soledad_querier.get_index_masterkey = lambda: deferred_key
         return soledad_querier
 
     def _create_mail_sender(self):
