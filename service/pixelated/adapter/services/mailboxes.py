@@ -39,10 +39,10 @@ class Mailboxes(object):
     def _create_or_get(self, mailbox_name):
         mailbox_name = mailbox_name.upper()
         try:
-            mbx = yield self.account.getMailbox(mailbox_name.copy())
+            yield self.account.getMailbox(mailbox_name)
         except imap4.MailboxException:
-            self.account.addMailbox(mailbox_name)
-            mbx = yield self.account.getMailbox(mailbox_name.copy())
+            yield self.account.addMailbox(mailbox_name)
+            yield self.account.getMailbox(mailbox_name)
         MailboxIndexerListener.listen(self.account, mailbox_name, self.querier)
         defer.returnValue(Mailbox.create(mailbox_name, self.querier, self.search_engine))
 
