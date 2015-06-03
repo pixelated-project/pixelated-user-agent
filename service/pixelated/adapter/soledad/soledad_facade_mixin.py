@@ -31,10 +31,11 @@ class SoledadDbFacadeMixin(object):
         if len(content):
             return content[0]
 
+    @defer.inlineCallbacks
     def get_flags_by_chash(self, chash):
-        flags = self.soledad.get_from_index('by-type-and-contenthash', 'flags', chash) if chash else []
+        flags = yield self.soledad.get_from_index('by-type-and-contenthash', 'flags', chash) if chash else []
         if len(flags):
-            return flags[0]
+            defer.returnValue(flags[0])
 
     @defer.inlineCallbacks
     def get_header_by_chash(self, chash):

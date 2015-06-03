@@ -50,6 +50,29 @@ class SoledadReaderMixin(SoledadDbFacadeMixin, object):
         mails = yield deferred
         defer.returnValue(mails)
 
+    @defer.inlineCallbacks
+    def mail(self, ident):
+        fdoc = yield self.get_flags_by_chash(ident)
+        hdoc = yield self.get_header_by_chash(ident)
+        bdoc = yield self.get_content_by_phash(hdoc.content['body'])
+        parts = self._extract_parts(hdoc.content)
+
+        defer.returnValue(PixelatedMail.from_soledad(fdoc, hdoc, bdoc, parts=parts, soledad_querier=self))
+
+    @defer.inlineCallbacks
+    def mails(self, idents):
+        deferred_get_flags_list = []
+        for ident in idents:
+            deferred_get_flags_list.append(self.get_flags_by_chash(ident))
+        deferred = defer.DeferredList(deferred_get_flags_list)
+        deferred.addCallback(self._build_fdocs_chashes)
+        deferred.addCallback(self._build_fdocs_hdocs)
+        deferred.addCallback(self._build_fdocs_hdocs_phashes)
+        deferred.addCallback(self._build_fdocs_hdocs_bdocs)
+        deferred.addCallback(self._build_mails)
+        mails = yield deferred
+        defer.returnValue(mails)
+
     def _build_fdocs_chashes(self, fdocs):
         return [(fdoc, fdoc.content['chash']) for fdoc in fdocs]
 
@@ -92,20 +115,6 @@ class SoledadReaderMixin(SoledadDbFacadeMixin, object):
 
     def mail_exists(self, ident):
         return self.get_flags_by_chash(ident)
-
-    def mail(self, ident):
-        fdoc = self.get_flags_by_chash(ident)
-        hdoc = self.get_header_by_chash(ident)
-        bdoc = self.get_content_by_phash(hdoc.content['body'])
-        parts = self._extract_parts(hdoc.content)
-
-        return PixelatedMail.from_soledad(fdoc, hdoc, bdoc, parts=parts, soledad_querier=self)
-
-    def mails(self, idents):
-        fdocs_chash = [(self.get_flags_by_chash(ident), ident) for ident in
-                       idents]
-        fdocs_chash = [(result, ident) for result, ident in fdocs_chash if result]
-        return self._build_mails_from_fdocs(fdocs_chash)
 
     def attachment(self, attachment_ident, encoding):
         bdoc = self.get_content_by_phash(attachment_ident)

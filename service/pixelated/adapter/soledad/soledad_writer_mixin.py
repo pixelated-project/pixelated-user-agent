@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 from pixelated.adapter.soledad.soledad_facade_mixin import SoledadDbFacadeMixin
+from twisted.internet import defer
 
 
 class SoledadWriterMixin(SoledadDbFacadeMixin, object):
