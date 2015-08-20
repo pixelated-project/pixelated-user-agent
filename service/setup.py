@@ -48,6 +48,7 @@ setup(name='pixelated-user-agent',
           'pixelated.extensions'
       ],
       install_requires=[
+           'pip==7.1.0',
            'pyasn1==0.1.8',
            'requests==2.0.0',
            'srp==1.0.4',

@@ -1,4 +1,7 @@
+# IntelliJ nonsense
 .idea
+*.iml
+
 .bundle
 *.log
 *.DS_Store
