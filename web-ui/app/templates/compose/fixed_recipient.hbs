@@ -1,6 +1,8 @@
 <div class="fixed-recipient">
   <span class="recipient-area">
-    <div class="recipient-value">{{ address }}</div>
+    <div class="recipient-value">
+      <span>{{ address }}</span> <a class="recipient-del" href="#"/>
+    </div>
   </span>
   <input type="hidden" value="{{ address }}" name="{{ name }}" />
 </div>

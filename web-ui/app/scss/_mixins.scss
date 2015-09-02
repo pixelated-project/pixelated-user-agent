@@ -197,12 +197,12 @@
       display: inline-block;
       margin-right: -3px;
       flex: none;
+      position: relative;
 
       .recipient-value {
         &.selected {
           border: 1px solid #666666;
         }
-
         &:before {
           font-family: FontAwesome;
           padding-right: 4px;
@@ -224,11 +224,31 @@
             content: "\f13e ";
           }
         }
+        &.deleting span {
+          text-decoration: line-through;
+        }
         background-color: #F5F5F5;
         border: 1px solid #D9D9D9;
         border-radius: 2px;
         margin: 3px;
         padding: 5px;
+      }
+
+      .recipient-del {
+        position: relative;
+
+        &:before {
+          margin-left: 0.4em;
+          # padding-left: 0.4em;
+          font-weight: bold;
+          content: "x"
+        }
+        &.deleteTooltip:hover:after {
+          position: absolute;
+          content: "click to remove";
+          font-size: 0.5rem;
+          @include tooltip(25px, 0px);
+        }
       }
     }
   }

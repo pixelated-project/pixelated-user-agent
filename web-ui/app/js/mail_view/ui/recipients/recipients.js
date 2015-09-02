@@ -20,11 +20,12 @@ define(
     'flight/lib/component',
     'views/templates',
     'page/events',
+    'helpers/iterator',
     'mail_view/ui/recipients/recipients_input',
     'mail_view/ui/recipients/recipient',
     'mail_view/ui/recipients/recipients_iterator'
   ],
-  function (defineComponent, templates, events, RecipientsInput, Recipient, RecipientsIterator) {
+  function (defineComponent, templates, events, Iterator, RecipientsInput, Recipient, RecipientsIterator) {
     'use strict';
 
     return defineComponent(recipients);
@@ -60,6 +61,17 @@ define(
       this.recipientEntered = function (event, recipient) {
         this.addRecipient(recipient);
         this.addressesUpdated();
+      };
+
+      this.deleteRecipient = function (event, recipient) {
+        var iter = new Iterator(this.attr.recipients, /*startingIndex=*/-1);
+
+        while(iter.hasNext() && iter.next()) {
+          if (iter.current().isSelected() && iter.current().address === recipient.address) {
+            iter.removeCurrent().destroy();
+            break;
+          }
+        }
       };
 
       this.deleteLastRecipient = function () {
@@ -127,6 +139,7 @@ define(
         this.attachInput();
         this.initializeAddresses();
 
+        this.on(events.ui.recipients.deleteRecipient, this.deleteRecipient);
         this.on(events.ui.recipients.deleteLast, this.deleteLastRecipient);
         this.on(events.ui.recipients.selectLast, this.selectLastRecipient);
         this.on(events.ui.recipients.entered, this.recipientEntered);

@@ -19,10 +19,11 @@
 define(
   [
     'flight/lib/component',
-    'views/templates'
+    'views/templates',
+    'page/events'
   ],
 
-  function (defineComponent, templates) {
+  function (defineComponent, templates, events) {
 
     return defineComponent(recipient);
 
@@ -34,6 +35,24 @@ define(
         component.initialize(html, recipient);
         component.attr.recipient = recipient;
         return component;
+      };
+
+      this.recipientDelActions = function () {
+        this.on(this.$node.find('.recipient-del'), 'click', function (event) {
+          this.doSelect();
+          this.trigger(events.ui.recipients.deleteRecipient, {recipientsName : this.attr.address});
+          event.preventDefault();
+        });
+
+        this.on(this.$node.find('.recipient-del'), 'mouseover', function () {
+          this.$node.find('.recipient-value').addClass('deleting');
+          this.$node.find('.recipient-del').addClass('deleteTooltip');
+        });
+
+        this.on(this.$node.find('.recipient-del'), 'mouseout', function () {
+          this.$node.find('.recipient-value').removeClass('deleting');
+          this.$node.find('.recipient-del').removeClass('deleteTooltip');
+        });
       };
 
       this.destroy = function () {
@@ -49,6 +68,10 @@ define(
         this.$node.find('.recipient-value').removeClass('selected');
       };
 
+      this.isSelected = function () {
+        return this.$node.find('.recipient-value').hasClass('selected');
+      };
+
       this.discoverEncryption = function () {
         this.$node.addClass('discorver-encryption');
         var p = $.getJSON('/keys?search=' + this.attr.address).promise();
@@ -58,11 +81,12 @@ define(
         }.bind(this));
           p.fail(function () {
             this.$node.find('.recipient-value').addClass('not-encrypted');
-          this.$node.removeClass('discorver-encryption');
+            this.$node.removeClass('discorver-encryption');
         }.bind(this));
       };
 
       this.after('initialize', function () {
+        this.recipientDelActions();
         this.discoverEncryption();
       });
     }

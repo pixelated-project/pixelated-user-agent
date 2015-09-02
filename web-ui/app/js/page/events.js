@@ -82,6 +82,7 @@ define(function () {
       recipients: {
         entered: 'ui:recipients:entered',
         updated: 'ui:recipients:updated',
+        deleteRecipient: 'ui:recipients:deleteRecipient',
         deleteLast: 'ui:recipients:deleteLast',
         selectLast: 'ui:recipients:selectLast',
         unselectAll: 'ui:recipients:unselectAll',
