@@ -41,6 +41,7 @@ define(
     'views/i18n',
     'views/recipientListFormatter',
     'flight/lib/logger',
+    'page/user_settings',
     'page/logout',
     'page/logout_shortcut'
   ],
@@ -71,6 +72,7 @@ define(
     viewI18n,
     recipientListFormatter,
     withLogging,
+    userSettings,
     logout,
     logoutShortcut) {
 
@@ -103,6 +105,7 @@ define(
       leftPaneDispatcher.attachTo(document);
 
       offCanvas.attachTo(document);
+      userSettings.attachTo('#user-settings');
       logout.attachTo('#logout');
       logoutShortcut.attachTo('#logout-shortcut');
     }

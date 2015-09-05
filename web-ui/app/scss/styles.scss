@@ -390,7 +390,7 @@ section {
         }
       }
 
-      ul#logout {
+      ul#logout, #user-settings {
         li {
           color: $action_buttons;
           background-color: $navigation_background;
@@ -399,8 +399,8 @@ section {
           @include searching(4px, 19px, #333, 0.7em);
 
           &:hover {
-          background-color: $action_buttons;
-          color: $navigation_background;
+            background-color: $action_buttons;
+            color: $navigation_background;
           }
 
           div {
