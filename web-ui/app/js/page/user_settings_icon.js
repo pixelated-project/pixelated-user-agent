@@ -14,13 +14,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
  */
-define(['flight/lib/component', 'features', 'views/templates'], function (defineComponent, features, templates) {
+define(['flight/lib/component', 'views/templates'], function (defineComponent, templates) {
   'use strict';
 
   return defineComponent(function () {
 
     this.render = function () {
-      this.$node.html(templates.page.userSettings());
+      this.$node.html(templates.page.userSettingsIcon());
     };
 
     this.after('initialize', function () {
