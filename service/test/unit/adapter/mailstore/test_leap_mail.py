@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2015 ThoughtWorks, Inc.
 #
@@ -113,6 +114,13 @@ class TestLeapMail(TestCase):
         self.assertEqual([expected_address], mail.as_dict()['replying']['all']['to-field'])
         self.assertEqual([expected_address], mail.as_dict()['replying']['all']['cc-field'])
         self.assertEqual(expected_address, mail.as_dict()['replying']['single'])
+
+    def test_as_dict_with_mixed_encodings(self):
+        subject = 'Another test with =?iso-8859-1?B?3G1s5Px0?= =?iso-8859-1?Q?s?='
+        mail = LeapMail('', 'INBOX',
+                        {'Subject': subject})
+
+        self.assertEqual(u'Another test with Ümläüts', mail.as_dict()['header']['subject'])
 
     def test_raw_constructed_by_headers_and_body(self):
         body = 'some body content'

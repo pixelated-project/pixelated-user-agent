@@ -13,7 +13,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
-from time import sleep
+from selenium.webdriver import ActionChains
 
 from selenium.webdriver.common.keys import Keys
 from common import *
@@ -22,10 +22,10 @@ from common import *
 @when('I search for a mail with the words "{search_term}"')
 def impl(context, search_term):
     search_field = find_element_by_css_selector(context, '#search-trigger input[type="search"]')
-    search_field.send_keys(search_term)
-    sleep(5)
-    search_field.send_keys(Keys.ENTER)
-    sleep(1)
+    ActionChains(context.browser)\
+        .send_keys_to_element(search_field, search_term)\
+        .send_keys_to_element(search_field, Keys.ENTER)\
+        .perform()
 
 
 @then('I see one or more mails in the search results')

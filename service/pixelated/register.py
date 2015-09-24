@@ -24,6 +24,7 @@ from pixelated.bitmask_libraries.config import LeapConfig
 from pixelated.bitmask_libraries.provider import LeapProvider
 from pixelated.bitmask_libraries.session import LeapSessionFactory
 from leap.auth import SRPAuth
+from leap.common.events import server as events_server
 import pixelated.extensions.shared_db
 
 
@@ -46,6 +47,7 @@ def register(
     if not password:
         password = getpass.getpass('Please enter password for %s: ' % username)
 
+    events_server.ensure_server()
     LeapCertificate.set_cert_and_fingerprint(provider_cert, provider_cert_fingerprint)
     config = LeapConfig(leap_home=leap_home)
     provider = LeapProvider(server_name, config)

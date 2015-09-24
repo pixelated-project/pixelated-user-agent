@@ -43,7 +43,11 @@ define(
     'flight/lib/logger',
     'page/user_settings_icon',
     'page/logout',
-    'page/logout_shortcut'
+    'page/logout_shortcut',
+    'feedback/feedback_trigger',
+    'mail_view/ui/feedback_box',
+    'mail_view/data/feedback_sender',
+    'page/version',
   ],
 
   function (
@@ -74,7 +78,11 @@ define(
     withLogging,
     userSettingsIcon,
     logout,
-    logoutShortcut) {
+    logoutShortcut,
+    feedback,
+    feedbackBox,
+    feedbackSender,
+    version) {
 
     'use strict';
     function initialize(path) {
@@ -108,6 +116,10 @@ define(
       userSettingsIcon.attachTo('#user-settings-icon');
       logout.attachTo('#logout');
       logoutShortcut.attachTo('#logout-shortcut');
+      version.attachTo('.version');
+
+      feedback.attachTo('#feedback');
+      feedbackSender.attachTo(document);
     }
 
     return initialize;

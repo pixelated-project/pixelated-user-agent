@@ -80,6 +80,9 @@ class MailBuilder:
     def build_input_mail(self):
         return InputMail.from_dict(self.mail)
 
+    def build_leap_mail(self):
+        return LeapMail.from_dict(self.mail)
+
 
 class ResponseMail:
     def __init__(self, mail_dict):

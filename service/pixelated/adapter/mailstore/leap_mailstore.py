@@ -114,11 +114,14 @@ class LeapMail(Mail):
         if isinstance(header_value, list):
             return self.remove_duplicates([self._decoded_header_utf_8(v) for v in header_value])
         elif header_value is not None:
-            content, encoding = decode_header(header_value)[0]
-            if encoding:
-                return unicode(content, encoding=encoding)
-            else:
-                return unicode(content, encoding='ascii')
+            def encode_chunk(content, encoding):
+                return unicode(content, encoding=encoding or 'ascii', errors='ignore')
+
+            try:
+                encoded_chunks = [encode_chunk(content, encoding) for content, encoding in decode_header(header_value)]
+                return ' '.join(encoded_chunks)  # decode_header strips whitespaces on all chunks, joining over ' ' is only a workaround, not a proper fix
+            except UnicodeEncodeError:
+                return unicode(header_value.encode('ascii', errors='ignore'))
 
     def as_dict(self):
         return {
@@ -161,6 +164,19 @@ class LeapMail(Mail):
             recipients = []
 
         return [recipient for recipient in recipients if recipient != InputMail.FROM_EMAIL_ADDRESS]
+
+    @staticmethod
+    def from_dict(mail_dict):
+        # TODO: implement this method and also write tests for it
+        headers = {key.capitalize(): value for key, value in mail_dict.get('header', {}).items()}
+        headers['Date'] = date.iso_now()
+        body = mail_dict.get('body', '')
+        tags = set(mail_dict.get('tags', []))
+        status = set(mail_dict.get('status', []))
+        attachments = []
+
+        # mail_id, mailbox_name, headers=None, tags=set(), flags=set(), body=None, attachments=[]
+        return LeapMail(None, None, headers, tags, set(), body, attachments)
 
 
 def _extract_filename(content_disposition):
@@ -333,7 +349,7 @@ class LeapMailStore(MailStore):
     @defer.inlineCallbacks
     def _mailbox_name_from_uuid(self, uuid):
         map = (yield self._mailbox_uuid_to_name_map())
-        defer.returnValue(map[uuid])
+        defer.returnValue(map.get(uuid, ''))
 
     @defer.inlineCallbacks
     def _get_or_create_mailbox(self, mailbox_name):

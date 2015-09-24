@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2014 ThoughtWorks, Inc.
-   *
+ * Copyright (c) 2015 ThoughtWorks, Inc.
+ *
  * Pixelated is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -14,14 +14,18 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
  */
+define(['flight/lib/component', 'views/templates'], function (defineComponent, templates) {
+  'use strict';
 
-({
-  baseUrl: '../app',
-  wrap: true,
-  almond: true,
-  optimize: 'none',
-  mainConfigFile: '../app/js/main.js',
-  out: '../.tmp/app.concatenated.js',
-  include: ['js/main'],
-  name: 'bower_components/almond/almond'
-})
+  return defineComponent(function () {
+
+    this.render = function () {
+        this.$node.html(templates.page.version());
+    };
+
+    this.after('initialize', function () {
+      this.render();
+    });
+
+  });
+});

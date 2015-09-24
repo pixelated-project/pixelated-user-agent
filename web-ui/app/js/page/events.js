@@ -99,6 +99,10 @@ define(function () {
       highlightResults: 'search:highlightResults',
       resetHighlight: 'search:resetHighlight'
     },
+    feedback: {
+      submit: 'feedback:submit',
+      submitted: 'feedback:submitted'
+    },
     mail: {
       here: 'mail:here',
       want: 'mail:want',
@@ -168,6 +172,7 @@ define(function () {
     dispatchers: {
       rightPane: {
         openComposeBox: 'dispatchers:rightPane:openComposeBox',
+        openFeedbackBox: 'dispatchers:rightPane:openFeedbackBox',
         openNoMessageSelected: 'dispatchers:rightPane:openNoMessageSelected',
         openNoMessageSelectedWithoutPushState: 'dispatchers:rightPane:openNoMessageSelectedWithoutPushState',
         refreshMailList: 'dispatchers:rightPane:refreshMailList',

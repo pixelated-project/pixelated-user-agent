@@ -17,20 +17,20 @@ from common import *
 
 
 def click_first_element_with_class(context, classname):
-    elements = context.browser.find_elements_by_class_name(classname)
-    elements[0].click()
+    element = find_element_by_class_name(context, classname)
+    element.click()
 
 
 def is_side_nav_expanded(context):
-    e = context.browser.find_elements_by_class_name('content')[0].get_attribute('class').count(u'move-right') == 1
-    return e
+    e = find_element_by_class_name(context, 'content')
+    return u'move-right' in e.get_attribute("class")
 
 
 def expand_side_nav(context):
     if is_side_nav_expanded(context):
         return
 
-    toggle = context.browser.find_elements_by_class_name('side-nav-toggle')[0]
+    toggle = find_element_by_class_name(context, 'side-nav-toggle')
     toggle.click()
 
 
@@ -39,11 +39,24 @@ def impl(context, tag):
     wait_for_user_alert_to_disapear(context)
     expand_side_nav(context)
 
-    wait_until_element_is_visible_by_locator(context, (By.ID, 'tag-%s' % tag), 20)
+    # try this multiple times as there are some race conditions
+    try_again = 2
+    success = False
+    while (not success) and (try_again > 0):
+        try:
+            wait_until_element_is_visible_by_locator(context, (By.ID, 'tag-%s' % tag), timeout=20)
 
-    e = find_element_by_id(context, 'tag-%s' % tag)
-    e.click()
-    wait_until_elements_are_visible_by_locator(context, (By.CSS_SELECTOR, "#mail-list li span a[href*='%s']" % tag))
+            e = find_element_by_id(context, 'tag-%s' % tag)
+            e.click()
+
+            wait_until_element_is_visible_by_locator(context, (By.CSS_SELECTOR, "#mail-list li span a[href*='%s']" % tag), timeout=20)
+            success = True
+        except TimeoutException:
+            pass
+        finally:
+            try_again -= 1
+
+    assert success
 
 
 @when('I am in  \'{tag}\'')

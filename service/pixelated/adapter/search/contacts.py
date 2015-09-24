@@ -31,21 +31,12 @@ def address_duplication_filter(contacts):
     return contacts_by_mail.values()
 
 
-def bounced_addresses_filter(searcher, contacts):
-    query = QueryParser('bounced', searcher.schema).parse('*')
-    bounced_addresses = searcher.search(query,
-                                        limit=None,
-                                        groupedby=sorting.FieldFacet('bounced',
-                                                                     allow_overlap=True)).groups()
-    return set(contacts) - set(flatten([bounced_addresses]))
-
-
 def extract_mail_address(text):
     return parseaddr(text)[1]
 
 
 def contacts_suggestions(query, searcher):
-    return address_duplication_filter(bounced_addresses_filter(searcher, search_addresses(searcher, query))) if query else []
+    return address_duplication_filter(search_addresses(searcher, query)) if query else []
 
 
 def search_addresses(searcher, query):

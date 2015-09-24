@@ -390,16 +390,14 @@ section {
         }
       }
 
-      ul#logout, #user-settings-icon {
+      ul#logout, ul#feedback, #user-settings-icon  {
         li {
-          color: $action_buttons;
           background-color: $navigation_background;
           padding: 5px 10px;
           position: relative;
           @include searching(4px, 19px, #333, 0.7em);
 
           &:hover {
-            background-color: $action_buttons;
             color: $navigation_background;
           }
 
@@ -413,6 +411,24 @@ section {
               position: relative;
               top: 2px;
             }
+          }
+        }
+      }
+
+      ul#logout li{
+        color: $action_buttons;
+        &:hover {
+          background-color: $action_buttons;
+        }
+      }
+
+      ul#feedback{
+        margin-bottom: 0;
+
+        li {
+          color: $light_orange;
+          &:hover {
+            background-color: $light_orange;
           }
         }
       }
@@ -774,6 +790,11 @@ div.side-nav-bottom {
   position: fixed;
   bottom: 0;
   background-color: $navigation_background;
+
+  .version {
+    padding-left: 55px;
+    padding-bottom: 3px;
+  }
 }
 
 @import "mascot.scss";

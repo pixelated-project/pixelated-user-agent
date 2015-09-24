@@ -55,7 +55,7 @@ define(
           type: 'POST',
           dataType: 'json',
           contentType: 'application/json; charset=utf-8',
-          data: JSON.stringify(data),
+          data: JSON.stringify(data)
         }).done(successSendingMail(this)).fail(failureSendingMail(this));
 
       };

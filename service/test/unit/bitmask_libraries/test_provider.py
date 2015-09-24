@@ -188,9 +188,13 @@ class LeapProviderTest(AbstractLeapTest):
             provider.fetch_valid_certificate()
 
     def test_throw_exception_for_invalid_certificate(self):
+        expected_exception_message = 'Certificate fingerprints don\'t match! Expected [0123456789012345678901234567890123456789012345678901234567890123] but got [06e2300bdbc118c290eda0dc977c24080718f4eeca68c8b0ad431872a2baa22d]'
+
         with HTTMock(provider_json_invalid_fingerprint_mock, ca_cert_mock, not_found_mock):
             provider = LeapProvider('some-provider.test', self.config)
-            self.assertRaises(Exception, provider.fetch_valid_certificate)
+            with self.assertRaises(Exception) as cm:
+                provider.fetch_valid_certificate()
+            self.assertEqual(expected_exception_message, cm.exception.message)
 
     def test_that_bootstrap_cert_is_used_to_fetch_certificate(self):
         session = MagicMock(wraps=requests.session())

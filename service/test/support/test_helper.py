@@ -17,7 +17,7 @@ from datetime import datetime
 import io
 from twisted.web.test.test_web import DummyRequest
 
-from pixelated.adapter.model.mail import InputMail, PixelatedMail
+from pixelated.adapter.model.mail import InputMail
 
 
 LEAP_FLAGS = ['\\Seen',
@@ -67,12 +67,6 @@ def leap_mail(uid=0, flags=LEAP_FLAGS, headers=None, extra_headers={}, mbox_uuid
     bdoc = TestDoc({'raw': body, 'type': 'cnt'})
 
     return (fdoc, hdoc, bdoc)
-
-
-def pixelated_mail(uid=0, flags=LEAP_FLAGS, headers=None, extra_headers={}, mbox_uuid='INBOX', body='body', chash='chash'):
-    fdoc, hdoc, bdoc = leap_mail(uid, flags, headers, extra_headers, mbox_uuid, body, chash)
-
-    return PixelatedMail.from_soledad(fdoc, hdoc, bdoc)
 
 
 def input_mail():

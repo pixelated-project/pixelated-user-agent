@@ -55,7 +55,7 @@ class LeapSession(object):
     - ``incoming_mail_fetcher`` Background job for fetching incoming mails from LEAP server (LeapIncomingMail)
     """
 
-    def __init__(self, provider, user_auth, mail_store, soledad_session, nicknym, soledad_account, incoming_mail_fetcher, smtp):
+    def __init__(self, provider, user_auth, mail_store, soledad_session, nicknym, smtp):
         self.smtp = smtp
         self.config = provider.config
         self.provider = provider
@@ -63,28 +63,42 @@ class LeapSession(object):
         self.mail_store = mail_store
         self.soledad_session = soledad_session
         self.nicknym = nicknym
-        self.account = soledad_account
-        self.incoming_mail_fetcher = incoming_mail_fetcher
 
     @defer.inlineCallbacks
     def initial_sync(self):
         yield self.sync()
-        yield self.nicknym.generate_openpgp_key()
-        yield self.start_background_jobs()
+        yield self.after_first_sync()
         defer.returnValue(self)
+
+    @defer.inlineCallbacks
+    def after_first_sync(self):
+        yield self.nicknym.generate_openpgp_key()
+        self.account = self._create_account(self.account_email, self.soledad_session)
+        self.incoming_mail_fetcher = yield self._create_incoming_mail_fetcher(
+            self.nicknym,
+            self.soledad_session,
+            self.account,
+            self.account_email())
+        reactor.callFromThread(self.incoming_mail_fetcher.startService)
+
+    def _create_account(self, user_mail, soledad_session):
+        account = IMAPAccount(user_mail, soledad_session.soledad)
+        return account
 
     def account_email(self):
         name = self.user_auth.username
         return self.provider.address_for(name)
 
     def close(self):
-        self.stop_background_jobs()
+        self.stop_background_jobs
 
     @defer.inlineCallbacks
-    def start_background_jobs(self):
-        self.incoming_mail_fetcher = yield self.incoming_mail_fetcher
-
-        reactor.callFromThread(self.incoming_mail_fetcher.startService)
+    def _create_incoming_mail_fetcher(self, nicknym, soledad_session, account, user_mail):
+        inbox = yield account.callWhenReady(lambda _: account.getMailbox('INBOX'))
+        defer.returnValue(IncomingMail(nicknym.keymanager,
+                          soledad_session.soledad,
+                          inbox.collection,
+                          user_mail))
 
     def stop_background_jobs(self):
         reactor.callFromThread(self.incoming_mail_fetcher.stopService)
@@ -123,12 +137,10 @@ class LeapSessionFactory(object):
         mail_store = LeapMailStore(soledad.soledad)
 
         nicknym = self._create_nicknym(account_email, auth.token, auth.uuid, soledad)
-        account = self._create_account(account_email, soledad)
-        deferred_incoming_mail_fetcher = self._create_incoming_mail_fetcher(nicknym, soledad, account, account_email)
 
         smtp = LeapSmtp(self._provider, auth, nicknym.keymanager)
 
-        return LeapSession(self._provider, auth, mail_store, soledad, nicknym, account, deferred_incoming_mail_fetcher, smtp)
+        return LeapSession(self._provider, auth, mail_store, soledad, nicknym, smtp)
 
     def _lookup_session(self, key):
         global SESSIONS
@@ -156,16 +168,5 @@ class LeapSessionFactory(object):
     def _create_nicknym(self, email_address, token, uuid, soledad_session):
         return NickNym(self._provider, self._config, soledad_session, email_address, token, uuid)
 
-    def _create_account(self, user_mail, soledad_session):
-        account = IMAPAccount(user_mail, soledad_session.soledad)
-        return account
         # memstore = MemoryStore(permanent_store=SoledadStore(soledad_session.soledad))
         # return SoledadBackedAccount(uuid, soledad_session.soledad, memstore)
-
-    @defer.inlineCallbacks
-    def _create_incoming_mail_fetcher(self, nicknym, soledad_session, account, user_mail):
-        inbox = yield account.callWhenReady(lambda _: account.getMailbox('INBOX'))
-        defer.returnValue(IncomingMail(nicknym.keymanager,
-                          soledad_session.soledad,
-                          inbox.collection,
-                          user_mail))

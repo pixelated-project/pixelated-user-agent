@@ -24,6 +24,7 @@ from test.support.integration import AppTestClient
 from selenium import webdriver
 
 from pixelated.resources.features_resource import FeaturesResource
+from steps.common import *
 
 setup()
 
@@ -53,7 +54,7 @@ def before_feature(context, feature):
     # context.browser = webdriver.Firefox()
     context.browser = webdriver.PhantomJS()
     context.browser.set_window_size(1280, 1024)
-    context.browser.implicitly_wait(10)
+    context.browser.implicitly_wait(DEFAULT_IMPLICIT_WAIT_TIMEOUT_IN_S)
     context.browser.set_page_load_timeout(60)  # wait for data
     context.browser.get('http://localhost:8889/')
 

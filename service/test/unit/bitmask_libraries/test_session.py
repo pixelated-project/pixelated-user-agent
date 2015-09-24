@@ -25,37 +25,22 @@ class SessionTest(AbstractLeapTest):
 
     def setUp(self):
         super(SessionTest, self).setUp()
-        self.mail_fetcher_mock = MagicMock()
         self.smtp_mock = MagicMock()
 
-    def tearDown(self):
-        self.mail_fetcher_mock = MagicMock()
-
-    @defer.inlineCallbacks
     def test_background_jobs_are_started_during_initial_sync(self):
-        self.config.start_background_jobs = True
-
         with patch('pixelated.bitmask_libraries.session.reactor.callFromThread', new=_execute_func) as _:
-            session = self._create_session()
-            yield session.initial_sync()
-
-            self.mail_fetcher_mock.startService.assert_called_once_with()
-
-    def test_background_jobs_are_not_started(self):
-        self.config.start_background_jobs = False
-
-        with patch('pixelated.bitmask_libraries.session.reactor.callFromThread', new=_execute_func) as _:
-            self._create_session()
-
-            self.assertFalse(self.mail_fetcher_mock.start_loop.called)
+            with patch('pixelated.bitmask_libraries.session.LeapSession._create_incoming_mail_fetcher') as mail_fetcher_mock:
+                session = self._create_session()
+                yield session.initial_sync()
+                mail_fetcher_mock.startService.assert_called_once_with()
 
     def test_that_close_stops_background_jobs(self):
         with patch('pixelated.bitmask_libraries.session.reactor.callFromThread', new=_execute_func) as _:
-            session = self._create_session()
-
-            session.close()
-
-            self.mail_fetcher_mock.stopService.assert_called_once_with()
+            with patch('pixelated.bitmask_libraries.session.LeapSession._create_incoming_mail_fetcher') as mail_fetcher_mock:
+                session = self._create_session()
+                yield session.initial_sync()
+                session.close()
+                mail_fetcher_mock.stopService.assert_called_once_with()
 
     def test_that_sync_deferes_to_soledad(self):
         session = self._create_session()
@@ -65,8 +50,7 @@ class SessionTest(AbstractLeapTest):
         self.soledad_session.sync.assert_called_once_with()
 
     def _create_session(self):
-        return LeapSession(self.provider, self.auth, self.mail_store, self.soledad_session, self.nicknym, self.soledad_account,
-                           self.mail_fetcher_mock, self.smtp_mock)
+        return LeapSession(self.provider, self.auth, self.mail_store, self.soledad_session, self.nicknym, self.smtp_mock)
 
 
 def _execute_func(func):

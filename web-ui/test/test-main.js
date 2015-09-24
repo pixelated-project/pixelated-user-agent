@@ -16,6 +16,7 @@ requirejs.config({
     'flight': 'app/bower_components/flight',
     'views': 'app/js/views',
     'helpers': 'app/js/helpers',
+    'feedback': 'app/js/feedback',
     'tags': 'app/js/tags',
     'mail_list': 'app/js/mail_list',
     'mail_list_actions': 'app/js/mail_list_actions',

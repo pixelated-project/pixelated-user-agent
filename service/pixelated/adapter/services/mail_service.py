@@ -51,7 +51,7 @@ class MailService(object):
             raise ValueError('None of the following words can be used as tags: ' + ' '.join(reserved_words))
         new_tags = self._favor_existing_tags_casing(new_tags)
         mail = yield self.mail(mail_id)
-        mail.tags |= set(new_tags)
+        mail.tags = set(new_tags)
         yield self.mail_store.update_mail(mail)
 
         defer.returnValue(mail)

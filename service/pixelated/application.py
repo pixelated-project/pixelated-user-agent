@@ -42,7 +42,8 @@ def start_user_agent(loading_app, host, port, sslkey, sslcert, leap_home, leap_s
         services.keymanager,
         services.search_engine,
         services.mail_service,
-        services.draft_service)
+        services.draft_service,
+        services.feedback_service)
 
     if sslkey and sslcert:
         reactor.listenSSL(port, PixelatedSite(resource), _ssl_options(sslkey, sslcert), interface=host)

@@ -240,6 +240,19 @@ class TestLeapMailStore(TestCase):
         self.assertEqual({'INBOX', 'OTHER'}, names)
 
     @defer.inlineCallbacks
+    def test_handles_unmapped_mailbox_uuid(self):
+        # given
+        store = LeapMailStore(self.soledad)
+        new_uuid = 'UNICORN'
+
+        # if no mailbox doc is created yet (async hell?)
+        when(self.soledad).get_from_index('by-type', 'mbox').thenReturn(defer.succeed([]))
+
+        # then it should point to empty, which is all mails
+        name = yield store._mailbox_name_from_uuid(new_uuid)
+        self.assertEquals('', name)
+
+    @defer.inlineCallbacks
     def test_add_mail(self):
         expected_message = self._add_create_mail_mocks_to_soledad_from_fixture_file('mbox00000000')
         mail = self._load_mail_from_file('mbox00000000')

@@ -2,12 +2,12 @@ from pixelated.adapter.mailstore.searchable_mailstore import SearchableMailStore
 from pixelated.adapter.services.mail_service import MailService
 from pixelated.adapter.model.mail import InputMail
 from pixelated.adapter.services.mail_sender import MailSender
-from pixelated.adapter.soledad.soledad_querier import SoledadQuerier
 from pixelated.adapter.search import SearchEngine
 from pixelated.adapter.services.draft_service import DraftService
 from pixelated.adapter.listeners.mailbox_indexer_listener import listen_all_mailboxes
 from twisted.internet import defer
 from pixelated.adapter.search.index_storage_key import SearchIndexStorageKey
+from pixelated.adapter.services.feedback_service import FeedbackService
 
 
 class Services(object):
@@ -18,8 +18,6 @@ class Services(object):
     @defer.inlineCallbacks
     def setup(self, leap_home, leap_session):
         InputMail.FROM_EMAIL_ADDRESS = leap_session.account_email()
-
-        soledad_querier = SoledadQuerier(soledad=leap_session.soledad_session.soledad)
 
         search_index_storage_key = self.setup_search_index_storage_key(leap_session.soledad_session.soledad)
         yield self.setup_search_engine(
@@ -32,11 +30,11 @@ class Services(object):
 
         self.mail_service = self.setup_mail_service(
             leap_session,
-            soledad_querier,
             self.search_engine)
 
         self.keymanager = leap_session.nicknym
         self.draft_service = self.setup_draft_service(leap_session.mail_store)
+        self.feedback_service = self.setup_feedback_service(leap_session)
 
         yield self.index_all_mails()
 
@@ -56,7 +54,7 @@ class Services(object):
         search_engine = SearchEngine(key, agent_home=leap_home)
         self.search_engine = search_engine
 
-    def setup_mail_service(self, leap_session, soledad_querier, search_engine):
+    def setup_mail_service(self, leap_session, search_engine):
         # if False:   FIXME
         #    yield pixelated_mailboxes.add_welcome_mail_for_fresh_user()
         pixelated_mail_sender = MailSender(
@@ -72,3 +70,6 @@ class Services(object):
 
     def setup_search_index_storage_key(self, soledad):
         return SearchIndexStorageKey(soledad)
+
+    def setup_feedback_service(self, leap_session):
+        return FeedbackService(leap_session)

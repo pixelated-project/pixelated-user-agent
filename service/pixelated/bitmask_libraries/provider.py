@@ -93,7 +93,7 @@ class LeapProvider(object):
         digest = get_digest(cert_data, method)
 
         if fingerprint.strip() != digest:
-            raise Exception('Certificate fingerprints don\'t match')
+            raise Exception('Certificate fingerprints don\'t match! Expected [%s] but got [%s]' % (fingerprint.strip(), digest))
 
     def _validated_get(self, url):
         session = requests.session()

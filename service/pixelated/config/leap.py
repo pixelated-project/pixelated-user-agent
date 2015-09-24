@@ -24,7 +24,7 @@ def initialize_leap(leap_provider_cert,
     LeapCertificate(provider).setup_ca_bundle()
     leap_session = LeapSessionFactory(provider).create(username, password)
 
-    yield leap_session.initial_sync()
+    leap_session = yield leap_session.initial_sync()
 
     defer.returnValue(leap_session)
 

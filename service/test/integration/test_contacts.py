@@ -74,29 +74,3 @@ class ContactsTest(SoledadTestBase):
         self.assertTrue('Recipient Principal <recipient@to.com>' in contacts)
         self.assertTrue('Recipient Copied <recipient@cc.com>' in contacts)
         self.assertTrue('Recipient Carbon <recipient@bcc.com>' in contacts)
-
-    @defer.inlineCallbacks
-    def test_bounced_addresses_are_ignored(self):
-        self.skipTest("bounced mails filter still needs to be migrated")
-        to_be_bounced = MailBuilder().with_to('this_mail_was_bounced@domain.com').build_input_mail()
-        yield self.add_mail_to_inbox(to_be_bounced)
-
-        bounced_hdoc = self._bounced_mail_hdoc_content()
-        bounced_mail_template = MailBuilder().build_input_mail()
-        bounced_mail_template.headers.update(bounced_hdoc["headers"])
-
-        not_bounced_mail = MailBuilder(
-        ).with_tags(['important']).with_to('this_mail_was_not@bounced.com').build_input_mail()
-        yield self.add_mail_to_inbox(not_bounced_mail)
-
-        contacts = yield self.get_contacts(query='this')
-
-        self.assertNotIn('this_mail_was_bounced@domain.com', contacts)
-        self.assertNotIn("MAILER-DAEMON@domain.org (Mail Delivery System)", contacts)
-        self.assertIn('this_mail_was_not@bounced.com', contacts)
-
-    def _bounced_mail_hdoc_content(self):
-        hdoc_file = pkg_resources.resource_filename('test.unit.fixtures', 'bounced_mail_hdoc.json')
-        with open(hdoc_file) as f:
-            hdoc = json.loads(f.read())
-        return hdoc

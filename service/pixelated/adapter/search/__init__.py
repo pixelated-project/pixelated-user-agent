@@ -102,7 +102,6 @@ class SearchEngine(object):
             to=KEYWORD(stored=False, commas=True),
             cc=KEYWORD(stored=False, commas=True),
             bcc=KEYWORD(stored=False, commas=True),
-            bounced=KEYWORD(stored=False, commas=True),
             subject=TEXT(stored=False),
             date=NUMERIC(stored=False, sortable=True, bits=64, signed=False),
             body=TEXT(stored=False),
@@ -123,7 +122,6 @@ class SearchEngine(object):
         header = mdict['header']
         tags = set(mdict.get('tags', {}))
         tags.add(mail.mailbox_name.lower())
-        bounced = mail.bounced if mail.bounced else ['']
 
         index_data = {
             'sender': self._empty_string_to_none(header.get('from', '')),
@@ -133,7 +131,6 @@ class SearchEngine(object):
             'cc': self._format_recipient(header, 'cc'),
             'bcc': self._format_recipient(header, 'bcc'),
             'tag': u','.join(unique(tags)),
-            'bounced': u','.join(bounced),
             'body': unicode(mdict['textPlainBody'] if 'textPlainBody' in mdict else mdict['body']),
             'ident': unicode(mdict['ident']),
             'flags': unicode(','.join(unique(mail.flags))),

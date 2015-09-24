@@ -15,7 +15,7 @@
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 from twisted.trial import unittest
 from pixelated.adapter.mailstore.leap_mailstore import LeapMail
-from pixelated.adapter.model.mail import InputMail, PixelatedMail
+from pixelated.adapter.model.mail import InputMail
 from pixelated.adapter.model.status import Status
 
 from pixelated.adapter.services.mail_service import MailService
@@ -104,12 +104,24 @@ class TestMailService(unittest.TestCase):
 
     @defer.inlineCallbacks
     def test_mark_as_read(self):
-        mail = LeapMail('id', 'INBOX')
-        when(self.mail_store).get_mail(ANY(), include_body=True).thenReturn(mail)
+        mail = LeapMail(1, 'INBOX')
+        when(self.mail_store).get_mail(1, include_body=True).thenReturn(mail)
         yield self.mail_service.mark_as_read(1)
 
         self.assertIn(Status.SEEN, mail.flags)
         verify(self.mail_store).update_mail(mail)
+
+    @defer.inlineCallbacks
+    def test_mark_as_unread(self):
+        mail = LeapMail(1, 'INBOX')
+        mail.flags.add(Status.SEEN)
+
+        when(self.mail_store).get_mail(1, include_body=True).thenReturn(mail)
+        yield self.mail_service.mark_as_unread(1)
+
+        verify(self.mail_store).update_mail(mail)
+
+        self.assertNotEqual(mail.status, Status.SEEN)
 
     @defer.inlineCallbacks
     def test_delete_mail(self):
@@ -122,7 +134,7 @@ class TestMailService(unittest.TestCase):
 
     @defer.inlineCallbacks
     def test_recover_mail(self):
-        mail_to_recover = PixelatedMail.from_soledad(*leap_mail(), soledad_querier=None)
+        mail_to_recover = LeapMail(1, 'TRASH')
         when(self.mail_service).mail(1).thenReturn(mail_to_recover)
         when(self.mail_store).move_mail_to_mailbox(1, 'INBOX').thenReturn(mail_to_recover)
 
@@ -138,3 +150,14 @@ class TestMailService(unittest.TestCase):
         attachment = yield self.mail_service.attachment('some attachment id')
 
         self.assertEqual(attachment_dict, attachment)
+
+    @defer.inlineCallbacks
+    def test_update_tags_return_a_set_with_the_current_tags(self):
+        mail = LeapMail(1, 'INBOX', tags={'custom_1', 'custom_2'})
+        when(self.mail_store).get_mail(1, include_body=True).thenReturn(mail)
+        when(self.search_engine).tags(query='', skip_default_tags=True).thenReturn([])
+
+        updated_mail = yield self.mail_service.update_tags(1, {'custom_1', 'custom_3'})
+
+        verify(self.mail_store).update_mail(mail)
+        self.assertEqual({'custom_1', 'custom_3'}, updated_mail.tags)

@@ -31,16 +31,15 @@ from twisted.internet import reactor, defer
 from twisted.internet.defer import succeed
 from twisted.web.resource import getChildForRequest
 # from twisted.web.server import Site as PixelatedSite
+from pixelated.adapter.services.feedback_service import FeedbackService
 from pixelated.config.site import PixelatedSite
 
 from pixelated.adapter.mailstore import LeapMailStore
 from pixelated.adapter.mailstore.searchable_mailstore import SearchableMailStore
 
-from pixelated.adapter.model.mail import PixelatedMail
 from pixelated.adapter.search import SearchEngine
 from pixelated.adapter.services.draft_service import DraftService
 from pixelated.adapter.services.mail_service import MailService
-from pixelated.adapter.soledad.soledad_querier import SoledadQuerier
 from pixelated.resources.root_resource import RootResource
 from test.support.integration.model import MailBuilder
 from test.support.test_helper import request_mock
@@ -63,11 +62,8 @@ class AppTestClient(object):
 
         self.cleanup = lambda: shutil.rmtree(soledad_test_folder)
 
-        PixelatedMail.from_email_address = self.MAIL_ADDRESS
-
         self.soledad = yield initialize_soledad(tempdir=soledad_test_folder)
 
-        self.soledad_querier = self._create_soledad_querier(self.soledad, self.INDEX_KEY)
         self.keymanager = mock()
 
         self.search_engine = SearchEngine(self.INDEX_KEY, agent_home=soledad_test_folder)
@@ -79,13 +75,16 @@ class AppTestClient(object):
         self.account = IMAPAccount(self.ACCOUNT, self.soledad, account_ready_cb)
         yield account_ready_cb
         self.draft_service = DraftService(self.mail_store)
+        self.leap_session = mock()
+        self.feedback_service = FeedbackService(self.leap_session)
 
-        self.mail_service = self._create_mail_service(self.mail_sender, self.mail_store, self.soledad_querier, self.search_engine)
+        self.mail_service = self._create_mail_service(self.mail_sender, self.mail_store, self.search_engine)
         mails = yield self.mail_service.all_mails()
         self.search_engine.index_mails(mails)
 
         self.resource = RootResource()
-        self.resource.initialize(self.keymanager, self.search_engine, self.mail_service, self.draft_service)
+        self.resource.initialize(
+            self.keymanager, self.search_engine, self.mail_service, self.draft_service, self.feedback_service)
 
     def _render(self, request, as_json=True):
         def get_str(_str):
@@ -136,9 +135,6 @@ class AppTestClient(object):
         request = request_mock(path=path, body=body, headers={'Content-Type': ['application/json']}, method="DELETE")
         return self._render(request)
 
-    def add_document_to_soledad(self, _dict):
-        return self.soledad_querier.soledad.create_doc(_dict)
-
     @defer.inlineCallbacks
     def add_mail_to_inbox(self, input_mail):
         mail = yield self.mail_store.add_mail('INBOX', input_mail.raw)
@@ -164,17 +160,12 @@ class AppTestClient(object):
 
         defer.returnValue(mails)
 
-    def _create_soledad_querier(self, soledad, index_key):
-        soledad_querier = SoledadQuerier(soledad)
-        soledad_querier.get_index_masterkey = lambda: index_key
-        return soledad_querier
-
     def _create_mail_sender(self):
         mail_sender = Mock()
         mail_sender.sendmail.side_effect = lambda mail: succeed(mail)
         return mail_sender
 
-    def _create_mail_service(self, mail_sender, mail_store, soledad_querier, search_engine):
+    def _create_mail_service(self, mail_sender, mail_store, search_engine):
         mail_service = MailService(mail_sender, mail_store, search_engine)
         return mail_service
 

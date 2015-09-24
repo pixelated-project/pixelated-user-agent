@@ -15,7 +15,6 @@
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 from common import *
 from selenium.common.exceptions import NoSuchElementException
-from time import sleep
 
 
 def find_current_mail(context):
@@ -28,9 +27,12 @@ def check_current_mail_is_visible(context):
 
 
 def open_current_mail(context):
-    sleep(2)
     e = find_current_mail(context)
     e.click()
+
+
+def get_first_email(context):
+    return wait_until_elements_are_visible_by_locator(context, (By.CSS_SELECTOR, '#mail-list li span a'))[0]
 
 
 @then('I see that mail under the \'{tag}\' tag')
@@ -41,16 +43,14 @@ def impl(context, tag):
 
 @when('I open that mail')
 def impl(context):
-    sleep(3)
     find_current_mail(context).click()
 
 
 @when('I open the first mail in the mail list')
 def impl(context):
-    first_email = wait_until_elements_are_visible_by_locator(context, (By.CSS_SELECTOR, '#mail-list li span a'))[0]
-    context.current_mail_id = 'mail-' + first_email.get_attribute('href').split('/')[-1]
-    first_email.click()
-    sleep(5)
+    # it seems page is often still loading so staleness exceptions happen often
+    context.current_mail_id = 'mail-' + execute_ignoring_staleness(lambda: get_first_email(context).get_attribute('href').split('/')[-1])
+    execute_ignoring_staleness(lambda: get_first_email(context).click())
 
 
 @when('I open the first mail in the \'{tag}\'')
@@ -87,25 +87,35 @@ def impl(context):
 
     for email in emails:
         if 'status-read' not in email.get_attribute('class'):
+            context.current_mail_id = email.get_attribute('id')  # we need to get the mail id before manipulating the page
             email.find_element_by_tag_name('input').click()
             find_element_by_id(context, 'mark-selected-as-read').click()
-            context.current_mail_id = email.get_attribute('id')
             break
-    sleep(2)
-    assert 'status-read' in context.browser.find_element_by_id(context.current_mail_id).get_attribute('class')
+    wait_until_elements_are_visible_by_locator(context, (By.CSS_SELECTOR, '#%s.status-read' % context.current_mail_id))
 
 
 @when('I delete the email')
 def impl(context):
     def last_email():
-        return wait_until_elements_are_visible_by_locator(context, (By.CSS_SELECTOR, '#mail-list li'))[0]
-    context.current_mail_id = last_email().get_attribute('id')
-    last_email().find_element_by_tag_name('input').click()
+        return wait_until_element_is_visible_by_locator(context, (By.CSS_SELECTOR, '#mail-list li'))
+    mail = last_email()
+    context.current_mail_id = mail.get_attribute('id')
+    mail.find_element_by_tag_name('input').click()
     find_element_by_id(context, 'delete-selected').click()
-    wait_for_user_alert_to_appear_and_disapear(context)
-    wait_for_user_alert_to_disapear(context)
-    spend_time_in_reactor()
-    assert 0 == len(context.browser.find_element_by_id('mail-list').find_elements_by_tag_name('li'))
+    _wait_for_mail_list_to_be_empty(context)
+
+
+def _wait_for_mail_list_to_be_empty(context):
+    wait_for_loading_to_finish(context)
+
+    def mail_list_is_empty(_):
+        with ImplicitWait(context, timeout=0.1):
+            try:
+                return 0 == len(context.browser.find_elements_by_css_selector('#mail-list li'))
+            except TimeoutException:
+                return False
+
+    wait_for_condition(context, mail_list_is_empty)
 
 
 @when('I check all emails')
@@ -120,9 +130,4 @@ def impl(context):
 
 @then('I should not see any email')
 def impl(context):
-    try:
-        context.browser.find_element(By.CSS_SELECTOR, '#mail-list li span a')
-    except NoSuchElementException:
-        assert True
-    except:
-        assert False
+    _wait_for_mail_list_to_be_empty(context)

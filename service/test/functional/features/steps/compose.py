@@ -49,9 +49,8 @@ def save_impl(context):
 
 @when('I send it')
 def send_impl(context):
-    assert page_has_css(context, '#send-button[disabled]') is False
-    context.browser.find_element(By.ID, 'send-button').click()
-    # wait_until_element_is_deleted(context, (By.ID, 'send-button'), timeout=120)
+    send_button = wait_until_element_is_visible_by_locator(context, (By.CSS_SELECTOR, '#send-button:enabled'))
+    send_button.click()
 
 
 def _enter_recipient(context, recipients_field, to_type):

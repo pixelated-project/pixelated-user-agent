@@ -42,6 +42,7 @@ define(['flight/lib/component', 'page/events'], function (describeComponent, eve
       this.on(document, events.ui.mail.open, this.contractMiddlePaneExpandRightPane);
       this.on(document, events.dispatchers.rightPane.openComposeBox, this.contractMiddlePaneExpandRightPane);
       this.on(document, events.dispatchers.rightPane.openDraft, this.contractMiddlePaneExpandRightPane);
+      this.on(document, events.dispatchers.rightPane.openFeedbackBox, this.contractMiddlePaneExpandRightPane);
       this.on(document, events.dispatchers.rightPane.openNoMessageSelected, this.expandMiddlePaneContractRightPane);
       this.expandMiddlePaneContractRightPane();
     });

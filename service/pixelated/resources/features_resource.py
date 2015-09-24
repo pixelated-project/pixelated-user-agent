@@ -21,12 +21,16 @@ from twisted.web.resource import Resource
 
 class FeaturesResource(Resource):
     DISABLED_FEATURES = ['draftReply']
-
     isLeaf = True
 
     def render_GET(self, request):
-        try:
-            disabled_features = {'logout': os.environ['DISPATCHER_LOGOUT_URL']}
-        except KeyError:
-            disabled_features = {}
-        return respond_json({'disabled_features': self.DISABLED_FEATURES, 'dispatcher_features': disabled_features}, request)
+        dispatcher_features = {}
+
+        if os.environ.get('DISPATCHER_LOGOUT_URL'):
+            dispatcher_features['logout'] = os.environ.get('DISPATCHER_LOGOUT_URL')
+
+        if os.environ.get('FEEDBACK_URL') is None:
+            self.DISABLED_FEATURES.append('feedback')
+
+        return respond_json(
+            {'disabled_features': self.DISABLED_FEATURES, 'dispatcher_features': dispatcher_features}, request)

@@ -47,7 +47,7 @@ app/bower_components/typeahead.js/dist/typeahead.bundle.min.js \
 app/bower_components/foundation/js/foundation.js \
 app/bower_components/foundation/js/foundation/foundation.reveal.js \
 app/bower_components/foundation/js/foundation/foundation.offcanvas.js \
+app/js/foundation/initialize_foundation.js \
 .tmp/app.concatenated.js > dist/app.js
 node_modules/.bin/minify dist/app.js > dist/app.min.js
 rm dist/app.js
-

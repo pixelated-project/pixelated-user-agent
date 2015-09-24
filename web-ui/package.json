@@ -31,12 +31,13 @@
     "handlebars-watch": "node_modules/.bin/watch 'npm run handlebars' app/templates",
     "compass": "compass compile",
     "compass-watch": "compass watch",
-    "build": "npm run clean && npm run handlebars && npm run compass",
+    "build": "npm run clean && npm run handlebars && npm run add_git_version && npm run compass",
     "jshint": "jshint --config=.jshintrc app test",
     "clean": "rm -rf .tmp/ dist/**/* app/js/generated/hbs/* app/css/*",
     "buildmain": "node_modules/requirejs/bin/r.js -o config/buildoptions.js",
     "package": "/bin/bash config/package.sh",
     "imagemin": "node config/imagemin.js",
-    "minify_html": "node_modules/.bin/html-minifier app/index.html --collapse-whitespace | sed 's|<!--usemin_start-->.*<!--usemin_end-->|<script src=\"assets/app.min.js\" type=\"text/javascript\"></script>|' > dist/index.html"
+    "minify_html": "node_modules/.bin/html-minifier app/index.html --collapse-whitespace | sed 's|<!--usemin_start-->.*<!--usemin_end-->|<script src=\"assets/app.min.js\" type=\"text/javascript\"></script>|' > dist/index.html",
+    "add_git_version": "/bin/bash config/add_git_version.sh"
   }
 }

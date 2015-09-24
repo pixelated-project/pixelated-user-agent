@@ -21,6 +21,7 @@ requirejs.config({
   paths: {
     'mail_list': 'js/mail_list',
     'page': 'js/page',
+    'feedback': 'js/feedback',
     'flight': 'bower_components/flight',
     'hbs': 'js/generated/hbs',
     'helpers': 'js/helpers',
@@ -35,9 +36,9 @@ requirejs.config({
     'mixins': 'js/mixins',
     'search': 'js/search',
     'foundation': 'js/foundation',
+    'features': 'js/features/features',
     'i18next': 'bower_components/i18next/i18next.amd',
     'quoted-printable': 'bower_components/quoted-printable',
-    'features': 'js/features/features',
     'utf8': 'bower_components/utf8'
   }
 });

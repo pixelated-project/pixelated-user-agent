@@ -23,7 +23,7 @@
 }
 
 // COMPOSE PANE
-#compose-box, #draft-box, #reply-box {
+#compose-box, #draft-box, #reply-box, #feedback-box {
   div.floatlabel {
     position: relative;
   }
@@ -33,7 +33,7 @@
     border-bottom: 1px solid #DDD;
     padding: 1px;
   }
-  label {
+  label, span {
     color: #AAA;
     padding: 0.5rem;
     cursor: text;
@@ -61,11 +61,12 @@
   input.showfloatlabel, textarea.showfloatlabel {
     padding-top: 1rem !important;
   }
-  input {
-    &#subject {
-      font-size: 1.6875rem;
-      line-height: 1.4;
-    }
+  input#subject, #feedback-subject {
+    font-size: 1.6875rem;
+    line-height: 1.4;
+  }
+  #feedback-subject {
+    color: #333;
   }
   textarea {
     border-bottom: 2px solid #DDD;

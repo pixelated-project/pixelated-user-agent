@@ -78,7 +78,7 @@ function runCoverageIntegration {
         getTrialAbsolutePath
         coverage run -p --source=pixelated $TRIAL_PATH --reporter=text $* test.integration
         coverage combine
-        coverage html
+        coverage html --ignore-errors
         echo "Done."
 }
 

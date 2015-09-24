@@ -15,6 +15,14 @@
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 
 from email.parser import Parser
+import re
+
+
+def _parse_charset_header(content_type_and_charset_header, default_charset='us-ascii'):
+    try:
+        return re.compile('.*charset="?([a-zA-Z0-9-]+)"?', re.MULTILINE | re.DOTALL).match(content_type_and_charset_header).group(1)
+    except:
+        return default_charset
 
 
 class BodyParser(object):
@@ -25,17 +33,29 @@ class BodyParser(object):
         self._content_transfer_encoding = content_transfer_encoding
 
     def parsed_content(self):
-        parser = Parser()
+        charset = _parse_charset_header(self._content_type)
+        text = self._serialize_for_parser(charset)
 
+        decoded_body = self._parse_and_decode(text)
+
+        return unicode(decoded_body, encoding=charset)
+
+    def _parse_and_decode(self, text):
+        parsed_body = Parser().parsestr(text)
+        decoded_body = self._unwrap_content_transfer_encoding(parsed_body)
+        return decoded_body
+
+    def _unwrap_content_transfer_encoding(self, parsed_body):
+        return parsed_body.get_payload(decode=True)
+
+    def _serialize_for_parser(self, charset):
         text = ''
         text += 'Content-Type: %s\n' % self._content_type
         if self._content_transfer_encoding is not None:
             text += 'Content-Transfer-Encoding: %s\n' % self._content_transfer_encoding
         text += '\n'
-        text += self._content
-
-        parsed_body = parser.parsestr(text)
-
-        result = unicode(parsed_body.get_payload(decode=True), encoding='utf-8')
-
-        return unicode(result)
+        if isinstance(self._content, unicode):
+            text += self._content.encode(charset)
+        else:
+            text += self._content
+        return text

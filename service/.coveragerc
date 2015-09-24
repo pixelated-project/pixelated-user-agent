@@ -2,6 +2,3 @@
 branch = True
 source = pixelated
 omit = test/*
-
-[report]
-ingore-errors = True
