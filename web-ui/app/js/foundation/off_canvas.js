@@ -27,15 +27,17 @@ define(['flight/lib/component', 'page/events'], function (defineComponent, event
     this.toggleSlideContent = function (ev) {
       ev.preventDefault();
   	  $('.left-off-canvas-toggle').click();
-	  this.toggleTagsVisibility();
+	    this.toggleTagsVisibility();
     };
 
     this.toggleTagsVisibility = function () {
-	  if ($('.off-canvas-wrap.content').hasClass('move-right')) {
-	    $('#custom-tag-list').addClass('expanded');
-	  } else {
-	    $('#custom-tag-list').removeClass('expanded');
-	  }
+      if ($('.off-canvas-wrap.content').hasClass('move-right')) {
+        $('#left-pane').addClass('expanded');
+        $('#custom-tag-list').addClass('expanded');
+      } else {
+        $('#left-pane').removeClass('expanded');
+        $('#custom-tag-list').removeClass('expanded');
+      }
     };
 
     this.after('initialize', function () {

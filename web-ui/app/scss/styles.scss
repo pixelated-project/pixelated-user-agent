@@ -27,7 +27,7 @@
 
 #user-settings-box {
   position: absolute;
-  left: 50px;
+  left: 70px;
   top: -40px;
   z-index: 1;
   padding: 20px;
@@ -689,8 +689,20 @@ button {
   }
 }
 
+.hidden {
+  display: none;
+}
+
+#left-pane.expanded {
+  width: 210px;
+}
+
+#tag-list {
+  white-space: nowrap;
+}
+
 .left-off-canvas-menu {
-  width: 222px;
+  width: 50px;
   -webkit-backface-visibility: hidden;
   box-sizing: content-box;
   left: 0;
@@ -768,6 +780,7 @@ button {
 }
 
 .off-canvas-wrap.move-right.menu {
+  z-index: 1;
   position: absolute;
 }
 
@@ -812,8 +825,7 @@ button {
 }
 
 div.side-nav-bottom {
-  width: 100%;
-  position: fixed;
+  white-space: nowrap;
   bottom: 0;
   background-color: $navigation_background;
 

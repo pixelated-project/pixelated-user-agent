@@ -23,15 +23,17 @@ define(['flight/lib/component', 'views/templates', 'page/events'], function (def
       this.$node.html(templates.page.userSettingsBox());
     };
 
-    this.toggle = function() {
-      this.showing = !this.showing;
-      alert(this.showing);
+    this.toggleHidden = function() {
+      if (this.$node.hasClass('hidden')) {
+        this.$node.removeClass('hidden')
+      } else {
+        this.$node.addClass('hidden')
+      }
     };
 
     this.after('initialize', function () {
-      this.showing = false;
       this.render();
-      this.on(document, events.ui.userSettingsBox.toggle, this.toggle);
+      this.on(document, events.ui.userSettingsBox.toggle, this.toggleHidden);
     });
   });
 });

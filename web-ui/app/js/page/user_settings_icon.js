@@ -31,6 +31,5 @@ define(['flight/lib/component', 'views/templates', 'page/events'], function (def
       this.render();
       this.on('click', this.toggleUserSettingsBox);
     });
-
   });
 });
