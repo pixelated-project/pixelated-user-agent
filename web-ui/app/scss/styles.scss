@@ -21,6 +21,32 @@
   background-color: $search-highlight;
 }
 
+#user-settings-icon {
+  position: relative;
+}
+
+#user-settings-box {
+  position: absolute;
+  left: 50px;
+  top: -40px;
+  z-index: 1;
+  padding: 20px;
+  background-color: rgba(#3E3A37, 0.9);
+
+  h1, i {
+    font-size: 2em;
+    color: white;
+  }
+
+  i {
+    float: right;
+  }
+
+  p {
+    font-size: 1.7em;
+    color: #FF9C00;
+  }
+}
 
 @mixin list-actions {
   #list-actions {

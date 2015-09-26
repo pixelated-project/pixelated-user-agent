@@ -20,17 +20,18 @@ define(['flight/lib/component', 'views/templates', 'page/events'], function (def
   return defineComponent(function () {
 
     this.render = function () {
-      this.$node.html(templates.page.userSettingsIcon());
+      this.$node.html(templates.page.userSettingsBox());
     };
 
-    this.toggleUserSettingsBox = function() {
-      this.trigger(document, events.ui.userSettingsBox.toggle);
+    this.toggle = function() {
+      this.showing = !this.showing;
+      alert(this.showing);
     };
 
     this.after('initialize', function () {
+      this.showing = false;
       this.render();
-      this.on('click', this.toggleUserSettingsBox);
+      this.on(document, events.ui.userSettingsBox.toggle, this.toggle);
     });
-
   });
 });

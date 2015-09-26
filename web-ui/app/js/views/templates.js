@@ -58,6 +58,7 @@ define(['hbs/templates'], function (templates) {
     },
     page: {
       userSettingsIcon: window.Pixelated['app/templates/page/user_settings_icon.hbs'],
+      userSettingsBox: window.Pixelated['app/templates/page/user_settings_box.hbs'],
       logout: window.Pixelated['app/templates/page/logout.hbs'],
       logoutShortcut: window.Pixelated['app/templates/page/logout_shortcut.hbs'],
       version: window.Pixelated['app/templates/page/version.hbs']

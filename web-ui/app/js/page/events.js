@@ -90,6 +90,9 @@ define(function () {
         inputFieldIsEmpty: 'ui:recipients:inputFieldIsEmpty',
         doCompleteInput: 'ui:recipients:doCompleteInput',
         doCompleteRecipients: 'ui:recipients:doCompleteRecipients'
+      },
+      userSettingsBox: {
+        toggle: 'ui:userSettingsBox:toggle'
       }
     },
     search: {
