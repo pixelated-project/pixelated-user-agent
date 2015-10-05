@@ -34,10 +34,7 @@ class BodyParser(object):
 
     def parsed_content(self):
         charset = _parse_charset_header(self._content_type)
-        try:
-            text = self._serialize_for_parser(charset)
-        except Exception as error:
-            import ipdb; ipdb.set_trace()
+        text = self._serialize_for_parser(charset)
 
         decoded_body = self._parse_and_decode(text)
 
