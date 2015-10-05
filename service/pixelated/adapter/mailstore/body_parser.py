@@ -34,7 +34,10 @@ class BodyParser(object):
 
     def parsed_content(self):
         charset = _parse_charset_header(self._content_type)
-        text = self._serialize_for_parser(charset)
+        try:
+            text = self._serialize_for_parser(charset)
+        except Exception as error:
+            import ipdb; ipdb.set_trace()
 
         decoded_body = self._parse_and_decode(text)
 
@@ -55,7 +58,7 @@ class BodyParser(object):
             text += 'Content-Transfer-Encoding: %s\n' % self._content_transfer_encoding
         text += '\n'
         if isinstance(self._content, unicode):
-            text += self._content.encode(charset)
+            text = text.encode(charset) + self._content.encode(charset)
         else:
             text += self._content
         return text
