@@ -66,7 +66,6 @@ define(
           dataType: 'json',
           contentType: 'application/json; charset=utf-8',
           data: JSON.stringify(mail),
-          skipLoadingWarning: true,
           skipErrorMessage: true
         });
       };

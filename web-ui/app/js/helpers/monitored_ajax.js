@@ -31,9 +31,6 @@ define(['page/events', 'views/i18n'], function (events, i18n) {
 
     var originalBeforeSend = config.beforeSend;
     config.beforeSend = function () {
-      if (!config.skipLoadingWarning) {
-        $('#loading').show();
-      }
       if (originalBeforeSend) {
         originalBeforeSend();
       }
@@ -41,9 +38,6 @@ define(['page/events', 'views/i18n'], function (events, i18n) {
 
     var originalComplete = config.complete;
     config.complete = function () {
-      if (!config.skipLoadingWarning) {
-        $('#loading').fadeOut(500);
-      }
       if (originalComplete) {
         originalComplete();
       }
