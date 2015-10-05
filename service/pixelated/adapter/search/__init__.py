@@ -19,6 +19,7 @@ from pixelated.support.encrypted_file_storage import EncryptedFileStorage
 import os
 import re
 import dateutil.parser
+import time
 from pixelated.adapter.model.status import Status
 from pixelated.adapter.search.contacts import contacts_suggestions
 from whoosh.index import FileIndex
@@ -126,7 +127,7 @@ class SearchEngine(object):
         index_data = {
             'sender': self._empty_string_to_none(header.get('from', '')),
             'subject': self._empty_string_to_none(header.get('subject', '')),
-            'date': dateutil.parser.parse(header.get('date', '')).strftime('%s'),
+            'date': self._format_utc_integer(header.get('date', '')),
             'to': self._format_recipient(header, 'to'),
             'cc': self._format_recipient(header, 'cc'),
             'bcc': self._format_recipient(header, 'bcc'),
@@ -138,6 +139,10 @@ class SearchEngine(object):
         }
 
         writer.update_document(**index_data)
+
+    def _format_utc_integer(self, date):
+        timetuple = dateutil.parser.parse(date).utctimetuple()
+        return time.strftime('%s', timetuple)
 
     def _format_recipient(self, headers, name):
         list = headers.get(name, [''])
