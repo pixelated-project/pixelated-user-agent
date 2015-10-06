@@ -9,7 +9,7 @@ describeComponent('mail_view/ui/draft_button', function(){
     });
 
     describe('after initialize', function(){
-      it('should be enabled', function(){
+      it('should be disabled', function(){
         expect(this.$node).toBeDisabled();
       });
     });
