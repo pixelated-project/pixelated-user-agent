@@ -49,13 +49,13 @@ class BodyParser(object):
         return parsed_body.get_payload(decode=True)
 
     def _serialize_for_parser(self, charset):
-        text = ''
-        text += 'Content-Type: %s\n' % self._content_type
+        text = u''
+        text += u'Content-Type: %s\n' % self._content_type
         if self._content_transfer_encoding is not None:
-            text += 'Content-Transfer-Encoding: %s\n' % self._content_transfer_encoding
-        text += '\n'
+            text += u'Content-Transfer-Encoding: %s\n' % self._content_transfer_encoding
+        text += u'\n'
+        encoded_text = text.encode(charset)
         if isinstance(self._content, unicode):
-            text = text.encode(charset) + self._content.encode(charset)
+            return encoded_text + self._content.encode(charset)
         else:
-            text += self._content
-        return text
+            return encoded_text + self._content
