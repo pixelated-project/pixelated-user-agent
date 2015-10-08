@@ -9,7 +9,7 @@
     "Could not update mail tags": "Não foi possível atualizar as etiquetas do email",
     "Invalid tag name": "Nome de etiqueta inválido",
     "Could not delete email": "Não foi possível deletar o email",
-    "Could not fetch messages": "Não foi possível buscar as mensagems",
+    "Could not fetch messages": "Não foi possível buscar as mensagens",
     "sending-mail": "Enviando...",
 
     "tags": {
