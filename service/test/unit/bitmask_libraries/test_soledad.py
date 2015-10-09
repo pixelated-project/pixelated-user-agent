@@ -17,6 +17,7 @@ from mock import patch
 from pixelated.bitmask_libraries.soledad import SoledadSession
 from pixelated.bitmask_libraries.certs import LeapCertificate
 from test_abstract_leap import AbstractLeapTest
+from leap.common.events import catalog as events
 
 
 class SoledadSessionTest(AbstractLeapTest):
@@ -59,3 +60,19 @@ class SoledadSessionTest(AbstractLeapTest):
 
         # then
         instance.sync.assert_called_with()
+
+    @patch('pixelated.bitmask_libraries.soledad.Soledad')
+    @patch('leap.common.events.client')
+    def test_register_token_error_handler(self, events_mock, soledad_mock):
+        instance = soledad_mock.return_value
+        instance.server_url = '/foo/bar'
+        register_mock = events_mock.register
+        register_mock.register.return_value = None
+        # when
+        SoledadSession(self.provider, 'any-passphrase', self.auth.token, self.auth.uuid)
+
+        # then
+        used_arguments = register_mock.call_args
+        self.assertIsNotNone(used_arguments)
+        used_arguments = used_arguments[0]
+        self.assertEqual(used_arguments[0], events.SOLEDAD_INVALID_AUTH_TOKEN)
