@@ -23,9 +23,10 @@ define(
     'page/events',
     'views/i18n',
     'mail_view/ui/send_button',
+    'mail_view/ui/draft_button',
     'flight/lib/utils'
   ],
-  function(viewHelper, Recipients, DraftSaveStatus, events, i18n, SendButton, utils) {
+  function(viewHelper, Recipients, DraftSaveStatus, events, i18n, SendButton, DraftButton, utils) {
     'use strict';
 
     function withMailEditBase() {
@@ -94,6 +95,7 @@ define(
         this.on(this.select('draftButton'), 'click', this.buildAndSaveDraft);
         this.on(this.select('trashButton'), 'click', this.trashMail);
         SendButton.attachTo(this.select('sendButton'));
+        DraftButton.attachTo(this.select('draftButton'));
 
         this.warnSendButtonOfRecipients();
       };
