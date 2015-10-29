@@ -94,6 +94,9 @@ define(function () {
         doCompleteInput: 'ui:recipients:doCompleteInput',
         doCompleteRecipients: 'ui:recipients:doCompleteRecipients',
         clickToEdit: 'ui:recipients:clickToEdit'
+      },
+      userSettingsBox: {
+        toggle: 'ui:userSettingsBox:toggle'
       }
     },
     search: {

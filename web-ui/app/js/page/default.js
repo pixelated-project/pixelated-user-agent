@@ -41,6 +41,8 @@ define(
     'views/i18n',
     'views/recipientListFormatter',
     'flight/lib/logger',
+    'page/user_settings_icon',
+    'page/user_settings_box',
     'page/logout',
     'page/logout_shortcut',
     'feedback/feedback_trigger',
@@ -75,6 +77,8 @@ define(
     viewI18n,
     recipientListFormatter,
     withLogging,
+    userSettingsIcon,
+    userSettingsBox,
     logout,
     logoutShortcut,
     feedback,
@@ -111,6 +115,8 @@ define(
       leftPaneDispatcher.attachTo(document);
 
       offCanvas.attachTo(document);
+      userSettingsIcon.attachTo('#user-settings-icon');
+      userSettingsBox.attachTo('#user-settings-box');
       logout.attachTo('#logout');
       logoutShortcut.attachTo('#logout-shortcut');
       version.attachTo('.version');
