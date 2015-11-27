@@ -21,6 +21,47 @@
   background-color: $search-highlight;
 }
 
+#user-settings-box {
+  position: absolute;
+  left: 20px;
+  bottom: 10px;
+  z-index: 1;
+  padding: 20px;
+  background-color: rgba(#3E3A37, 0.9);
+
+  h1, i {
+    font-size: 2em;
+    color: white;
+  }
+
+  i {
+    margin-left: 10px;
+    float: right;
+    cursor: pointer;
+  }
+
+  p {
+    font-size: 1.7em;
+    color: #FF9C00;
+  }
+}
+
+#user-settings-box.extra-bottom-space {
+  bottom: 65px;
+}
+
+.arrow-box:before {
+  right: 100%;
+  top: 65%;
+  border: 20px solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+  border-right-color: rgba(#3E3A37, 0.9);
+  margin-top: -20px;
+}
 
 @mixin list-actions {
   #list-actions {
@@ -398,7 +439,7 @@ section {
         }
       }
 
-      ul#logout, ul#feedback {
+      ul#logout, ul#feedback, ul#user-settings-icon {
         li {
           background-color: $navigation_background;
           padding: 5px 10px;
@@ -423,14 +464,21 @@ section {
         }
       }
 
-      ul#logout li{
+      ul#logout li {
         color: $action_buttons;
         &:hover {
           background-color: $action_buttons;
         }
       }
 
-      ul#feedback{
+      ul#user-settings-icon li {
+        color: white;
+        &:hover {
+          background-color: white;
+        }
+      }
+
+      ul#feedback {
         margin-bottom: 0;
 
         li {
@@ -669,6 +717,10 @@ button {
       display: none;
     }
   }
+}
+
+.hidden {
+  display: none;
 }
 
 .left-off-canvas-menu {
