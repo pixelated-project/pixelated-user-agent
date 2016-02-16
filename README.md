@@ -52,6 +52,18 @@ Type your password:
 
 6) Connect to the provider using your credentials. If the user agent starts up successfully, you will not see any other output.
 
+**Note** For more convenience during development, you can also create a config file with your credentials (ini format). Example:  
+
+*credentials.ini*
+```
+[pixelated]
+leap_server_name=dev.pixelated-project.org
+leap_username=<your_username>
+leap_password=<your_password>
+```
+Then start the user agent like this:  
+`$ pixelated-user-agent --host 0.0.0.0 --config credentials.ini`
+
 7) Go to [localhost:3333](http://localhost:3333/). You should see a loading screen for a few seconds, then your inbox. If it sticks on the loading screen, check your terminal for errors, then [get help](https://pixelated-project.org/faq/#contact-the-project).
 
 8) If you like console output, you can also run the tests to see if everything went according to plan.
