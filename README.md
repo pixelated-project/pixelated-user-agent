@@ -52,17 +52,7 @@ Type your password:
 
 6) Connect to the provider using your credentials. If the user agent starts up successfully, you will not see any other output.
 
-**Note** For more convenience during development, you can also create a config file with your credentials (ini format). Example:  
-
-*credentials.ini*
-```
-[pixelated]
-leap_server_name=dev.pixelated-project.org
-leap_username=<your_username>
-leap_password=<your_password>
-```
-Then start the user agent like this:  
-`$ pixelated-user-agent --host 0.0.0.0 --config credentials.ini`
+**Note**: For more convenience during development, you can also create a config file with your credentials (see **Further Notes**).
 
 7) Go to [localhost:3333](http://localhost:3333/). You should see a loading screen for a few seconds, then your inbox. If it sticks on the loading screen, check your terminal for errors, then [get help](https://pixelated-project.org/faq/#contact-the-project).
 
@@ -134,6 +124,20 @@ To run the pixelated user agent multi user mode, please run the following:
 
 You will need to change `dev.pixelated-project.org` to the hostname of the leap provider that you will be using.
 Once that is done, you can use by browsing to [http://localhost:3333](http://localhost:3333), where you will be prompted for your email username and password.
+
+## Config file with credentials
+
+The config file has to be in `ini` format, example:  
+
+*credentials.ini*
+```
+[pixelated]
+leap_server_name=dev.pixelated-project.org
+leap_username=<your_username>
+leap_password=<your_password>
+```
+To use it start the user agent like this:  
+`$ pixelated-user-agent --host 0.0.0.0 --config credentials.ini`
 
 ## Self-signed provider certs
 
