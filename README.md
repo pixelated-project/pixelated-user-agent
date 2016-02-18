@@ -127,7 +127,8 @@ Once that is done, you can use by browsing to [http://localhost:3333](http://loc
 
 ## Config file with credentials
 
-The config file has to be in `ini` format, example:  
+The config file has to be in `ini` format, see for example
+`try.alice.ini` or `try.bob.ini` in the root directory, or this one:
 
 *credentials.ini*
 ```
@@ -138,6 +139,8 @@ leap_password=<your_password>
 ```
 To use it start the user agent like this:  
 `$ pixelated-user-agent --host 0.0.0.0 --config credentials.ini`
+
+You can also include the host in the config file, as shown in the example files given above.
 
 ## Self-signed provider certs
 
