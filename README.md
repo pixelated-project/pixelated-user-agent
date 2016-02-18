@@ -127,8 +127,12 @@ Once that is done, you can use by browsing to [http://localhost:3333](http://loc
 
 ## Config file with credentials
 
+<<<<<<< HEAD
 The config file has to be in `ini` format, see for example
 `try.alice.ini` or `try.bob.ini` in the root directory, or this one:
+=======
+The config file has to be in `ini` format, example:  
+>>>>>>> 52604929b2c79db305fcfaf13ecf6c3eb3504761
 
 *credentials.ini*
 ```
@@ -140,8 +144,11 @@ leap_password=<your_password>
 To use it start the user agent like this:  
 `$ pixelated-user-agent --host 0.0.0.0 --config credentials.ini`
 
+<<<<<<< HEAD
 You can also include the host in the config file, as shown in the example files given above.
 
+=======
+>>>>>>> 52604929b2c79db305fcfaf13ecf6c3eb3504761
 ## Self-signed provider certs
 
 You might also need to add your LEAP provider ssl certificate to pixelated manually for now, with the following steps:
