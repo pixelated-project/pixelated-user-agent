@@ -30,6 +30,7 @@ __pycache__/
 .virtualenv
 # custom config file that can be used with the useragent
 /config
+credentials.ini
 pixelated.cfg
 service/_trial_temp/
 web-ui/coverage
