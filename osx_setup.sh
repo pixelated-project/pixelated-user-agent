@@ -7,7 +7,7 @@ function install_compass {
     rbenv local 2.2.3
     gem install compass
     export PATH=$PATH:~/.rbenv/versions/2.2.3/bin
-    echo "export PATH=$PATH:~/.rbenv/versions/2.2.3/bin" >> ~/.bash_profile
+    echo "export PATH=$PATH:~/.rbenv/versions/2.2.3/bin" | tee ~/.zshrc ~/.bash_profile > /dev/null
     echo 'eval "$(rbenv init -)"' >> ~/.bash_profile
 }
 
