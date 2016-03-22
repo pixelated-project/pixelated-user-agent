@@ -12,14 +12,33 @@ Here's a [podcast](https://soundcloud.com/thoughtworks/pixelated-why-secure-comm
 
 ![High level architecture User Agent](https://raw.githubusercontent.com/pixelated/website/master/assets/images/pixelated-user-agent.png)
 
-## Getting started
+## Try it!
+If you are curious,  have a look at the pixelated web client, it as simple as clicking *[here!](https://try.pixelated-project.org:8080/)*
 
+## Contributing
 You are most welcome to contribute to the pixelated user agent code base. Please have a look at the [contributions how to](https://github.com/pixelated/pixelated-user-agent/blob/master/CONTRIBUTING.md).
 
+## Installing Pixelated
+You like the idea and you want to run it locally, then before you have to install the following packages:
+* [Vagrant](https://www.vagrantup.com/downloads.html), Vagrant is a tool that automates the setup of a virtual machine with the development environment
+* A vagrant [compatible provider](https://www.vagrantup.com/docs/providers/), e.g. [Virtual   Box](https://www.virtualbox.org/wiki/Downloads).
 
-1) Install [Vagrant](https://www.vagrantup.com/downloads.html) and a vagrant [compatible provider](https://www.vagrantup.com/docs/providers/), e.g. [Virtual Box](https://www.virtualbox.org/wiki/Downloads). Vagrant is a tool that automates the setup of a virtual machine with the development environment in your computer. Inside the virtual machine's filesystem, this repository will be automatically mounted in the `/vagrant` folder.
+### Option 1: Pixelated User Agent + Leap Platform
 
-2) Clone the repo and start the virtual machine (downloads 600MB):
+You can install the Pixelated User Agent and the Leap Platform at once, just by running the following command on your console (this may take a while, please be patient):
+
+```bash
+ curl https://raw.githubusercontent.com/pixelated/puppet-pixelated/master/vagrant_platform.sh | sh
+```
+Once installed, you can create accounts by visiting the LEAP Webapp at <https://localhost:4443/signup> and see Pixelated in action at <https://localhost:8080/>.
+
+NOTE: Be aware that you will not be able to send mails outside, but you can test sending mails internally from one user to another.
+
+### Option 2: Pixelated User Agent alone
+
+Alternatively,you can install locally only the Pixelated User Agent and connect to one of the remote Leap Servers.
+
+1) Clone the repo and start the virtual machine (downloads 600MB, you may want get a coffee or tea in the meantime):
 
 ```
 $ git clone https://github.com/pixelated/pixelated-user-agent.git
@@ -27,15 +46,15 @@ $ cd pixelated-user-agent
 $ vagrant up
 ```
 
-3) Log into the VM:
+2) Log into the VM:
 
 ```
 $ vagrant ssh
 ```
 
-4) Register with a LEAP provider. You can create a developer account at our [Dev Provider](https://dev.pixelated-project.org/). Please contact us at team@pixelated-project.org for an invite code.
+3) Register with a LEAP provider. You can create a developer account at our [Dev Provider](https://dev.pixelated-project.org/). Please contact us at team@pixelated-project.org for an invite code.
 
-5) Run the user agent:
+4) Run the user agent:
 
 ```
 $ pixelated-user-agent --host 0.0.0.0
@@ -50,13 +69,15 @@ Type your password:
 ******** (the one you created in previous step)
 ```
 
-6) Connect to the provider using your credentials, as shown in step 5 above. If the user agent starts up successfully, you will not see any other output.
+5) Connect to the provider using your credentials, as shown in step 5 above. If the user agent starts up successfully, you will not see any other output.
 
 **Note**: For more convenience during development, you can also create a config file with your credentials (see **Further Notes**).
 
-7) Go to [localhost:3333](http://localhost:3333/). You should see a loading screen for a few seconds, then your inbox. If it sticks on the loading screen, check your terminal for errors, then [get help](https://pixelated-project.org/faq/#contact-the-project).
+8) Go to [localhost:3333](http://localhost:3333/). You should see a loading screen for a few seconds, then your inbox. If it sticks on the loading screen, check your terminal for errors, then [get help](https://pixelated-project.org/faq/#contact-the-project).
 
-8) If you like console output, you can also run the tests to see if everything went according to plan.
+## Running Tests
+
+If you like console output, you can also run the tests to see if everything went according to plan.
 
 ```bash
 (user-agent-venv)vagrant@jessie:~$ cd /vagrant
