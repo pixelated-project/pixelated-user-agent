@@ -209,6 +209,7 @@ def start_site(config, resource):
 
     site = PixelatedSite(resource)
     site.displayTracebacks = False
+
     if config.sslkey and config.sslcert:
         reactor.listenSSL(config.port, site, _ssl_options(config.sslkey, config.sslcert),
                           interface=config.host)

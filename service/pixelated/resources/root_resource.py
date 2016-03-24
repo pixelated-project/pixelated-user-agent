@@ -16,11 +16,13 @@
 import hashlib
 import json
 import os
+from os.path import join
 from string import Template
 from pixelated.resources.users import UsersResource
 
 from pixelated.resources import BaseResource, UnAuthorizedResource, UnavailableResource
 from pixelated.resources import get_public_static_folder, get_protected_static_folder
+from pixelated.resources import set_static_folder
 from pixelated.resources.attachments_resource import AttachmentsResource
 from pixelated.resources.sandbox_resource import SandboxResource
 from pixelated.resources.backup_account_resource import BackupAccountResource
@@ -49,8 +51,10 @@ MODE_RUNNING = 2
 
 
 class RootResource(BaseResource):
-    def __init__(self, services_factory):
+    def __init__(self, services_factory, static_folder=None):
         BaseResource.__init__(self, services_factory)
+        if static_folder:
+            set_static_folder(static_folder)
         self._public_static_folder = get_public_static_folder()
         self._protected_static_folder = get_protected_static_folder()
         self._html_template = open(os.path.join(self._protected_static_folder, 'index.html')).read()
