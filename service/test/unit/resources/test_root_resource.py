@@ -107,6 +107,7 @@ class TestRootResource(unittest.TestCase):
 
         request.getCookie = MagicMock(return_value='irrelevant -- stubbed')
         self.root_resource._child_resources.add('features', FeaturesResource())
+        self.root_resource._mode = MODE_RUNNING
 
         d = self.web.get(request)
 
