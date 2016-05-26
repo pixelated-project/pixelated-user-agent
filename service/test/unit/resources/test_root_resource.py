@@ -68,6 +68,21 @@ class TestRootResource(unittest.TestCase):
         self.root_resource._mode = MODE_RUNNING
         self._test_should_renew_xsrf_cookie()
 
+    def test_should_unavailable_child_resource_during_startup(self):
+        self.root_resource._mode = MODE_STARTUP
+
+        request = DummyRequest(['/child'])
+        request.getCookie = MagicMock(return_value='irrelevant -- stubbed')
+
+        d = self.web.get(request)
+
+        def assert_unavailable(_):
+            self.assertEqual(503, request.responseCode)
+            self.assertEqual("Service Unavailable", request.written[0])
+
+        d.addCallback(assert_unavailable)
+        return d
+
     def _mock_ajax_csrf(self, request, csrf_token):
         request.requestHeaders.setRawHeaders('x-requested-with', ['XMLHttpRequest'])
         request.requestHeaders.setRawHeaders('x-xsrf-token', [csrf_token])

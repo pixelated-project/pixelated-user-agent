@@ -23,7 +23,7 @@ from twisted.web.resource import Resource
 # from pixelated.resources.login_resource import LoginResource
 from pixelated.resources.session import IPixelatedSession
 
-from twisted.web.http import INTERNAL_SERVER_ERROR
+from twisted.web.http import INTERNAL_SERVER_ERROR, SERVICE_UNAVAILABLE
 log = logging.getLogger(__name__)
 
 
@@ -112,3 +112,12 @@ class UnAuthorizedResource(Resource):
     def render_POST(self, request):
         request.setResponseCode(UNAUTHORIZED)
         return "Unauthorized!"
+
+
+class UnavailableResource(Resource):
+    def __init__(self):
+        Resource.__init__(self)
+
+    def render(self, request):
+        request.setResponseCode(SERVICE_UNAVAILABLE)
+        return "Service Unavailable"
