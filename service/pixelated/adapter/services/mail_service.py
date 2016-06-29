@@ -83,6 +83,9 @@ class MailService(object):
     def mail(self, mail_id):
         return self.mail_store.get_mail(mail_id, include_body=True)
 
+    def mail_raw(self, mail_id):
+        return self.mail_store.get_mail_raw(mail_id, include_body=True)
+
     def attachment(self, attachment_id):
         return self.attachment_store.get_mail_attachment(attachment_id)
 

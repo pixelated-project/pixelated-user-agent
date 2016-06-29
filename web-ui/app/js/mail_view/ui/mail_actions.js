@@ -33,6 +33,7 @@ define(
         replyButtonTop: '#reply-button-top',
         viewMoreActions: '#view-more-actions',
         replyAllButtonTop: '#reply-all-button-top',
+        getMailRaw: '#get-mail-raw',
         deleteButtonTop: '#delete-button-top',
         moreActions: '#more-actions'
       });
@@ -49,6 +50,11 @@ define(
         }.bind(this));
 
         this.on(this.select('replyAllButtonTop'), 'click', function () {
+          this.trigger(document, events.ui.replyBox.showReplyAll);
+          this.select('moreActions').hide();
+        }.bind(this));
+
+        this.on(this.select('getMailRaw'), 'click', function () {
           this.trigger(document, events.ui.replyBox.showReplyAll);
           this.select('moreActions').hide();
         }.bind(this));

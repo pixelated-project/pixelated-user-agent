@@ -55,6 +55,23 @@ class Mail(Resource):
 
         return NOT_DONE_YET
 
+    def render_raw_GET(self, request):
+        def populate_reply(mail):
+            mail_dict = mail.as_dict()
+            current_user = self._mail_service.account_email
+            sender = mail.headers.get('Reply-to', mail.headers.get('From'))
+            to = mail.headers.get('To', [])
+            ccs = mail.headers.get('Cc', [])
+            mail_dict['replying'] = replier.generate_recipients(sender, to, ccs, current_user)
+            return mail_dict
+
+        d = self._mail_service.mail_raw(self._mail_id)
+        d.addCallback(lambda mail: populate_reply(mail))
+        d.addCallback(lambda mail_dict: respond_json_deferred(mail_dict, request))
+        d.addErrback(handle_error_deferred, request)
+
+        return NOT_DONE_YET
+
     def render_DELETE(self, request):
         def response_failed(failure):
             err(failure, 'something failed')
