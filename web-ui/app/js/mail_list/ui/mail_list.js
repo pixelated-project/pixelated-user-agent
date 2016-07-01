@@ -149,6 +149,11 @@ define(
         }
       };
 
+      this.downloadRaw = function () {
+        this.trigger(document, events.ui.mail.downloadRaw);
+        console.log("downloade jetzt diesen scheiss");
+      };
+
       this.refreshAfterMailSent = function () {
         if (this.attr.currentTag === 'drafts' || this.attr.currentTag === 'sent') {
           this.refreshWithScroll();
@@ -163,6 +168,7 @@ define(
         this.on(document, events.mails.availableForRefresh, this.refreshMailList);
 
         this.on(document, events.mail.draftSaved, this.refreshAfterSaveDraft);
+        this.on(document, events.mail.downloadRaw, this.downloadRaw);
         this.on(document, events.mail.sent, this.refreshAfterMailSent);
 
         this.on(document, events.ui.mail.updateSelected, this.updateSelected);

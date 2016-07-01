@@ -55,7 +55,7 @@ define(
         }.bind(this));
 
         this.on(this.select('getMailRaw'), 'click', function () {
-          this.trigger(document, events.ui.replyBox.showReplyAll);
+          this.trigger(document, events.ui.mail.downloadRaw, {mail: this.attr.mail});
           this.select('moreActions').hide();
         }.bind(this));
 
@@ -70,9 +70,10 @@ define(
 
         this.on(this.select('viewMoreActions'), 'blur', function (event) {
           var replyButtonTopHover = this.select('replyAllButtonTop').is(':hover');
+          var downloadRaw = this.select('getMailRaw').is(':hover');
           var deleteButtonTopHover = this.select('deleteButtonTop').is(':hover');
 
-          if (replyButtonTopHover || deleteButtonTopHover) {
+          if (replyButtonTopHover || deleteButtonTopHover || downloadRaw) {
             event.preventDefault();
           } else {
             this.select('moreActions').hide();

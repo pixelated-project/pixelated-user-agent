@@ -4,7 +4,7 @@ from twisted.python.log import err
 from twisted.web.resource import Resource
 from twisted.web.server import NOT_DONE_YET
 
-from pixelated.resources import respond_json_deferred, BaseResource, handle_error_deferred
+from pixelated.resources import respond_json_deferred, respond_json, BaseResource, handle_error_deferred
 from pixelated.support import replier
 
 
@@ -55,7 +55,16 @@ class Mail(Resource):
 
         return NOT_DONE_YET
 
-    def render_raw_GET(self, request):
+    def render_POST(self, request):
+        # return 'HELLO'
+
+            # d = self._mail_service.mail_raw(self._mail_id)
+            # print("*" * 1000)
+            # print(d)
+            # print("*" * 1000)
+            #
+            # return d
+
         def populate_reply(mail):
             mail_dict = mail.as_dict()
             current_user = self._mail_service.account_email
