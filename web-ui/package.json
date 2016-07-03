@@ -14,6 +14,7 @@
     "karma-chrome-launcher": "0.2.2",
     "karma-firefox-launcher": "0.1.7",
     "karma-jasmine": "0.2.2",
+    "karma-jasmine-ajax": "0.1.13",
     "karma-junit-reporter": "0.2.2",
     "karma-phantomjs-launcher": "1.0.0",
     "karma-requirejs": "1.0.0",

@@ -5,8 +5,6 @@ class pixelated::source {
   package { [
     'git',
     'nodejs',
-    'nodejs-legacy',
-    'npm',
     'python-dev',
     'libffi-dev',
     'libssl-dev',

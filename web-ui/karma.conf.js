@@ -12,7 +12,7 @@ module.exports = function (config) {
     basePath: '',
 
     // frameworks to use
-    frameworks: ['jasmine'],
+    frameworks: ['jasmine-ajax', 'jasmine'],
 
     // list of files / patterns to load in the browser
     files: [
@@ -25,7 +25,7 @@ module.exports = function (config) {
       'app/bower_components/jasmine-flight/lib/jasmine-flight.js',
       'app/bower_components/jasmine-jquery/lib/jasmine-jquery.js',
       'app/bower_components/handlebars/handlebars.min.js',
-      'app//bower_components/modernizr/modernizr.js',
+      'app/bower_components/modernizr/modernizr.js',
       'app/bower_components/foundation/js/foundation.js',
       'app/bower_components/foundation/js/foundation/foundation.reveal.js',
       'app/bower_components/foundation/js/foundation/foundation.offcanvas.js',
@@ -50,9 +50,14 @@ module.exports = function (config) {
       {pattern: 'test/custom_matchers.js', included: false},
       {pattern: 'test/features.js', included: false},
       {pattern: 'test/spec/**/*.spec.js', included: false},
+      {pattern: 'app/sandbox.html', included: true, served: true},
 
       'test/test-main.js'
     ],
+
+    proxies: {
+        '/sandbox/sandbox.html': '/base/app/sandbox.html',
+    },
 
     // list of files to exclude
     exclude: [
@@ -91,7 +96,7 @@ module.exports = function (config) {
 
     // Karma will report all the tests that are slower than given time limit (in
     // ms).
-    reportSlowerThan: 500,
+    reportSlowerThan: 1000,
 
     junitReporter: {
       outputFile: 'test-results.xml',

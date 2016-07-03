@@ -15,51 +15,55 @@
  * along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['flight/lib/component', 'views/templates', 'page/events', 'features'],
-    function (defineComponent, templates, events, features) {
-  'use strict';
+define(['flight/lib/component', 'views/templates', 'page/events', 'features', 'feedback/feedback_cache'],
+  function (defineComponent, templates, events, features, feedbackCache) {
+    'use strict';
 
-  return defineComponent(function () {
-     this.defaultAttrs({
-       'closeButton': '.close-mail-button',
-       'submitButton': '#send-button',
-       'textBox': '#text-box',
-     });
+    return defineComponent(function () {
+      this.defaultAttrs({
+        'closeButton': '.close-mail-button',
+        'submitButton': '#send-button',
+        'textBox': '#text-box',
+      });
 
-    this.render = function () {
-      this.$node.html(templates.compose.feedback());
-    };
+      this.render = function () {
+        this.$node.html(templates.compose.feedback());
+      };
 
-    this.openFeedbackBox = function() {
-      var stage = this.reset('feedback-box');
-      this.attachTo(stage);
-      this.enableFloatlabel('input.floatlabel');
-      this.enableFloatlabel('textarea.floatlabel');
-    };
+      this.startCachingData = function () {
+        this.select('textBox').val(feedbackCache.getCache());
+        this.select('textBox').on('change', this.cacheFeedbackData.bind(this));
+      };
 
-    this.showNoMessageSelected = function() {
-      this.trigger(document, events.dispatchers.rightPane.openNoMessageSelected);
-    };
 
-    this.submitFeedback = function () {
-      var feedback = this.select('textBox').val();
-      this.trigger(document, events.feedback.submit, { feedback: feedback });
-    };
+      this.cacheFeedbackData = function () {
+        feedbackCache.setCache(this.select('textBox').val());
+      };
 
-    this.showSuccessMessage = function () {
-        this.trigger(document, events.ui.userAlerts.displayMessage, { message: 'Thanks for your feedback!' });
-    };
+      this.showNoMessageSelected = function () {
+        this.trigger(document, events.dispatchers.rightPane.openNoMessageSelected);
+      };
 
-    this.after('initialize', function () {
-      if (features.isEnabled('feedback')) {
+      this.submitFeedback = function () {
+        var feedback = this.select('textBox').val();
+        this.trigger(document, events.feedback.submit, {feedback: feedback});
+        feedbackCache.resetCache();
+      };
+
+      this.showSuccessMessage = function () {
+        this.trigger(document, events.ui.userAlerts.displayMessage, {message: 'Thanks for your feedback!'});
+      };
+
+      this.after('initialize', function () {
+        if (features.isEnabled('feedback')) {
           this.render();
-          this.on(document, events.dispatchers.rightPane.openFeedbackBox, this.openFeedbackBox);
+          this.startCachingData();
           this.on(document, events.feedback.submitted, this.showNoMessageSelected);
           this.on(document, events.feedback.submitted, this.showSuccessMessage);
           this.on(this.select('closeButton'), 'click', this.showNoMessageSelected);
           this.on(this.select('submitButton'), 'click', this.submitFeedback);
-      }
-    });
+        }
+      });
 
+    });
   });
-});

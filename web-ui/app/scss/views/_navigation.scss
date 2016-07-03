@@ -412,7 +412,8 @@ div.side-nav-bottom {
 
             &:nth-child(2) {
                 &:before {
-                    content: "\f1d8";
+                    font-family: "icomoon";
+                    content: "\e900";
                     margin-left: -5px;
                 }
             }

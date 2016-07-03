@@ -4,6 +4,16 @@ var tests = Object.keys(window.__karma__.files).filter(function (file) {
   return (/\.spec\.js$/.test(file));
 });
 
+beforeEach(function() {
+    'use strict';
+    jasmine.Ajax.install();
+});
+
+afterEach(function() {
+    'use strict';
+    jasmine.Ajax.uninstall();
+});
+
 requirejs.config({
 
   baseUrl: '/base',

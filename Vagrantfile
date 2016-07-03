@@ -22,6 +22,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
 
+  if /mswin|mingw/ =~ RUBY_PLATFORM
+    config.vm.synced_folder ".", "/vagrant", type: "rsync", rsync__exclude: ".git/"
+  end
+
   config.vm.provider "libvirt" do |v, override|
     v.memory = 1024
     override.vm.network :forwarded_port, guest: 3333, guest_ip: '127.0.0.1', host: 3333

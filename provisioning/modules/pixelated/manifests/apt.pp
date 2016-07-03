@@ -1,6 +1,12 @@
 # add the pixelated sources needed to install everything
 class pixelated::apt {
 
+  package { [
+    'apt-transport-https',
+    'lsb-release']:
+    ensure => installed
+  }
+
   # jessie backports
   file { '/etc/apt/sources.list.d/jessie-backports.list':
     source => 'puppet:///modules/pixelated/apt/jessie-backports.list',
@@ -51,9 +57,33 @@ class pixelated::apt {
     require => Exec['apt_get_update']
   }
 
+  # nodejs latest repo
+  file { '/etc/apt/sources.list.d/noderesource.list':
+    content =>
+      'deb https://deb.nodesource.com/node_6.x jessie main
+      deb-src https://deb.nodesource.com/node_6.x jessie main',
+    owner   => 'root'
+  }
+  exec{'add_nodesource_key':
+    command => '/usr/bin/curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -',
+    notify => Exec['apt_get_update']
+  }
+  file { '/etc/apt/preferences.d/nodejs':
+    content =>
+      'Package: nodejs
+      Pin: release o=Node Source
+      Pin-Priority: 999',
+    owner   => 'root'
+  }
+
   exec { 'apt_get_update':
     command     => '/usr/bin/apt-get -y update',
     refreshonly => true,
+    require => [
+      Package['apt-transport-https', 'lsb-release'],
+      File['/etc/apt/sources.list.d/noderesource.list'],
+      File['/etc/apt/preferences.d/nodejs']
+    ]
   }
 
 }

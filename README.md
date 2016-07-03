@@ -6,7 +6,7 @@ Pixelated User Agent
 
 The Pixelated User Agent is the mail client of the Pixelated ecosystem. It is composed of two parts, a web interface written in JavaScript ([FlightJS](https://flightjs.github.io/)) and a Python API that interacts with a LEAP Provider, the e-mail platform that Pixelated is built on.
 
-Here's a [podcast](https://soundcloud.com/thoughtworks/pixelated-why-secure-communication-is-essential) that explains the projectt.
+Here's a [podcast](https://soundcloud.com/thoughtworks/pixelated-why-secure-communication-is-essential) that explains the project.
 
 **Pixelated is still in early development state!**
 
@@ -258,16 +258,6 @@ apt-get install pixelated-server
 
 For people who want to run the user agent on docker container can use the Dockerfile.
 
+## How to translate the user interface
 
-## Managing translations
-
-All the translation work is managed at [Transifex](https://www.transifex.com). To sync translation files at Transifex and those versioned with the source code itself, we use [The Transifex Client](http://docs.transifex.com/client/). To get it up and running you can follow the [Client installation guide](http://docs.transifex.com/client/setup/). For more informations about, see the [Client Usage](http://docs.transifex.com/client/#client-usage).
-
-With the Client installed, the most common operations is really simple:
-
-* `tx pull -a` to pull the most recent version of translation files at Transifex
-* `tx push -s -t` to push source (-s) translation files and the translations (-t) as well.
-
-After pulling the updates from Transifex, probably you will see differences pointed by git. So, it's just a matter of commit and push these new changes.
-
-*Important:* since the Transifex Client uses api calls to comunicate with Transifex, you need a Transifex account to use it.
+See: [Contributor's Guide](https://github.com/pixelated/pixelated-user-agent/blob/master/CONTRIBUTING.md#translating-ui)

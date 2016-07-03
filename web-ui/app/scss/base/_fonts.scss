@@ -58,3 +58,11 @@
   font-weight: 800;
   src: local('Open Sans Extrabold Italic'), local('OpenSans-ExtraboldItalic'), url('/assets/fonts/OpenSans-ExtraboldItalic.woff') format('woff');
 }
+
+@font-face {
+  font-family: 'icomoon';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/assets/fonts/icomoon.woff') format('woff'),  url('/assets/fonts/icomoon.ttf') format('truetype'), ;
+}
+
