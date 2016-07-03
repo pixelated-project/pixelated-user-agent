@@ -26,7 +26,7 @@ define(
     'page/events',
     'features',
     'mixins/with_auto_refresh',
-    'page/router/url_params',
+    'page/router/url_params'
   ], function (defineComponent, i18n, Mail, monitoredAjax, events, features, withAutoRefresh, urlParams) {
 
     'use strict';
