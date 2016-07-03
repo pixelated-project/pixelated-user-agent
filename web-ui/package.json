@@ -20,8 +20,7 @@
     "karma-coverage": "0.2.7",
     "minify": "2.0.9",
     "requirejs": "2.2.0",
-    "watch": "0.19.1",
-    "file-saver": "1.3.2"
+    "watch": "0.19.1"
   },
   "scripts": {
     "test": "npm run jshint --silent && npm run build --silent && node_modules/karma/bin/karma start --single-run $GRUNT_OPTS",
