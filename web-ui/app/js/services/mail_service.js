@@ -289,7 +289,7 @@ define(
             return;
            })
           .fail(this.errorMessage('Failed to download'));
-      }
+      };
 
       this.nextPage = function () {
         if (this.attr.currentPage < (this.attr.numPages)) {
