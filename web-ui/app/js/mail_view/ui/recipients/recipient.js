@@ -84,7 +84,7 @@ define(
           this.$node.removeClass('discover-encryption');
         }.bind(this));
           p.fail(function () {
-            this.$node.find('.recipient-value').addClass('not-encrypted');
+            this.$node.find('.recipient-value').addClass('not-encrypted').addClass('fa').addClass('fa-unlock');
             this.$node.removeClass('discover-encryption');
         }.bind(this));
       };
