@@ -19,7 +19,7 @@ class MailStore(object):
     def get_mail(self, mail_id):
         pass
 
-    def get_mail_raw(self, mail_id):
+    def get_raw_mail(self, mail_id):
         pass
 
     def get_mail_attachment(self, attachment_id):

@@ -205,7 +205,7 @@ class LeapMailStore(MailStore):
         defer.returnValue(leap_mail)
 
     @defer.inlineCallbacks
-    def get_mail_raw(self, mail_id, include_body=False):
+    def get_raw_mail(self, mail_id, include_body=False):
         message = yield self._fetch_msg_from_soledad(mail_id)
         if not _is_empty_message(message):
             leap_mail = yield self._leap_message_to_leap_mail(mail_id, message, include_body)

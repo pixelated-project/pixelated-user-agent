@@ -56,15 +56,6 @@ class Mail(Resource):
         return NOT_DONE_YET
 
     def render_POST(self, request):
-        # return 'HELLO'
-
-            # d = self._mail_service.mail_raw(self._mail_id)
-            # print("*" * 1000)
-            # print(d)
-            # print("*" * 1000)
-            #
-            # return d
-
         def populate_reply(mail):
             mail_dict = mail.as_dict()
             current_user = self._mail_service.account_email
@@ -74,7 +65,7 @@ class Mail(Resource):
             mail_dict['replying'] = replier.generate_recipients(sender, to, ccs, current_user)
             return mail_dict
 
-        d = self._mail_service.mail_raw(self._mail_id)
+        d = self._mail_service.raw_mail(self._mail_id)
         d.addCallback(lambda mail: populate_reply(mail))
         d.addCallback(lambda mail_dict: respond_json_deferred(mail_dict, request))
         d.addErrback(handle_error_deferred, request)

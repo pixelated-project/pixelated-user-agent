@@ -33,7 +33,7 @@ define(
         replyButtonTop: '#reply-button-top',
         viewMoreActions: '#view-more-actions',
         replyAllButtonTop: '#reply-all-button-top',
-        getMailRaw: '#get-mail-raw',
+        getMailRaw: '#get-raw-mail',
         deleteButtonTop: '#delete-button-top',
         moreActions: '#more-actions'
       });
@@ -54,7 +54,7 @@ define(
           this.select('moreActions').hide();
         }.bind(this));
 
-        this.on(this.select('getMailRaw'), 'click', function () {
+        this.on(this.select('getRawMail'), 'click', function () {
           this.trigger(document, events.ui.mail.downloadRaw, {mail: this.attr.mail});
           this.select('moreActions').hide();
         }.bind(this));

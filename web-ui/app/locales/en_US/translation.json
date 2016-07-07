@@ -28,7 +28,7 @@
     "mark-as-read": "Mark as read",
     "mark-as-unread": "Mark as unread",
     "delete": "Delete",
-    "get-mail-raw": "Get mail raw",
+    "get-raw-mail": "Get raw mail",
     "archive": "Archive",
     "nothing-selected": "Nothing selected",
     "add-tag-placeholder": "Press Enter to add tag",
