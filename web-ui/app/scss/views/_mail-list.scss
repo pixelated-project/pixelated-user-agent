@@ -1,10 +1,8 @@
 .mail-list-entry {
     @include scut-clearfix;
 
-    padding: 8px 10px 10px 10px;
     border-bottom: 1px solid white;
     transition: background-color 150ms ease-out;
-    cursor: pointer;
     font-weight: bold;
     height: 80px;
     position: relative;
@@ -32,7 +30,10 @@
         margin-right: 5px;
         display: block;
         float: left;
-        min-height: 100%;
+        margin: {
+          top: 8px;
+          left: 20px;
+        }
 
         & > input[type=checkbox] {
             @include check-box;
@@ -42,7 +43,8 @@
     &__item {
         display: block;
         color: $dark_grey;
-        padding-left: 24px;
+        padding: 8px 10px 10px 34px;
+        height: 100%;
 
         &-from {
             white-space: nowrap;

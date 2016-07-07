@@ -100,6 +100,7 @@ class TestRequest:
 class PixRequestMock(DummyRequest):
     def __init__(self, path):
         DummyRequest.__init__(self, path)
+        self.path = "/".join(path)
         self.content = None
         self.code = None
         self.cookies = {}

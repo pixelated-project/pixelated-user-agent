@@ -13,6 +13,9 @@
       text-align: center;
       font-weight: 400;
       font-size: 1.2em;
+      width: 100%;
+      height: 100%;
+      margin-bottom: 0px;
       @include btn-transition;
       &:hover {
         background: lighten($action_buttons, 10%);

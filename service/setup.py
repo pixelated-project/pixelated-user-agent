@@ -29,7 +29,7 @@ setup(name='pixelated-user-agent',
       long_description=read('README.md'),
       author='Thoughtworks',
       author_email='pixelated-team@thoughtworks.com',
-      url='http://pixelated-project.github.io',
+      url='https://github.com/pixelated',
       packages=[
           'pixelated',
           'pixelated.adapter',

@@ -15,6 +15,7 @@
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import re
 
 from leap.auth import SRPAuth
 from leap.exceptions import SRPAuthenticationError
@@ -123,26 +124,28 @@ class PixelatedAuthSessionWrapper(object):
 
     def _authorizedResource(self, request):
         creds = SessionCredential(request)
-        return util.DeferredResource(self._login(creds))
+        return util.DeferredResource(self._login(creds, request))
 
-    def _login(self, credentials):
+    def _login(self, credentials, request):
+        pattern = re.compile("^/sandbox/")
+
+        def loginSucceeded(args):
+            interface, avatar, logout = args
+            if avatar == checkers.ANONYMOUS and not pattern.match(request.path):
+                return self._anonymous_resource
+            else:
+                return self._root_resource
+
+        def loginFailed(result):
+            if result.check(error.Unauthorized, error.LoginFailed):
+                return UnauthorizedResource(self._credentialFactories)
+            else:
+                log.err(
+                    result,
+                    "HTTPAuthSessionWrapper.getChildWithDefault encountered "
+                    "unexpected error")
+                return ErrorPage(500, None, None)
+
         d = self._portal.login(credentials, None, IResource)
-        d.addCallbacks(self._loginSucceeded, self._loginFailed)
+        d.addCallbacks(loginSucceeded, loginFailed)
         return d
-
-    def _loginSucceeded(self, args):
-        interface, avatar, logout = args
-        if avatar == checkers.ANONYMOUS:
-            return self._anonymous_resource
-        else:
-            return self._root_resource
-
-    def _loginFailed(self, result):
-        if result.check(error.Unauthorized, error.LoginFailed):
-            return UnauthorizedResource(self._credentialFactories)
-        else:
-            log.err(
-                result,
-                "HTTPAuthSessionWrapper.getChildWithDefault encountered "
-                "unexpected error")
-            return ErrorPage(500, None, None)
