@@ -33,7 +33,7 @@ define(
         replyButtonTop: '#reply-button-top',
         viewMoreActions: '#view-more-actions',
         replyAllButtonTop: '#reply-all-button-top',
-        getMailRaw: '#get-raw-mail',
+        getRawMail: '#get-raw-mail',
         deleteButtonTop: '#delete-button-top',
         moreActions: '#more-actions'
       });
@@ -70,7 +70,7 @@ define(
 
         this.on(this.select('viewMoreActions'), 'blur', function (event) {
           var replyButtonTopHover = this.select('replyAllButtonTop').is(':hover');
-          var downloadRaw = this.select('getMailRaw').is(':hover');
+          var downloadRaw = this.select('getRawMail').is(':hover');
           var deleteButtonTopHover = this.select('deleteButtonTop').is(':hover');
 
           if (replyButtonTopHover || deleteButtonTopHover || downloadRaw) {
