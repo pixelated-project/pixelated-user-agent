@@ -52,7 +52,8 @@ define(
     'page/version',
     'page/unread_count_title',
     'page/pix_logo',
-    'helpers/browser'
+    'helpers/browser',
+    'page/shortcuts'
   ],
 
   function (
@@ -92,7 +93,8 @@ define(
     version,
     unreadCountTitle,
     pixLogo,
-    browser) {
+    browser,
+    shortcuts) {
 
     'use strict';
     function initialize(path) {
@@ -136,6 +138,8 @@ define(
         unreadCountTitle.attachTo(document);
 
         pixLogo.attachTo(document);
+
+        shortcuts.attachTo(document);
 
         $.ajaxSetup({headers: {'X-XSRF-TOKEN': browser.getCookie('XSRF-TOKEN')}});
       });
