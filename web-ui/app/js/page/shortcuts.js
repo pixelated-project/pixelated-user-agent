@@ -19,19 +19,25 @@ define([
     'flight/lib/component',
     'page/events'
   ],
-  function(defineComponent, events) {
+  function (defineComponent, events) {
     'use strict';
 
     return defineComponent(shortcuts);
 
     function shortcuts() {
-      this.onKeydown = function(event) {
+      this.CHARACTER_CODES = {
+        ESC: 27,
+        C: 67
+      };
+      this.onKeydown = function (event) {
+        if (event.which === this.CHARACTER_CODES.ESC) this.trigger(document, events.dispatchers.rightPane.openNoMessageSelected);
         if ($(event.target).is('input') || $(event.target).is('textarea')) return;
-        if (String.fromCharCode(event.which) === 'c') this.trigger(document, events.dispatchers.rightPane.openComposeBox);
+        if (event.which === this.CHARACTER_CODES.C) this.trigger(document, events.dispatchers.rightPane.openComposeBox);
+        event.preventDefault();
       };
 
-      this.after('initialize', function() {
-        this.on(document, 'keypress', this.onKeydown);
+      this.after('initialize', function () {
+        this.on(document, 'keydown', this.onKeydown);
       });
     }
   });

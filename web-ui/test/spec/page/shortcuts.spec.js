@@ -6,7 +6,7 @@ describeComponent('page/shortcuts', function () {
       this.setupComponent();
       var eventSpy = openComposeBoxEventSpy();
 
-      $(document).trigger(keypressEvent('c'));
+      $(document).trigger(keydownEvent(this.component.CHARACTER_CODES.C));
 
       expect(eventSpy).toHaveBeenTriggeredOn(document)
     });
@@ -16,7 +16,7 @@ describeComponent('page/shortcuts', function () {
       this.$node.append('<input type="text"/>');
       var eventSpy = openComposeBoxEventSpy();
 
-      this.$node.find('input').trigger(keypressEvent('c'));
+      this.$node.find('input').trigger(keydownEvent(this.component.CHARACTER_CODES.C));
 
       expect(eventSpy).not.toHaveBeenTriggeredOn(document)
     });
@@ -26,17 +26,25 @@ describeComponent('page/shortcuts', function () {
       this.$node.append('<textarea></textarea>');
       var eventSpy = openComposeBoxEventSpy();
 
-      this.$node.find('textarea').trigger(keypressEvent('c'));
+      this.$node.find('textarea').trigger(keydownEvent(this.component.CHARACTER_CODES.C));
 
       expect(eventSpy).not.toHaveBeenTriggeredOn(document)
+    });
+
+    it('triggers openNoMessageSelected when <Esc> is pressed and no input is focused', function () {
+      this.setupComponent();
+      var eventSpy = spyOnEvent(document, Pixelated.events.dispatchers.rightPane.openNoMessageSelected);
+      $(document).trigger(keydownEvent(this.component.CHARACTER_CODES.ESC));
+
+      expect(eventSpy).toHaveBeenTriggeredOn(document)
     });
 
     function openComposeBoxEventSpy() {
       return spyOnEvent(document, Pixelated.events.dispatchers.rightPane.openComposeBox);
     }
 
-    function keypressEvent(char) {
-      return jQuery.Event('keypress', {which: char.charCodeAt(0)});
+    function keydownEvent(code) {
+      return jQuery.Event('keydown', {which: code});
     }
   });
 });
