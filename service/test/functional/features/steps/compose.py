@@ -13,9 +13,11 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
+from behave import when
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
 from time import sleep
 
-from behave import when
 from common import *
 
 
@@ -23,6 +25,16 @@ from common import *
 def impl(context):
     toggle = context.browser.find_element_by_id('compose-mails-trigger')
     toggle.click()
+
+    for row in context.table:
+        fill_by_css_selector(context, 'input#subject', row['subject'])
+        fill_by_css_selector(context, 'textarea#text-box', row['body'])
+
+
+@when('I use a shortcut to compose a message with')
+def compose_with_shortcut(context):
+    body = context.browser.find_element_by_tag_name('body')
+    body.send_keys('c')
 
     for row in context.table:
         fill_by_css_selector(context, 'input#subject', row['subject'])
@@ -45,6 +57,11 @@ def choose_impl(context, recipients_field, to_type):
 def send_impl(context):
     send_button = wait_until_element_is_visible_by_locator(context, (By.CSS_SELECTOR, '#send-button:enabled'))
     send_button.click()
+
+
+@when('I use a shortcut to send it')
+def send_with_shortcut(context):
+    ActionChains(context.browser).key_down(Keys.CONTROL).send_keys(Keys.ENTER).key_up(Keys.CONTROL).perform()
 
 
 @when(u'I toggle the cc and bcc fields')
