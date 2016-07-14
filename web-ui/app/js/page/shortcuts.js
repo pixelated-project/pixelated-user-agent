@@ -25,19 +25,54 @@ define([
     return defineComponent(shortcuts);
 
     function shortcuts() {
-      this.CHARACTER_CODES = {
+      this.characterCodes = {
         ESC: 27,
-        C: 67
-      };
-      this.onKeydown = function (event) {
-        if (event.which === this.CHARACTER_CODES.ESC) this.trigger(document, events.dispatchers.rightPane.openNoMessageSelected);
-        if ($(event.target).is('input') || $(event.target).is('textarea')) return;
-        if (event.which === this.CHARACTER_CODES.C) this.trigger(document, events.dispatchers.rightPane.openComposeBox);
-        event.preventDefault();
+        C: 67,
+        ENTER: 13
       };
 
+      var self = this;
+
+      function sendMail() {
+        this.trigger(document, events.ui.mail.send);
+      }
+
+      function closeComposeBox() {
+        this.trigger(document, events.dispatchers.rightPane.openNoMessageSelected);
+      }
+
+      function openComposeBox() {
+        this.trigger(document, events.dispatchers.rightPane.openComposeBox);
+      }
+
+      function isTriggeredOnInputField(event) {
+        return $(event.target).is('input') || $(event.target).is('textarea');
+      }
+
+      function ctrlOrMetaEnterKey(event) {
+        return (event.ctrlKey === true || event.metaKey === true) && event.which === self.characterCodes.ENTER;
+      }
+
+      function escapeKey(event) {
+        return event.which === self.characterCodes.ESC;
+      }
+
+      function cKey(event) {
+        return event.which === self.characterCodes.C;
+      }
+
+      function onKeydown(event) {
+        if (escapeKey(event)) closeComposeBox.call(this);
+        if (ctrlOrMetaEnterKey(event)) sendMail.call(this);
+
+        if (isTriggeredOnInputField(event)) return;
+
+        if (cKey(event)) openComposeBox.call(this);
+        event.preventDefault();
+      }
+
       this.after('initialize', function () {
-        this.on(document, 'keydown', this.onKeydown);
+        this.on(document, 'keydown', $.proxy(onKeydown, this));
       });
     }
   });

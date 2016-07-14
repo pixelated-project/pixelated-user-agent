@@ -6,7 +6,7 @@ describeComponent('page/shortcuts', function () {
       this.setupComponent();
       var eventSpy = openComposeBoxEventSpy();
 
-      $(document).trigger(keydownEvent(this.component.CHARACTER_CODES.C));
+      $(document).trigger(keydownEvent(this.component.characterCodes.C));
 
       expect(eventSpy).toHaveBeenTriggeredOn(document)
     });
@@ -16,7 +16,7 @@ describeComponent('page/shortcuts', function () {
       this.$node.append('<input type="text"/>');
       var eventSpy = openComposeBoxEventSpy();
 
-      this.$node.find('input').trigger(keydownEvent(this.component.CHARACTER_CODES.C));
+      this.$node.find('input').trigger(keydownEvent(this.component.characterCodes.C));
 
       expect(eventSpy).not.toHaveBeenTriggeredOn(document)
     });
@@ -26,16 +26,31 @@ describeComponent('page/shortcuts', function () {
       this.$node.append('<textarea></textarea>');
       var eventSpy = openComposeBoxEventSpy();
 
-      this.$node.find('textarea').trigger(keydownEvent(this.component.CHARACTER_CODES.C));
+      this.$node.find('textarea').trigger(keydownEvent(this.component.characterCodes.C));
 
       expect(eventSpy).not.toHaveBeenTriggeredOn(document)
     });
 
-    it('triggers openNoMessageSelected when <Esc> is pressed and no input is focused', function () {
+    it('triggers openNoMessageSelected when <Esc> is pressed', function () {
       this.setupComponent();
       var eventSpy = spyOnEvent(document, Pixelated.events.dispatchers.rightPane.openNoMessageSelected);
-      $(document).trigger(keydownEvent(this.component.CHARACTER_CODES.ESC));
+      $(document).trigger(keydownEvent(this.component.characterCodes.ESC));
 
+      expect(eventSpy).toHaveBeenTriggeredOn(document)
+    });
+
+    it('triggers ui.mail.send when <Ctrl> + <Enter> is pressed', function () {
+      this.setupComponent();
+      var eventSpy = spyOnEvent(document, Pixelated.events.ui.mail.send);
+      $(document).trigger(jQuery.Event('keydown', {ctrlKey: true, which: this.component.characterCodes.ENTER}));
+      expect(eventSpy).toHaveBeenTriggeredOn(document)
+    });
+
+
+    it('triggers ui.mail.send when <Cmd>/<Meta> + <Enter> is pressed', function () {
+      this.setupComponent();
+      var eventSpy = spyOnEvent(document, Pixelated.events.ui.mail.send);
+      $(document).trigger(jQuery.Event('keydown', {metaKey: true, which: this.component.characterCodes.ENTER}));
       expect(eventSpy).toHaveBeenTriggeredOn(document)
     });
 
