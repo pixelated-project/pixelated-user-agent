@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 
+@wip
 Feature: Using keyboard shortcuts to compose and send a mail
   As a user of pixelated
   I want to use keyboard shortcuts
