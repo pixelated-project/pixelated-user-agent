@@ -29,44 +29,88 @@ define([
         this.on(document, 'keydown', $.proxy(onKeydown, this));
       });
 
-      this.keyCodes = {
+      var composeBoxId = 'compose-box';
+      var keyCodes = {
         ESC: 27,
         C: 67,
         ENTER: 13,
         FORWARD_SLASH: 191,
         S: 83
       };
+      var modifierKeys = {
+        META: "META",
+        CTRL: "CTRL"
+      };
 
-      var specialKeyToEvent = {};
-      specialKeyToEvent[this.keyCodes.ESC] = events.dispatchers.rightPane.openNoMessageSelected;
-
-      var alphaNumericKeyToEvent = {};
-      alphaNumericKeyToEvent[this.keyCodes.S] = events.search.focus;
-      alphaNumericKeyToEvent[this.keyCodes.FORWARD_SLASH] = events.search.focus;
-      alphaNumericKeyToEvent[this.keyCodes.C] = events.dispatchers.rightPane.openComposeBox;
+      // make constants public
+      this.keyCodes = keyCodes;
+      this.composeBoxId = composeBoxId;
 
       function onKeydown(event) {
-        if (ctrlOrMetaEnterKey.call(this, event)) sendMail.call(this);
-        if (specialKeyToEvent.hasOwnProperty(event.which))
-          this.trigger(document, specialKeyToEvent[event.which]);
+        tryGlobalKeyEvents(event, triggerOnDocument.call(this));
 
-        if (isTriggeredOnInputField(event)) return;
-
-        if (alphaNumericKeyToEvent.hasOwnProperty(event.which))
-          this.trigger(document, alphaNumericKeyToEvent[event.which]);
-        event.preventDefault();
+        if (composeBoxIsShown()) {
+          tryMailCompositionKeyEvents(event, triggerOnDocument.call(this));
+        } else {
+          tryMailHandlingKeyEvents(event, triggerOnDocument.call(this));
+        }
       }
 
-      function sendMail() {
-        this.trigger(document, events.ui.mail.send);
+      function triggerOnDocument() {
+        var self = this;
+        return function (event) {
+          self.trigger(document, event);
+        }
       }
 
-      function isTriggeredOnInputField(event) {
-        return $(event.target).is('input') || $(event.target).is('textarea');
+      function tryGlobalKeyEvents(event, triggerFunc) {
+        var globalKeyEvents = {};
+        globalKeyEvents[keyCodes.ESC] = events.dispatchers.rightPane.openNoMessageSelected;
+
+        if (globalKeyEvents.hasOwnProperty(event.which)) {
+          triggerFunc(globalKeyEvents[event.which]);
+          event.preventDefault();
+        }
       }
 
-      function ctrlOrMetaEnterKey(event) {
-        return (event.ctrlKey === true || event.metaKey === true) && event.which === this.keyCodes.ENTER;
+      function tryMailCompositionKeyEvents(event, triggerFunc) {
+        var mailCompositionKeyEvents = {};
+        mailCompositionKeyEvents[modifierKeys.CTRL + keyCodes.ENTER] = events.ui.mail.send;
+        mailCompositionKeyEvents[modifierKeys.META + keyCodes.ENTER] = events.ui.mail.send;
+
+        if (mailCompositionKeyEvents.hasOwnProperty(modifierKey(event) + event.which)) {
+          triggerFunc(mailCompositionKeyEvents[modifierKey(event) + event.which]);
+          event.preventDefault();
+        }
+      }
+
+      function tryMailHandlingKeyEvents(event, triggerFunc) {
+        if (isTriggeredOnInputField(event.target)) return;
+
+        var mailHandlingKeyEvents = {};
+        mailHandlingKeyEvents[keyCodes.S] = events.search.focus;
+        mailHandlingKeyEvents[keyCodes.FORWARD_SLASH] = events.search.focus;
+        mailHandlingKeyEvents[keyCodes.C] = events.dispatchers.rightPane.openComposeBox;
+
+        if (mailHandlingKeyEvents.hasOwnProperty(event.which)) {
+          triggerFunc(mailHandlingKeyEvents[event.which]);
+          event.preventDefault();
+        }
+      }
+
+      function modifierKey(event) {
+        var modifierKey = "";
+        if (event.ctrlKey === true) modifierKey = modifierKeys.CTRL;
+        if (event.metaKey === true) modifierKey = modifierKeys.META;
+        return modifierKey;
+      }
+
+      function isTriggeredOnInputField(element) {
+        return $(element).is('input') || $(element).is('textarea');
+      }
+
+      function composeBoxIsShown() {
+        return $('#' + composeBoxId).length;
       }
     }
   });
