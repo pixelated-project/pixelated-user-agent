@@ -68,6 +68,10 @@ define(
         }
       };
 
+      this.focus = function () {
+        this.select('input').focus();
+      };
+
       this.after('initialize', function () {
         this.render();
         this.on(this.select('form'), 'submit', this.search);
@@ -75,6 +79,7 @@ define(
         this.on(this.select('input'), 'blur', this.showSearchTermsAndPlaceHolder);
         this.on(document, events.ui.tag.selected, this.clearInput);
         this.on(document, events.ui.tag.select, this.clearInput);
+        this.on(document, events.search.focus, this.focus);
       });
     }
   }

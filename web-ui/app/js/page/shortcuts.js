@@ -25,24 +25,40 @@ define([
     return defineComponent(shortcuts);
 
     function shortcuts() {
-      this.characterCodes = {
+      this.after('initialize', function () {
+        this.on(document, 'keydown', $.proxy(onKeydown, this));
+      });
+
+      this.keyCodes = {
         ESC: 27,
         C: 67,
-        ENTER: 13
+        ENTER: 13,
+        FORWARD_SLASH: 191,
+        S: 83
       };
 
-      var self = this;
+      var specialKeyToEvent = {};
+      specialKeyToEvent[this.keyCodes.ESC] = events.dispatchers.rightPane.openNoMessageSelected;
+
+      var alphaNumericKeyToEvent = {};
+      alphaNumericKeyToEvent[this.keyCodes.S] = events.search.focus;
+      alphaNumericKeyToEvent[this.keyCodes.FORWARD_SLASH] = events.search.focus;
+      alphaNumericKeyToEvent[this.keyCodes.C] = events.dispatchers.rightPane.openComposeBox;
+
+      function onKeydown(event) {
+        if (ctrlOrMetaEnterKey.call(this, event)) sendMail.call(this);
+        if (specialKeyToEvent.hasOwnProperty(event.which))
+          this.trigger(document, specialKeyToEvent[event.which]);
+
+        if (isTriggeredOnInputField(event)) return;
+
+        if (alphaNumericKeyToEvent.hasOwnProperty(event.which))
+          this.trigger(document, alphaNumericKeyToEvent[event.which]);
+        event.preventDefault();
+      }
 
       function sendMail() {
         this.trigger(document, events.ui.mail.send);
-      }
-
-      function closeComposeBox() {
-        this.trigger(document, events.dispatchers.rightPane.openNoMessageSelected);
-      }
-
-      function openComposeBox() {
-        this.trigger(document, events.dispatchers.rightPane.openComposeBox);
       }
 
       function isTriggeredOnInputField(event) {
@@ -50,29 +66,7 @@ define([
       }
 
       function ctrlOrMetaEnterKey(event) {
-        return (event.ctrlKey === true || event.metaKey === true) && event.which === self.characterCodes.ENTER;
+        return (event.ctrlKey === true || event.metaKey === true) && event.which === this.keyCodes.ENTER;
       }
-
-      function escapeKey(event) {
-        return event.which === self.characterCodes.ESC;
-      }
-
-      function cKey(event) {
-        return event.which === self.characterCodes.C;
-      }
-
-      function onKeydown(event) {
-        if (escapeKey(event)) closeComposeBox.call(this);
-        if (ctrlOrMetaEnterKey(event)) sendMail.call(this);
-
-        if (isTriggeredOnInputField(event)) return;
-
-        if (cKey(event)) openComposeBox.call(this);
-        event.preventDefault();
-      }
-
-      this.after('initialize', function () {
-        this.on(document, 'keydown', $.proxy(onKeydown, this));
-      });
     }
   });
