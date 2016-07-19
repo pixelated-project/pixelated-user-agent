@@ -5,43 +5,84 @@ describeComponent('page/shortcuts', function () {
     this.setupComponent();
   });
 
-  describe('shortcuts', function () {
-    it('triggers openComposeBox when <c> is pressed and no input is focused', function () {
-      var eventSpy = openComposeBoxEventSpy();
-
-      $(document).trigger(keydownEvent(this.component.keyCodes.C));
-
-      expect(eventSpy).toHaveBeenTriggeredOn(document)
-    });
-
-    it('does not trigger openComposeBox when <c> is pressed in an input field', function () {
-      this.$node.append('<input />');
-      var eventSpy = openComposeBoxEventSpy();
-
-      this.$node.find('input').trigger(keydownEvent(this.component.keyCodes.C));
-
-      expect(eventSpy).not.toHaveBeenTriggeredOn(document)
-    });
-
-    it('does not trigger openComposeBox when <c> is pressed in a textarea', function () {
-      this.$node.append('<textarea></textarea>');
-      var eventSpy = openComposeBoxEventSpy();
-
-      this.$node.find('textarea').trigger(keydownEvent(this.component.keyCodes.C));
-
-      expect(eventSpy).not.toHaveBeenTriggeredOn(document)
-    });
-
-    it('triggers openNoMessageSelected when <Esc> is pressed', function () {
+  describe('global shortcuts', function () {
+    it('triggers openNoMessageSelected when [Esc] is pressed', function () {
       var eventSpy = spyOnEvent(document, Pixelated.events.dispatchers.rightPane.openNoMessageSelected);
 
       $(document).trigger(keydownEvent(this.component.keyCodes.ESC));
 
       expect(eventSpy).toHaveBeenTriggeredOn(document)
     });
+  });
 
-    it('triggers ui.mail.send when <Ctrl> + <Enter> is pressed and compose box is open', function () {
-      this.$node.append($('<div>', {id: this.component.composeBoxId}));
+  describe('mail list shortcuts', function () {
+    function shortcutEventAndTriggeredEventSpy() {
+      return [
+        {
+          eventSpy: openComposeBoxEventSpy(),
+          shortcutEvent: keydownEvent(this.component.keyCodes.C)
+        },
+        {
+          eventSpy: spyOnEvent(document, Pixelated.events.search.focus),
+          shortcutEvent: keydownEvent(this.component.keyCodes.FORWARD_SLASH)
+        },
+        {
+          eventSpy: spyOnEvent(document, Pixelated.events.search.focus),
+          shortcutEvent: keydownEvent(this.component.keyCodes.S)
+        }
+      ]
+    }
+
+    it('are triggered when no input or textarea is focused', function () {
+      shortcutEventAndTriggeredEventSpy.call(this).forEach(function (args) {
+        var eventSpy = args.eventSpy;
+
+        $(document).trigger(args.shortcutEvent);
+
+        expect(eventSpy).toHaveBeenTriggeredOn(document);
+      });
+    });
+
+    it('are not triggered when an input is focused', function () {
+      var self = this;
+      shortcutEventAndTriggeredEventSpy.call(this).forEach(function (args) {
+        self.$node.append('<input />');
+        var eventSpy = args.eventSpy;
+
+        self.$node.find('input').trigger(args.shortcutEvent);
+
+        expect(eventSpy).not.toHaveBeenTriggeredOn(document);
+      });
+    });
+
+    it('are not triggered when a textarea is focused', function () {
+      var self = this;
+      shortcutEventAndTriggeredEventSpy.call(this).forEach(function (args) {
+        self.$node.append('<textarea></textarea>');
+        var eventSpy = args.eventSpy;
+
+        self.$node.find('textarea').trigger(args.shortcutEvent);
+
+        expect(eventSpy).not.toHaveBeenTriggeredOn(document);
+      });
+    });
+
+    it('are not triggered when the composeBox is opened', function () {
+      var self = this;
+      shortcutEventAndTriggeredEventSpy.call(this).forEach(function (args) {
+        addComposeBox.call(self);
+        var eventSpy = args.eventSpy;
+
+        $(document).trigger(args.shortcutEvent);
+
+        expect(eventSpy).not.toHaveBeenTriggeredOn(document);
+      });
+    });
+  });
+
+  describe('mail composition shortcuts', function () {
+    it('triggers ui.mail.send when [Ctrl] + [Enter] is pressed and compose box is open', function () {
+      addComposeBox.call(this);
       var eventSpy = spyOnEvent(document, Pixelated.events.ui.mail.send);
 
       $(document).trigger(jQuery.Event('keydown', {ctrlKey: true, which: this.component.keyCodes.ENTER}));
@@ -49,8 +90,8 @@ describeComponent('page/shortcuts', function () {
       expect(eventSpy).toHaveBeenTriggeredOn(document)
     });
 
-    it('triggers ui.mail.send when <Cmd>/<Meta> + <Enter> is pressed and compose box is open', function () {
-      this.$node.append($('<div>', {id: this.component.composeBoxId}));
+    it('triggers ui.mail.send when [Meta] + [Enter] is pressed and compose box is open', function () {
+      addComposeBox.call(this);
       var eventSpy = spyOnEvent(document, Pixelated.events.ui.mail.send);
 
       $(document).trigger(jQuery.Event('keydown', {metaKey: true, which: this.component.keyCodes.ENTER}));
@@ -58,7 +99,7 @@ describeComponent('page/shortcuts', function () {
       expect(eventSpy).toHaveBeenTriggeredOn(document)
     });
 
-    it('does not trigger ui.mail.send when <Ctrl> + <Enter> is pressed and compose box is closed', function () {
+    it('does not trigger ui.mail.send when [Ctrl] + [Enter] is pressed and compose box is closed', function () {
       var eventSpy = spyOnEvent(document, Pixelated.events.ui.mail.send);
 
       $(document).trigger(jQuery.Event('keydown', {ctrlKey: true, which: this.component.keyCodes.ENTER}));
@@ -66,28 +107,24 @@ describeComponent('page/shortcuts', function () {
       expect(eventSpy).not.toHaveBeenTriggeredOn(document)
     });
 
-    it('triggers search.focus when </> is pressed', function () {
-      var eventSpy = spyOnEvent(document, Pixelated.events.search.focus);
+    it('does not trigger ui.mail.send when [Meta] + [Enter] is pressed and compose box is closed', function () {
+      var eventSpy = spyOnEvent(document, Pixelated.events.ui.mail.send);
 
-      $(document).trigger(keydownEvent(this.component.keyCodes.FORWARD_SLASH));
+      $(document).trigger(jQuery.Event('keydown', {metaKey: true, which: this.component.keyCodes.ENTER}));
 
-      expect(eventSpy).toHaveBeenTriggeredOn(document)
+      expect(eventSpy).not.toHaveBeenTriggeredOn(document)
     });
-
-    it('triggers search.focus when <s> is pressed', function () {
-      var eventSpy = spyOnEvent(document, Pixelated.events.search.focus);
-
-      $(document).trigger(keydownEvent(this.component.keyCodes.S));
-
-      expect(eventSpy).toHaveBeenTriggeredOn(document)
-    });
-
-    function openComposeBoxEventSpy() {
-      return spyOnEvent(document, Pixelated.events.dispatchers.rightPane.openComposeBox);
-    }
-
-    function keydownEvent(code) {
-      return jQuery.Event('keydown', {which: code});
-    }
   });
+
+  function openComposeBoxEventSpy() {
+    return spyOnEvent(document, Pixelated.events.dispatchers.rightPane.openComposeBox);
+  }
+
+  function keydownEvent(code) {
+    return jQuery.Event('keydown', {which: code});
+  }
+
+  function addComposeBox() {
+    this.$node.append($('<div>', {id: this.component.composeBoxId}));
+  }
 });
