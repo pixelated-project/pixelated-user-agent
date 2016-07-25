@@ -11,7 +11,7 @@ describeComponent('page/shortcuts', function () {
 
       $(document).trigger(keydownEvent(this.component.keyCodes.ESC));
 
-      expect(eventSpy).toHaveBeenTriggeredOn(document)
+      expect(eventSpy).toHaveBeenTriggeredOn(document);
     });
   });
 
@@ -19,7 +19,7 @@ describeComponent('page/shortcuts', function () {
     function shortcutEventAndTriggeredEventSpy() {
       return [
         {
-          eventSpy: openComposeBoxEventSpy(),
+          eventSpy: spyOnEvent(document, Pixelated.events.dispatchers.rightPane.openComposeBox),
           shortcutEvent: keydownEvent(this.component.keyCodes.C)
         },
         {
@@ -30,7 +30,7 @@ describeComponent('page/shortcuts', function () {
           eventSpy: spyOnEvent(document, Pixelated.events.search.focus),
           shortcutEvent: keydownEvent(this.component.keyCodes.S)
         }
-      ]
+      ];
     }
 
     it('are triggered when no input or textarea is focused', function () {
@@ -44,39 +44,36 @@ describeComponent('page/shortcuts', function () {
     });
 
     it('are not triggered when an input is focused', function () {
-      var self = this;
-      shortcutEventAndTriggeredEventSpy.call(this).forEach(function (args) {
-        self.$node.append('<input />');
+      _.each(shortcutEventAndTriggeredEventSpy.call(this), function (args) {
+        this.$node.append('<input />');
         var eventSpy = args.eventSpy;
 
-        self.$node.find('input').trigger(args.shortcutEvent);
+        this.$node.find('input').trigger(args.shortcutEvent);
 
         expect(eventSpy).not.toHaveBeenTriggeredOn(document);
-      });
+      }, this);
     });
 
     it('are not triggered when a textarea is focused', function () {
-      var self = this;
-      shortcutEventAndTriggeredEventSpy.call(this).forEach(function (args) {
-        self.$node.append('<textarea></textarea>');
+      _.each(shortcutEventAndTriggeredEventSpy.call(this), function (args) {
+        this.$node.append('<textarea></textarea>');
         var eventSpy = args.eventSpy;
 
-        self.$node.find('textarea').trigger(args.shortcutEvent);
+        this.$node.find('textarea').trigger(args.shortcutEvent);
 
         expect(eventSpy).not.toHaveBeenTriggeredOn(document);
-      });
+      }, this);
     });
 
     it('are not triggered when the composeBox is opened', function () {
-      var self = this;
-      shortcutEventAndTriggeredEventSpy.call(this).forEach(function (args) {
-        addComposeBox.call(self);
+      _.each(shortcutEventAndTriggeredEventSpy.call(this), function (args) {
+        addComposeBox.call(this);
         var eventSpy = args.eventSpy;
 
         $(document).trigger(args.shortcutEvent);
 
         expect(eventSpy).not.toHaveBeenTriggeredOn(document);
-      });
+      }, this);
     });
   });
 
@@ -87,7 +84,7 @@ describeComponent('page/shortcuts', function () {
 
       $(document).trigger(jQuery.Event('keydown', {ctrlKey: true, which: this.component.keyCodes.ENTER}));
 
-      expect(eventSpy).toHaveBeenTriggeredOn(document)
+      expect(eventSpy).toHaveBeenTriggeredOn(document);
     });
 
     it('triggers ui.mail.send when [Meta] + [Enter] is pressed and compose box is open', function () {
@@ -96,7 +93,7 @@ describeComponent('page/shortcuts', function () {
 
       $(document).trigger(jQuery.Event('keydown', {metaKey: true, which: this.component.keyCodes.ENTER}));
 
-      expect(eventSpy).toHaveBeenTriggeredOn(document)
+      expect(eventSpy).toHaveBeenTriggeredOn(document);
     });
 
     it('does not trigger ui.mail.send when [Ctrl] + [Enter] is pressed and compose box is closed', function () {
@@ -104,7 +101,7 @@ describeComponent('page/shortcuts', function () {
 
       $(document).trigger(jQuery.Event('keydown', {ctrlKey: true, which: this.component.keyCodes.ENTER}));
 
-      expect(eventSpy).not.toHaveBeenTriggeredOn(document)
+      expect(eventSpy).not.toHaveBeenTriggeredOn(document);
     });
 
     it('does not trigger ui.mail.send when [Meta] + [Enter] is pressed and compose box is closed', function () {
@@ -112,13 +109,9 @@ describeComponent('page/shortcuts', function () {
 
       $(document).trigger(jQuery.Event('keydown', {metaKey: true, which: this.component.keyCodes.ENTER}));
 
-      expect(eventSpy).not.toHaveBeenTriggeredOn(document)
+      expect(eventSpy).not.toHaveBeenTriggeredOn(document);
     });
   });
-
-  function openComposeBoxEventSpy() {
-    return spyOnEvent(document, Pixelated.events.dispatchers.rightPane.openComposeBox);
-  }
 
   function keydownEvent(code) {
     return jQuery.Event('keydown', {which: code});

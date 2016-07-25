@@ -52,6 +52,6 @@ describeComponent('search/search_trigger', function () {
   it('should focus search input field on focus event', function () {
     $(document).trigger(Pixelated.events.search.focus);
 
-    expect($(document.activeElement)).toEqual(this.component.select('input'))
+    expect($(document.activeElement)).toEqual(this.component.select('input'));
   });
 });

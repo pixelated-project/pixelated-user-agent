@@ -26,7 +26,7 @@ define([
 
     function shortcuts() {
       this.after('initialize', function () {
-        this.on(document, 'keydown', $.proxy(onKeydown, this));
+        this.on(document, 'keydown', _.bind(onKeydown, this));
       });
 
       var composeBoxId = 'compose-box';
@@ -47,30 +47,29 @@ define([
       this.composeBoxId = composeBoxId;
 
       function onKeydown(event) {
-        tryGlobalKeyEvents(event, triggerOnDocument.call(this));
+        tryGlobalKeyEvents(event, _.bind(triggerOnDocument, this));
 
         if (composeBoxIsShown()) {
-          tryMailCompositionKeyEvents(event, triggerOnDocument.call(this));
+          tryMailCompositionKeyEvents(event, _.bind(triggerOnDocument, this));
         } else {
-          tryMailHandlingKeyEvents(event, triggerOnDocument.call(this));
+          tryMailHandlingKeyEvents(event, _.bind(triggerOnDocument, this));
         }
       }
 
-      function triggerOnDocument() {
-        var self = this;
-        return function (event) {
-          self.trigger(document, event);
-        }
+      function triggerOnDocument(event) {
+        this.trigger(document, event);
       }
 
       function tryGlobalKeyEvents(event, triggerFunc) {
         var globalKeyEvents = {};
         globalKeyEvents[keyCodes.ESC] = events.dispatchers.rightPane.openNoMessageSelected;
 
-        if (!globalKeyEvents.hasOwnProperty(event.which)) return;
+        if (!globalKeyEvents.hasOwnProperty(event.which)) {
+          return;
+        }
 
-        triggerFunc(globalKeyEvents[event.which]);
         event.preventDefault();
+        return triggerFunc(globalKeyEvents[event.which]);
       }
 
       function tryMailCompositionKeyEvents(event, triggerFunc) {
@@ -78,21 +77,27 @@ define([
         mailCompositionKeyEvents[modifierKeys.CTRL + keyCodes.ENTER] = events.ui.mail.send;
         mailCompositionKeyEvents[modifierKeys.META + keyCodes.ENTER] = events.ui.mail.send;
 
-        if (!mailCompositionKeyEvents.hasOwnProperty(modifierKey(event) + event.which)) return;
+        if (!mailCompositionKeyEvents.hasOwnProperty(modifierKey(event) + event.which)) {
+          return;
+        }
 
         event.preventDefault();
         return triggerFunc(mailCompositionKeyEvents[modifierKey(event) + event.which]);
       }
 
       function tryMailHandlingKeyEvents(event, triggerFunc) {
-        if (isTriggeredOnInputField(event.target)) return;
+        if (isTriggeredOnInputField(event.target)) {
+          return;
+        }
 
         var mailHandlingKeyEvents = {};
         mailHandlingKeyEvents[keyCodes.S] = events.search.focus;
         mailHandlingKeyEvents[keyCodes.FORWARD_SLASH] = events.search.focus;
         mailHandlingKeyEvents[keyCodes.C] = events.dispatchers.rightPane.openComposeBox;
 
-        if (!mailHandlingKeyEvents.hasOwnProperty(event.which)) return;
+        if (!mailHandlingKeyEvents.hasOwnProperty(event.which)) {
+          return;
+        }
 
         event.preventDefault();
         return triggerFunc(mailHandlingKeyEvents[event.which]);
@@ -100,8 +105,12 @@ define([
 
       function modifierKey(event) {
         var modifierKey = "";
-        if (event.ctrlKey === true) modifierKey = modifierKeys.CTRL;
-        if (event.metaKey === true) modifierKey = modifierKeys.META;
+        if (event.ctrlKey === true) {
+          modifierKey = modifierKeys.CTRL;
+        }
+        if (event.metaKey === true) {
+          modifierKey = modifierKeys.META;
+        }
         return modifierKey;
       }
 
