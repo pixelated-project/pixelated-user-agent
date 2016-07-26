@@ -5,16 +5,6 @@ describeComponent('page/shortcuts', function () {
     this.setupComponent();
   });
 
-  describe('global shortcuts', function () {
-    it('triggers openNoMessageSelected when [Esc] is pressed', function () {
-      var eventSpy = spyOnEvent(document, Pixelated.events.dispatchers.rightPane.openNoMessageSelected);
-
-      this.component.trigger(keydownEvent(this.component.keyCodes.ESC));
-
-      expect(eventSpy).toHaveBeenTriggeredOn(document);
-    });
-  });
-
   describe('mail list shortcuts', function () {
     function shortcutEventAndTriggeredEventSpy() {
       return [

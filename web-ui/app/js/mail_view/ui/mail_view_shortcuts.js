@@ -26,42 +26,26 @@ define([
 
     function mailViewShortcuts() {
       var keyCodes = {
-        ENTER: 13
-      };
-      var modifierKeys = {
-        META: "META",
-        CTRL: "CTRL"
+        ESC: 27
       };
 
       // make constants public
       this.keyCodes = keyCodes;
 
       this.after('initialize', function () {
-        this.on('keydown', _.partial(tryKeyEvents, _.bind(this.trigger, this, document)));
+        this.on(document, 'keydown', _.partial(tryKeyEvents, _.bind(this.trigger, this, document)));
       });
 
       function tryKeyEvents(triggerFunc, event) {
         var keyEvents = {};
-        keyEvents[modifierKeys.CTRL + keyCodes.ENTER] = events.ui.mail.send;
-        keyEvents[modifierKeys.META + keyCodes.ENTER] = events.ui.mail.send;
+        keyEvents[keyCodes.ESC] = events.dispatchers.rightPane.openNoMessageSelected;
 
-        if (!keyEvents.hasOwnProperty(modifierKey(event) + event.which)) {
+        if (!keyEvents.hasOwnProperty(event.which)) {
           return;
         }
 
         event.preventDefault();
-        return triggerFunc(keyEvents[modifierKey(event) + event.which]);
-      }
-
-      function modifierKey(event) {
-        var modifierKey = "";
-        if (event.ctrlKey === true) {
-          modifierKey = modifierKeys.CTRL;
-        }
-        if (event.metaKey === true) {
-          modifierKey = modifierKeys.META;
-        }
-        return modifierKey;
+        return triggerFunc(keyEvents[event.which]);
       }
     }
   });

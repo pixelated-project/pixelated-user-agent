@@ -27,7 +27,6 @@ define([
     function shortcuts() {
       var composeBoxId = 'compose-box';
       var keyCodes = {
-        ESC: 27,
         C: 67,
         FORWARD_SLASH: 191,
         S: 83
@@ -38,31 +37,11 @@ define([
       this.composeBoxId = composeBoxId;
 
       this.after('initialize', function () {
-        this.on('keydown', _.bind(onKeydown, this));
+        this.on('keydown', _.partial(tryMailHandlingKeyEvents, _.bind(this.trigger, this, document)));
       });
 
-      function onKeydown(event) {
-        tryGlobalKeyEvents(event, _.bind(this.trigger, this, document));
-
-        if (!composeBoxIsShown()) {
-          tryMailHandlingKeyEvents(event, _.bind(this.trigger, this, document));
-        }
-      }
-
-      function tryGlobalKeyEvents(event, triggerFunc) {
-        var globalKeyEvents = {};
-        globalKeyEvents[keyCodes.ESC] = events.dispatchers.rightPane.openNoMessageSelected;
-
-        if (!globalKeyEvents.hasOwnProperty(event.which)) {
-          return;
-        }
-
-        event.preventDefault();
-        return triggerFunc(globalKeyEvents[event.which]);
-      }
-
-      function tryMailHandlingKeyEvents(event, triggerFunc) {
-        if (isTriggeredOnInputField(event.target)) {
+      function tryMailHandlingKeyEvents(triggerFunc, event) {
+        if (isTriggeredOnInputField(event.target) || composeBoxIsShown()) {
           return;
         }
 
