@@ -1,4 +1,4 @@
-describeComponent('mail_view/ui/compose_box_shortcuts', function () {
+describeComponent('mail_view/ui/mail_composition_shortcuts', function () {
   'use strict';
 
   beforeEach(function () {

@@ -25,7 +25,7 @@ define(
     'mail_view/ui/no_message_selected_pane',
     'mail_view/ui/feedback_box',
     'page/events',
-    'mail_view/ui/compose_box_shortcuts',
+    'mail_view/ui/mail_composition_shortcuts',
     'mail_view/ui/mail_view_shortcuts'
   ],
 
@@ -38,7 +38,7 @@ define(
     NoMessageSelectedPane,
     FeedbackBox,
     events,
-    composeBoxShortcuts,
+    mailCompositionShortcuts,
     mailViewShortcuts
   ) {
     'use strict';
@@ -72,7 +72,7 @@ define(
       this.openComposeBox = function() {
         var stageId = this.reset(this.attr.composeBox);
         ComposeBox.attachTo(stageId, {currentTag: this.attr.currentTag});
-        composeBoxShortcuts.attachTo(stageId);
+        mailCompositionShortcuts.attachTo(stageId);
         mailViewShortcuts.attachTo(stageId);
       };
 
@@ -106,6 +106,7 @@ define(
       this.openDraft = function (ev, data) {
         var stageId = this.reset(this.attr.draftBox);
         DraftBox.attachTo(stageId, { mailIdent: data.ident, currentTag: this.attr.currentTag });
+        mailCompositionShortcuts.attachTo(stageId);
         mailViewShortcuts.attachTo(stageId);
       };
 
