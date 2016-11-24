@@ -24,10 +24,23 @@ define(
     'mail_view/ui/draft_box',
     'mail_view/ui/no_message_selected_pane',
     'mail_view/ui/feedback_box',
-    'page/events'
+    'page/events',
+    'mail_view/ui/mail_composition_shortcuts',
+    'mail_view/ui/mail_view_shortcuts'
   ],
 
-  function(defineComponent, ComposeBox, MailView, ReplySection, DraftBox, NoMessageSelectedPane, FeedbackBox, events) {
+  function(
+    defineComponent,
+    ComposeBox,
+    MailView,
+    ReplySection,
+    DraftBox,
+    NoMessageSelectedPane,
+    FeedbackBox,
+    events,
+    mailCompositionShortcuts,
+    mailViewShortcuts
+  ) {
     'use strict';
 
     return defineComponent(rightPaneDispatcher);
@@ -53,13 +66,14 @@ define(
       this.reset = function (newContainer) {
         this.trigger(document, events.dispatchers.rightPane.clear);
         this.select('rightPane').empty();
-        var stage = this.createAndAttach(newContainer);
-        return stage;
+        return this.createAndAttach(newContainer);
       };
 
       this.openComposeBox = function() {
-        var stage = this.reset(this.attr.composeBox);
-        ComposeBox.attachTo(stage, {currentTag: this.attr.currentTag});
+        var stageId = this.reset(this.attr.composeBox);
+        ComposeBox.attachTo(stageId, {currentTag: this.attr.currentTag});
+        mailCompositionShortcuts.attachTo(stageId);
+        mailViewShortcuts.attachTo(stageId);
       };
 
       this.openFeedbackBox = function() {
@@ -68,11 +82,13 @@ define(
       };
 
       this.openMail = function(ev, data) {
-        var stage = this.reset(this.attr.mailView);
-        MailView.attachTo(stage, data);
+        var stageId = this.reset(this.attr.mailView);
+        MailView.attachTo(stageId, data);
 
         var replySectionContainer = this.createAndAttach(this.attr.replySection);
         ReplySection.attachTo(replySectionContainer, { ident: data.ident });
+
+        mailViewShortcuts.attachTo(stageId);
       };
 
       this.initializeNoMessageSelectedPane = function () {
@@ -88,8 +104,10 @@ define(
       };
 
       this.openDraft = function (ev, data) {
-        var stage = this.reset(this.attr.draftBox);
-        DraftBox.attachTo(stage, { mailIdent: data.ident, currentTag: this.attr.currentTag });
+        var stageId = this.reset(this.attr.draftBox);
+        DraftBox.attachTo(stageId, { mailIdent: data.ident, currentTag: this.attr.currentTag });
+        mailCompositionShortcuts.attachTo(stageId);
+        mailViewShortcuts.attachTo(stageId);
       };
 
       this.selectTag = function(ev, data) {

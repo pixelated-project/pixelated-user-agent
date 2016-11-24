@@ -109,7 +109,8 @@ define(function () {
       results: 'search:results',
       empty: 'search:empty',
       highlightResults: 'search:highlightResults',
-      resetHighlight: 'search:resetHighlight'
+      resetHighlight: 'search:resetHighlight',
+      focus: 'search:focus'
     },
     feedback: {
       submit: 'feedback:submit',
