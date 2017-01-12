@@ -26,7 +26,8 @@ class MailTags(Resource):
 
         def handle403(failure):
             failure.trap(ValueError)
-            return respond_json_deferred(failure.getErrorMessage(), request, 403)
+            return respond_json_deferred(
+                failure.getErrorMessage(), request, 403)
         d.addErrback(handle403)
         return NOT_DONE_YET
 

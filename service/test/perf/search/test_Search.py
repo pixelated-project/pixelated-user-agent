@@ -29,11 +29,26 @@ class Search(FunkLoadTestCase):
 
         # setup data
         CLIENT.add_multiple_to_mailbox(
-            10, 'INBOX', to='to@inbox.com', cc='cc@inbox.com', bcc='bcc@inbox.com', tags=['inbox'])
+            10,
+            'INBOX',
+            to='to@inbox.com',
+            cc='cc@inbox.com',
+            bcc='bcc@inbox.com',
+            tags=['inbox'])
         CLIENT.add_multiple_to_mailbox(
-            10, 'TRASH', to='to@trash.com', cc='cc@trash.com', bcc='bcc@trash.com', tags=['trash'])
+            10,
+            'TRASH',
+            to='to@trash.com',
+            cc='cc@trash.com',
+            bcc='bcc@trash.com',
+            tags=['trash'])
         CLIENT.add_multiple_to_mailbox(
-            10, 'DRAFTS', to='to@drafts.com', cc='cc@drafts.com', bcc='bcc@drafts.com', tags=['drafts'])
+            10,
+            'DRAFTS',
+            to='to@drafts.com',
+            cc='cc@drafts.com',
+            bcc='bcc@drafts.com',
+            tags=['drafts'])
 
         self.call_to_terminate = CLIENT.run_on_a_thread(
             logfile='results/app.log')

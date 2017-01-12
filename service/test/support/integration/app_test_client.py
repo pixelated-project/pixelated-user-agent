@@ -118,8 +118,18 @@ class AppTestAccount(object):
         self.account = Account(self.soledad, self._user_id)
         return self.account.deferred_initialization
 
-    def _create_mail_service(self, mail_sender, mail_store, search_engine, attachment_store):
-        return MailService(mail_sender, mail_store, search_engine, self._mail_address, attachment_store)
+    def _create_mail_service(
+            self,
+            mail_sender,
+            mail_store,
+            search_engine,
+            attachment_store):
+        return MailService(
+            mail_sender,
+            mail_store,
+            search_engine,
+            self._mail_address,
+            attachment_store)
 
     def _create_mail_sender(self):
         mail_sender = Mock()
@@ -143,8 +153,19 @@ class StubSRPChecker(object):
     def requestAvatarId(self, credentials):
         if(self._credentials[credentials.username] == credentials.password):
             leap_auth = Authentication(
-                credentials.username, uuid.uuid4(), uuid.uuid4(), uuid.uuid4(), {})
-            return defer.succeed(LeapSession(self._leap_provider, leap_auth, None, None, None, None))
+                credentials.username,
+                uuid.uuid4(),
+                uuid.uuid4(),
+                uuid.uuid4(),
+                {})
+            return defer.succeed(
+                LeapSession(
+                    self._leap_provider,
+                    leap_auth,
+                    None,
+                    None,
+                    None,
+                    None))
         else:
             return defer.fail()
 
@@ -234,8 +255,12 @@ class AppTestClient(object):
             bonafide_checker = StubAuthenticator(provider)
             bonafide_checker.add_user('username', 'password')
 
-            self.resource = set_up_protected_resources(RootResource(
-                self.service_factory), provider, self.service_factory, authenticator=bonafide_checker)
+            self.resource = set_up_protected_resources(
+                RootResource(
+                    self.service_factory),
+                provider,
+                self.service_factory,
+                authenticator=bonafide_checker)
 
     @defer.inlineCallbacks
     def create_user(self, account_name):
@@ -270,7 +295,11 @@ class AppTestClient(object):
     def listenTCP(self, port=4567, host='127.0.0.1'):
         reactor.listenTCP(port, PixelatedSite(self.resource), interface=host)
 
-    def run_on_a_thread(self, logfile='/tmp/app_test_client.log', port=4567, host='127.0.0.1'):
+    def run_on_a_thread(
+            self,
+            logfile='/tmp/app_test_client.log',
+            port=4567,
+            host='127.0.0.1'):
         def _start():
             self.listenTCP(port, host)
             reactor.run()
@@ -289,18 +318,35 @@ class AppTestClient(object):
 
     def post(self, path, body='', headers=None, ajax=True, csrf='token'):
         headers = headers or {'Content-Type': 'application/json'}
-        request = request_mock(path=path, method="POST",
-                               body=body, headers=headers, ajax=ajax, csrf=csrf)
+        request = request_mock(
+            path=path,
+            method="POST",
+            body=body,
+            headers=headers,
+            ajax=ajax,
+            csrf=csrf)
         return self._render(request)
 
     def put(self, path, body, ajax=True, csrf='token'):
-        request = request_mock(path=path, method="PUT", body=body, headers={
-                               'Content-Type': ['application/json']}, ajax=ajax, csrf=csrf)
+        request = request_mock(
+            path=path,
+            method="PUT",
+            body=body,
+            headers={
+                'Content-Type': ['application/json']},
+            ajax=ajax,
+            csrf=csrf)
         return self._render(request)
 
     def delete(self, path, body="", ajax=True, csrf='token'):
-        request = request_mock(path=path, body=body, headers={
-                               'Content-Type': ['application/json']}, method="DELETE", ajax=ajax, csrf=csrf)
+        request = request_mock(
+            path=path,
+            body=body,
+            headers={
+                'Content-Type': ['application/json']},
+            method="DELETE",
+            ajax=ajax,
+            csrf=csrf)
         return self._render(request)
 
     @defer.inlineCallbacks
@@ -313,10 +359,19 @@ class AppTestClient(object):
 
     # TODO: remove
     def add_mail_to_user_inbox(self, input_mail, username):
-        return self.account_for(username).mail_store.add_mail('INBOX', input_mail.raw)
+        return self.account_for(username).mail_store.add_mail(
+            'INBOX', input_mail.raw)
 
     @defer.inlineCallbacks
-    def add_multiple_to_mailbox(self, num, mailbox='', flags=[], tags=[], to='recipient@to.com', cc='recipient@cc.com', bcc='recipient@bcc.com'):
+    def add_multiple_to_mailbox(
+            self,
+            num,
+            mailbox='',
+            flags=[],
+            tags=[],
+            to='recipient@to.com',
+            cc='recipient@cc.com',
+            bcc='recipient@bcc.com'):
         mails = []
         yield self.mail_store.add_mailbox(mailbox)
         for _ in range(num):
@@ -342,7 +397,8 @@ class AppTestClient(object):
         return mail_sender
 
     # TODO: remove
-    def _generate_soledad_test_folder_name(self, soledad_test_folder='/tmp/soledad-test/test'):
+    def _generate_soledad_test_folder_name(
+            self, soledad_test_folder='/tmp/soledad-test/test'):
         return os.path.join(soledad_test_folder, str(uuid.uuid4()))
 
     def get_mails_by_tag(self, tag, page=1, window=100):
@@ -367,14 +423,22 @@ class AppTestClient(object):
         defer.returnValue(mails)
 
     @defer.inlineCallbacks
-    def get_attachment(self, ident, encoding, filename=None, content_type=None, ajax=True, csrf='token'):
+    def get_attachment(
+            self,
+            ident,
+            encoding,
+            filename=None,
+            content_type=None,
+            ajax=True,
+            csrf='token'):
         params = {'encoding': [encoding]}
         if filename:
             params['filename'] = [filename]
         if content_type:
             params['content_type'] = [content_type]
         deferred_result, req = self.get(
-            "/attachment/%s" % ident, params, as_json=False, ajax=ajax, csrf=csrf)
+            "/attachment/%s" %
+            ident, params, as_json=False, ajax=ajax, csrf=csrf)
         res = yield deferred_result
         defer.returnValue((res, req))
 

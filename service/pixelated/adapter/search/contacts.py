@@ -36,7 +36,10 @@ def extract_mail_address(text):
 
 
 def contacts_suggestions(query, searcher):
-    return address_duplication_filter(search_addresses(searcher, query)) if query else []
+    return address_duplication_filter(
+        search_addresses(
+            searcher,
+            query)) if query else []
 
 
 def search_addresses(searcher, query):

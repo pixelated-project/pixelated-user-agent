@@ -152,7 +152,8 @@ class MailsResource(BaseResource):
         if action == 'unread':
             return MailsUnreadResource(_mail_service)
 
-    def _build_mails_response(self, (mails, total)):
+    def _build_mails_response(self, xxx_todo_changeme):
+        (mails, total) = xxx_todo_changeme
         return {
             "stats": {
                 "total": total,

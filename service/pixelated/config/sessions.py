@@ -88,7 +88,7 @@ class LeapSessionFactory(object):
                                                   auth_token=user_token,
                                                   defer_encryption=False)
             defer.returnValue(soledad)
-        except (WrongMacError, UnknownMacMethodError), e:
+        except (WrongMacError, UnknownMacMethodError) as e:
             raise SoledadWrongPassphraseException(e)
 
     @defer.inlineCallbacks
@@ -131,7 +131,8 @@ class LeapSessionFactory(object):
         try:
             os.makedirs(self._soledad_path(user_uuid))
         except OSError as exc:
-            if exc.errno == errno.EEXIST and os.path.isdir(self._soledad_path(user_uuid)):
+            if exc.errno == errno.EEXIST and os.path.isdir(
+                    self._soledad_path(user_uuid)):
                 pass
             else:
                 raise
@@ -139,7 +140,14 @@ class LeapSessionFactory(object):
 
 class LeapSession(object):
 
-    def __init__(self, provider, user_auth, mail_store, soledad, keymanager, smtp_config):
+    def __init__(
+            self,
+            provider,
+            user_auth,
+            mail_store,
+            soledad,
+            keymanager,
+            smtp_config):
         self.smtp_config = smtp_config
         self.provider = provider
         self.user_auth = user_auth
@@ -205,7 +213,8 @@ class LeapSession(object):
         SessionCache.remove_session(key)
 
     @defer.inlineCallbacks
-    def _create_incoming_mail_fetcher(self, keymanager, soledad, account, user_mail):
+    def _create_incoming_mail_fetcher(
+            self, keymanager, soledad, account, user_mail):
         inbox = yield account.callWhenReady(lambda _: account.get_collection_by_mailbox('INBOX'))
         defer.returnValue(IncomingMail(keymanager.keymanager,
                                        soledad,

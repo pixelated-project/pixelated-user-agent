@@ -67,7 +67,8 @@ class Services(object):
 
     def _setup_mail_service(self, search_engine):
         pixelated_mail_sender = MailSender(
-            self._leap_session.smtp_config, self._leap_session.keymanager.keymanager)
+            self._leap_session.smtp_config,
+            self._leap_session.keymanager.keymanager)
 
         return MailService(
             pixelated_mail_sender,

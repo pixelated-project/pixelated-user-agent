@@ -14,7 +14,6 @@ class FeedbackService(object):
             "ticket[comments_attributes][0][body]": feedback,
             "ticket[subject]": "Feedback user-agent from {0}".format(account_mail),
             "ticket[email]": account_mail,
-            "ticket[regarding_user]": account_mail
-        }
+            "ticket[regarding_user]": account_mail}
 
         return requests.post(self.FEEDBACK_URL, data=data, verify=False)

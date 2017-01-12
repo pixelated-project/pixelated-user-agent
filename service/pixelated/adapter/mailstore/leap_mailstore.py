@@ -31,7 +31,13 @@ from pixelated.support import date
 
 class AttachmentInfo(object):
 
-    def __init__(self, ident, name, encoding=None, ctype='application/octet-stream', size=0):
+    def __init__(
+            self,
+            ident,
+            name,
+            encoding=None,
+            ctype='application/octet-stream',
+            size=0):
         self.ident = ident
         self.name = name
         self.encoding = encoding
@@ -39,18 +45,33 @@ class AttachmentInfo(object):
         self.size = size
 
     def __repr__(self):
-        return 'AttachmentInfo[%s, %s, %s]' % (self.ident, self.name, self.encoding)
+        return 'AttachmentInfo[%s, %s, %s]' % (
+            self.ident, self.name, self.encoding)
 
     def __str__(self):
-        return 'AttachmentInfo[%s, %s, %s]' % (self.ident, self.name, self.encoding)
+        return 'AttachmentInfo[%s, %s, %s]' % (
+            self.ident, self.name, self.encoding)
 
     def as_dict(self):
-        return {'ident': self.ident, 'name': self.name, 'encoding': self.encoding, 'size': self.size, 'content-type': self.ctype}
+        return {
+            'ident': self.ident,
+            'name': self.name,
+            'encoding': self.encoding,
+            'size': self.size,
+            'content-type': self.ctype}
 
 
 class LeapMail(Mail):
 
-    def __init__(self, mail_id, mailbox_name, headers=None, tags=set(), flags=set(), body=None, attachments=[]):
+    def __init__(
+            self,
+            mail_id,
+            mailbox_name,
+            headers=None,
+            tags=set(),
+            flags=set(),
+            body=None,
+            attachments=[]):
         self._mail_id = mail_id
         self._mailbox_name = mailbox_name
         self._headers = headers if headers is not None else {}
@@ -62,7 +83,8 @@ class LeapMail(Mail):
     @property
     def headers(self):
         cpy = dict(self._headers)
-        for name in set(self._headers.keys()).intersection(['To', 'Cc', 'Bcc']):
+        for name in set(self._headers.keys()).intersection(
+                ['To', 'Cc', 'Bcc']):
             cpy[name] = [address.strip() for address in (
                 self._headers[name].split(',') if self._headers[name] else [])]
 
@@ -129,14 +151,21 @@ class LeapMail(Mail):
 
     def _decoded_header_utf_8(self, header_value):
         if isinstance(header_value, list):
-            return self._remove_duplicates([self._decoded_header_utf_8(v) for v in header_value])
+            return self._remove_duplicates(
+                [self._decoded_header_utf_8(v) for v in header_value])
         elif header_value is not None:
             def encode_chunk(content, encoding):
-                return unicode(content.strip(), encoding=encoding or 'ascii', errors='ignore')
+                return unicode(
+                    content.strip(),
+                    encoding=encoding or 'ascii',
+                    errors='ignore')
 
             try:
-                encoded_chunks = [encode_chunk(
-                    content, encoding) for content, encoding in decode_header(header_value)]
+                encoded_chunks = [
+                    encode_chunk(
+                        content,
+                        encoding) for content,
+                    encoding in decode_header(header_value)]
                 # decode_header strips whitespaces on all chunks, joining over
                 # ' ' is only a workaround, not a proper fix
                 return ' '.join(encoded_chunks)
@@ -145,16 +174,19 @@ class LeapMail(Mail):
 
     def as_dict(self):
         return {
-            'header': {k.lower(): self._decoded_header_utf_8(v) for k, v in self.headers.items()},
+            'header': {
+                k.lower(): self._decoded_header_utf_8(v) for k,
+                v in self.headers.items()},
             'ident': self._mail_id,
             'tags': self.tags,
-            'status': list(self.status),
+            'status': list(
+                self.status),
             'body': self._body,
             'security_casing': self.security_casing,
             'textPlainBody': self._body,
             'mailbox': self._mailbox_name.lower(),
-            'attachments': [attachment.as_dict() for attachment in self._attachments]
-        }
+            'attachments': [
+                attachment.as_dict() for attachment in self._attachments]}
 
     @staticmethod
     def from_dict(mail_dict):
@@ -223,7 +255,11 @@ class LeapMailStore(MailStore):
         defer.returnValue(leap_mail)
 
     @defer.inlineCallbacks
-    def get_mails(self, mail_ids, gracefully_ignore_errors=False, include_body=False):
+    def get_mails(
+            self,
+            mail_ids,
+            gracefully_ignore_errors=False,
+            include_body=False):
         deferreds = []
         for mail_id in mail_ids:
             deferreds.append(self.get_mail(mail_id, include_body=include_body))
@@ -342,8 +378,13 @@ class LeapMailStore(MailStore):
         mbox_uuid = message.get_wrapper().fdoc.mbox_uuid
         mbox_name = yield self._mailbox_name_from_uuid(mbox_uuid)
         attachments = self._extract_attachment_info_from(message)
-        mail = LeapMail(mail_id, mbox_name, message.get_wrapper().hdoc.headers, set(message.get_tags()), set(
-            message.get_flags()), body=body, attachments=attachments)   # TODO assert flags are passed on
+        mail = LeapMail(mail_id,
+                        mbox_name,
+                        message.get_wrapper().hdoc.headers,
+                        set(message.get_tags()),
+                        set(message.get_flags()),
+                        body=body,
+                        attachments=attachments)  # TODO assert flags are passed on
 
         defer.returnValue(mail)
 
@@ -355,8 +396,11 @@ class LeapMailStore(MailStore):
         # It fix the problem when leap doesn'r found body_phash and returns
         # empty string
         if not isinstance(content_doc, str):
-            parser = BodyParser(content_doc.raw, content_type=content_doc.content_type,
-                                content_transfer_encoding=content_doc.content_transfer_encoding, charset=content_doc.charset)
+            parser = BodyParser(
+                content_doc.raw,
+                content_type=content_doc.content_type,
+                content_transfer_encoding=content_doc.content_transfer_encoding,
+                charset=content_doc.charset)
 
         defer.returnValue(parser.parsed_content())
 
@@ -375,7 +419,8 @@ class LeapMailStore(MailStore):
         defer.returnValue(mbx)
 
     def _fetch_msg_from_soledad(self, mail_id, load_body=False):
-        return SoledadMailAdaptor().get_msg_from_mdoc_id(Message, self.soledad, mail_id, get_cdocs=load_body)
+        return SoledadMailAdaptor().get_msg_from_mdoc_id(
+            Message, self.soledad, mail_id, get_cdocs=load_body)
 
     @defer.inlineCallbacks
     def _dump_soledad(self):
@@ -396,7 +441,9 @@ class LeapMailStore(MailStore):
         if 'multipart' in content_type:
             return False
 
-        if 'text/plain' == content_type and ((disposition == 'inline') or (disposition is None)):
+        if 'text/plain' == content_type and (
+            (disposition == 'inline') or (
+                disposition is None)):
             return False
 
         return True

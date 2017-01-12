@@ -20,8 +20,10 @@ class TestPixelatedSite(unittest.TestCase):
 
         self.assertEqual('SAMEORIGIN', request.responseHeaders.getRawHeaders(
             'X-Frame-Options'.lower())[0])
-        self.assertEqual('1; mode=block', request.responseHeaders.getRawHeaders(
-            'X-XSS-Protection'.lower())[0])
+        self.assertEqual(
+            '1; mode=block',
+            request.responseHeaders.getRawHeaders(
+                'X-XSS-Protection'.lower())[0])
         self.assertEqual('nosniff', request.responseHeaders.getRawHeaders(
             'X-Content-Type-Options'.lower())[0])
 
@@ -33,8 +35,10 @@ class TestPixelatedSite(unittest.TestCase):
 
         self.assertTrue(request.responseHeaders.hasHeader(
             'Strict-Transport-Security'.lower()))
-        self.assertEqual('max-age=31536000; includeSubDomains',
-                         request.responseHeaders.getRawHeaders('Strict-Transport-Security'.lower())[0])
+        self.assertEqual(
+            'max-age=31536000; includeSubDomains',
+            request.responseHeaders.getRawHeaders(
+                'Strict-Transport-Security'.lower())[0])
 
     def test_does_not_add_strict_transport_security_header_if_plain_http(self):
         request = self.create_request()

@@ -56,20 +56,28 @@ def multipart_mail_dict():
 
 
 def with_attachment_mail_dict():
-    return {
-        'attachments': [{'content-type': 'text/plain', 'name': 'ayoyo.txt', 'raw': 'Hamburg Ayoyoyooooo!!!', 'ident': 'some_attachment_id'},
-                        {'content-type': 'text/html', 'name': 'hello.html', 'raw': '<p>Hello html Hamburg!</p>', 'ident': 'other_attachment_id'}],
-        'body': [{'content-type': 'plain', 'raw': 'Hello world!'},
-                 {'content-type': 'html', 'raw': '<p>Hello html world!</p>'}],
-        'header': {
-            'cc': ['cc@pixelated.org', 'anothercc@pixelated.org'],
-            'to': ['to@pixelated.org', 'anotherto@pixelated.org'],
-            'bcc': ['bcc@pixelated.org', 'anotherbcc@pixelated.org'],
-            'subject': 'Oi',
-        },
-        'ident': '',
-        'tags': ['sent']
-    }
+    return {'attachments': [{'content-type': 'text/plain',
+                             'name': 'ayoyo.txt',
+                             'raw': 'Hamburg Ayoyoyooooo!!!',
+                             'ident': 'some_attachment_id'},
+                            {'content-type': 'text/html',
+                             'name': 'hello.html',
+                             'raw': '<p>Hello html Hamburg!</p>',
+                             'ident': 'other_attachment_id'}],
+            'body': [{'content-type': 'plain',
+                      'raw': 'Hello world!'},
+                     {'content-type': 'html',
+                      'raw': '<p>Hello html world!</p>'}],
+            'header': {'cc': ['cc@pixelated.org',
+                              'anothercc@pixelated.org'],
+                       'to': ['to@pixelated.org',
+                              'anotherto@pixelated.org'],
+                       'bcc': ['bcc@pixelated.org',
+                               'anotherbcc@pixelated.org'],
+                       'subject': 'Oi',
+                       },
+            'ident': '',
+            'tags': ['sent']}
 
 
 class InputMailTest(unittest.TestCase):
@@ -112,7 +120,8 @@ class InputMailTest(unittest.TestCase):
         pixelated.support.date.mail_date_now = lambda: 'date now'
 
         mime_multipart = InputMail.from_dict(
-            simple_mail_dict(), from_address='pixelated@org').to_mime_multipart()
+            simple_mail_dict(),
+            from_address='pixelated@org').to_mime_multipart()
 
         self.assertRegexpMatches(mime_multipart.as_string(
         ), "\nTo: to@pixelated.org, anotherto@pixelated.org\n")
@@ -147,7 +156,8 @@ class InputMailTest(unittest.TestCase):
 
     def test_to_mime_multipart_handles_alternative_bodies(self):
         mime_multipart = InputMail.from_dict(
-            multipart_mail_dict(), from_address='pixelated@org').to_mime_multipart()
+            multipart_mail_dict(),
+            from_address='pixelated@org').to_mime_multipart()
 
         part_one = 'Content-Type: text/plain; charset="us-ascii"\nMIME-Version: 1.0\nContent-Transfer-Encoding: 7bit\n\nHello world!'
         part_two = 'Content-Type: text/html; charset="us-ascii"\nMIME-Version: 1.0\nContent-Transfer-Encoding: 7bit\n\n<p>Hello html world!</p>'

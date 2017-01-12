@@ -34,7 +34,8 @@ class Status:
 
     @staticmethod
     def from_flags(flags):
-        return set(Status.from_flag(flag) for flag in flags if flag in Status.FLAGS_TO_STATUSES.keys())
+        return set(Status.from_flag(flag)
+                   for flag in flags if flag in Status.FLAGS_TO_STATUSES.keys())
 
     @staticmethod
     def to_flags(statuses):

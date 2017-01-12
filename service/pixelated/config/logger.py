@@ -34,10 +34,11 @@ def init(debug=False):
     debug_enabled = debug or os.environ.get('DEBUG', False)
     logging_level = logging.DEBUG if debug_enabled else logging.INFO
 
-    logging.basicConfig(level=logging_level,
-                        format='%(asctime)s [%(name)s] %(levelname)s %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S',
-                        filemode='a')
+    logging.basicConfig(
+        level=logging_level,
+        format='%(asctime)s [%(name)s] %(levelname)s %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S',
+        filemode='a')
 
     logging.getLogger('gnupg').setLevel(logging.WARN)
     logging.getLogger('gnupg').addFilter(PrivateKeyFilter())

@@ -35,7 +35,8 @@ def not_found_mock(url, request):
             'content': 'foobar'}
 
 
-@urlmatch(netloc='api.some-server.test:4430', path='/1/smtp_cert', method='POST')
+@urlmatch(netloc='api.some-server.test:4430',
+          path='/1/smtp_cert', method='POST')
 def smtp_cert_mock(url, request):
     if request.body == 'address=%s' % USERNAME:
         return {
@@ -59,7 +60,12 @@ class TestSmtpClientCertificate(unittest.TestCase):
         self.provider.domain = 'some-provider.tld'
         self.auth = Authentication(USERNAME, 'token', 'uuid', 'session_id', {})
         self.pem_path = os.path.join(
-            self.tmp_dir.name, 'providers', 'some-provider.tld', 'keys', 'client', 'smtp.pem')
+            self.tmp_dir.name,
+            'providers',
+            'some-provider.tld',
+            'keys',
+            'client',
+            'smtp.pem')
 
     def tearDown(self):
         self.tmp_dir.dissolve()
@@ -73,7 +79,8 @@ class TestSmtpClientCertificate(unittest.TestCase):
 
         self.assertEqual(self.pem_path, result)
 
-    def test_download_certificate_if_redownload_necessary_e_g_certificate_expired(self):
+    def test_download_certificate_if_redownload_necessary_e_g_certificate_expired(
+            self):
         self.pretend_all_paths_exist()
         when(certs).should_redownload(self.pem_path).thenReturn(True)
 

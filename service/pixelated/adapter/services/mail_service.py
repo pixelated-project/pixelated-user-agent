@@ -28,7 +28,13 @@ from leap.bitmask.mail.adaptors.soledad import SoledadMailAdaptor
 
 class MailService(object):
 
-    def __init__(self, mail_sender, mail_store, search_engine, account_email, attachment_store):
+    def __init__(
+            self,
+            mail_sender,
+            mail_store,
+            search_engine,
+            account_email,
+            attachment_store):
         self.mail_store = mail_store
         self.search_engine = search_engine
         self.mail_sender = mail_sender
@@ -50,7 +56,7 @@ class MailService(object):
         try:
             mails = yield self.mail_store.get_mails(mail_ids)
             defer.returnValue((mails, total))
-        except Exception, e:
+        except Exception as e:
             import traceback
             traceback.print_exc()
             raise
@@ -61,7 +67,8 @@ class MailService(object):
         reserved_words = extract_reserved_tags(new_tags)
         if len(reserved_words):
             raise ValueError(
-                'None of the following words can be used as tags: ' + ' '.join(reserved_words))
+                'None of the following words can be used as tags: ' +
+                ' '.join(reserved_words))
         new_tags = self._favor_existing_tags_casing(new_tags)
         mail = yield self.mail(mail_id)
         mail.tags = set(new_tags)
@@ -80,7 +87,8 @@ class MailService(object):
         def _use_current_casing(new_tag_lower):
             return current_tags[current_tags_lower.index(new_tag_lower)]
 
-        return [_use_current_casing(new_tag.lower()) if new_tag.lower() in current_tags_lower else new_tag for new_tag in new_tags]
+        return [_use_current_casing(new_tag.lower()) if new_tag.lower(
+        ) in current_tags_lower else new_tag for new_tag in new_tags]
 
     def mail(self, mail_id):
         return self.mail_store.get_mail(mail_id, include_body=True)
@@ -96,7 +104,7 @@ class MailService(object):
         try:
             mail = yield self.mail_store.get_mail(mail_id, include_body=False)
             defer.returnValue(mail is not None)
-        except Exception, e:
+        except Exception as e:
             defer.returnValue(False)
 
     @defer.inlineCallbacks

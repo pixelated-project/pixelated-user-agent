@@ -39,8 +39,9 @@ class RetrieveAttachmentTest(SoledadTestBase):
 
         self.assertEqual(200, req.code)
         self.assertEquals('pretend to be binary attachment data', attachment)
-        self.assertEquals(expected_content_disposition,
-                          req.responseHeaders.getRawHeaders('content-disposition')[0])
+        self.assertEquals(
+            expected_content_disposition,
+            req.responseHeaders.getRawHeaders('content-disposition')[0])
         self.assertEquals(expected_content_type,
                           req.responseHeaders.getRawHeaders('content-type')[0])
 
@@ -60,8 +61,9 @@ class RetrieveAttachmentTest(SoledadTestBase):
 
         self.assertEqual(200, req.code)
         self.assertEquals('pretend to be binary attachment data', attachment)
-        self.assertEquals(expected_content_disposition,
-                          req.responseHeaders.getRawHeaders('content-disposition')[0])
+        self.assertEquals(
+            expected_content_disposition,
+            req.responseHeaders.getRawHeaders('content-disposition')[0])
         self.assertEquals(expected_content_type,
                           req.responseHeaders.getRawHeaders('content-type')[0])
 
@@ -96,11 +98,13 @@ class RetrieveAttachmentTest(SoledadTestBase):
         _, req = yield self.app_test_client.post_attachment(post_data, headers)
 
         self.assertEqual(201, req.code)
-        self.assertEqual('/attachment/B5B4ED80AC3B894523D72E375DACAA2FC6606C18EDF680FE95903086C8B5E14A',
-                         req.responseHeaders.getRawHeaders('location')[0])
-        response_json = {'ident': 'B5B4ED80AC3B894523D72E375DACAA2FC6606C18EDF680FE95903086C8B5E14A',
-                         'content-type': content_type,
-                         'name': filename,
-                         'size': len(data),
-                         'encoding': 'base64'}
+        self.assertEqual(
+            '/attachment/B5B4ED80AC3B894523D72E375DACAA2FC6606C18EDF680FE95903086C8B5E14A',
+            req.responseHeaders.getRawHeaders('location')[0])
+        response_json = {
+            'ident': 'B5B4ED80AC3B894523D72E375DACAA2FC6606C18EDF680FE95903086C8B5E14A',
+            'content-type': content_type,
+            'name': filename,
+            'size': len(data),
+            'encoding': 'base64'}
         self.assertEqual(response_json, json.loads(req.written[0]))

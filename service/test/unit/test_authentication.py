@@ -52,7 +52,8 @@ class AuthenticatorTest(unittest.TestCase):
                 username_without_domain, 'password')
 
     @inlineCallbacks
-    def test_successful_bonafide_auth_should_return_the_user_authentication_object(self):
+    def test_successful_bonafide_auth_should_return_the_user_authentication_object(
+            self):
         auth = Authenticator(self._leap_provider)
         mock_bonafide_session = Mock()
         mock_srp_auth = Mock()

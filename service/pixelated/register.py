@@ -38,7 +38,11 @@ def _validate(username, password):
     validate_password(password)
 
 
-def _set_provider(provider_cert, provider_cert_fingerprint, server_name, leap_home=None):
+def _set_provider(
+        provider_cert,
+        provider_cert_fingerprint,
+        server_name,
+        leap_home=None):
     if leap_home:
         leap_config.set_leap_home(leap_home)
 
@@ -51,7 +55,11 @@ def _set_provider(provider_cert, provider_cert_fingerprint, server_name, leap_ho
 
 
 def _set_leap_provider(args):
-    return _set_provider(args.leap_provider_cert, args.leap_provider_cert_fingerprint, args.provider, args.leap_home)
+    return _set_provider(
+        args.leap_provider_cert,
+        args.leap_provider_cert_fingerprint,
+        args.provider,
+        args.leap_home)
 
 
 def _bonafide_session(username, password, provider):

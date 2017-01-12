@@ -56,7 +56,9 @@ class MarkovGeneratorTest(unittest.TestCase):
 
     def test_add_paragraph_on_empty_chain(self):
         gen = MarkovGenerator(
-            [SAMPLE_TEXT], random=self.random, add_paragraph_on_empty_chain=True)
+            [SAMPLE_TEXT],
+            random=self.random,
+            add_paragraph_on_empty_chain=True)
 
         result = gen.generate(5)
 

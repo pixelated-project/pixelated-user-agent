@@ -36,7 +36,8 @@ class TestReplier(unittest.TestCase):
             'to-field': ['test@pixelated.org', sender], 'cc-field': ['test2@pixelated.org']}}
         self.assertEquals(expected, reply_dict)
 
-    def test_reply_single_swaps_current_user_and_recipient_if_a_am_the_sender(self):
+    def test_reply_single_swaps_current_user_and_recipient_if_a_am_the_sender(
+            self):
         current_user = sender = 'me@pixelated.org'
         to = ['test@pixelated.org']
         cc = []

@@ -69,7 +69,9 @@ class SessionTest(AbstractLeapTest):
             session = self._create_session()
 
             register_mock.assert_called_once_with(
-                KEYMANAGER_FINISHED_KEY_GENERATION, session._set_fresh_account, uid=email)
+                KEYMANAGER_FINISHED_KEY_GENERATION,
+                session._set_fresh_account,
+                uid=email)
 
     @patch('pixelated.config.sessions.register')
     def test_close_unregisters_from_generate_keys_events(self, _):
@@ -158,7 +160,13 @@ class SessionTest(AbstractLeapTest):
         self.assertFalse(session.fresh_account)
 
     def _create_session(self):
-        return LeapSession(self.provider, self.auth, self.mail_store, self.soledad_session, self.keymanager, self.smtp_mock)
+        return LeapSession(
+            self.provider,
+            self.auth,
+            self.mail_store,
+            self.soledad_session,
+            self.keymanager,
+            self.smtp_mock)
 
 
 def _execute_func(func):

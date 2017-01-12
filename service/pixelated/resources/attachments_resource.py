@@ -88,8 +88,10 @@ class AttachmentsResource(BaseResource):
 
     def render_POST(self, request):
         _mail_service = self.mail_service(request)
-        fields = cgi.FieldStorage(fp=request.content, headers=(request.getAllHeaders()),
-                                  environ={'REQUEST_METHOD': 'POST'})
+        fields = cgi.FieldStorage(
+            fp=request.content, headers=(
+                request.getAllHeaders()), environ={
+                'REQUEST_METHOD': 'POST'})
         _file = fields['attachment']
         deferred = _mail_service.save_attachment(_file.value, _file.type)
 

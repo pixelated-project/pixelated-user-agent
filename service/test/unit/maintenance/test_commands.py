@@ -95,9 +95,19 @@ class TestCommands(unittest.TestCase):
         def assert_mails_added(_):
             self.assertTrue(self.mail_store.add_mail.called)
             self.mail_store.add_mail.assert_any_call(
-                'INBOX', self._mail_content(join(mail_root, 'new', 'mbox00000000')))
+                'INBOX',
+                self._mail_content(
+                    join(
+                        mail_root,
+                        'new',
+                        'mbox00000000')))
             self.mail_store.add_mail.assert_any_call(
-                'INBOX', self._mail_content(join(mail_root, 'new', 'mbox00000001')))
+                'INBOX',
+                self._mail_content(
+                    join(
+                        mail_root,
+                        'new',
+                        'mbox00000001')))
             # TODO Should we check for flags?
 
         def error_callack(err):

@@ -20,4 +20,5 @@ def resolve_result(request, result):
 class DummySite(Site):
 
     def get(self, request):
-        return resolve_result(request, self.getResourceFor(request).render(request))
+        return resolve_result(
+            request, self.getResourceFor(request).render(request))

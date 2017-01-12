@@ -51,8 +51,9 @@ def log_time(f):
 
         time_duration, clock_duration, estimate_percent_io = _stop_stopwatch(
             start)
-        log.info('Needed %fs (%fs cpu time, %.2f%% spent outside process) to execute  %s' % (
-            time_duration, clock_duration, estimate_percent_io, f))
+        log.info(
+            'Needed %fs (%fs cpu time, %.2f%% spent outside process) to execute  %s' %
+            (time_duration, clock_duration, estimate_percent_io, f))
 
         return result
 
@@ -64,8 +65,9 @@ def log_time_deferred(f):
     def log_time(result, start):
         time_duration, clock_duration, estimate_percent_io = _stop_stopwatch(
             start)
-        log.info('after callback: Needed %fs (%fs cpu time, %.2f%% spent outside process) to execute  %s' % (
-            time_duration, clock_duration, estimate_percent_io, f))
+        log.info(
+            'after callback: Needed %fs (%fs cpu time, %.2f%% spent outside process) to execute  %s' %
+            (time_duration, clock_duration, estimate_percent_io, f))
         return result
 
     @wraps(f)

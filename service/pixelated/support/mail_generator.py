@@ -78,7 +78,9 @@ def search_for_tags(content):
 
 
 def filter_too_short_texts(texts):
-    return [text for text in texts if text is not None and len(text.split()) >= 3]
+    return [
+        text for text in texts if text is not None and len(
+            text.split()) >= 3]
 
 
 def load_all_mails(mail_list):
@@ -95,7 +97,8 @@ def load_all_mails(mail_list):
             else:
                 raise Exception(mail.get_content_type())
 
-    return filter_too_short_texts(subjects), filter_too_short_texts(mail_bodies)
+    return filter_too_short_texts(
+        subjects), filter_too_short_texts(mail_bodies)
 
 
 class MailGenerator(object):
@@ -112,7 +115,9 @@ class MailGenerator(object):
         self._subject_markov = MarkovGenerator(
             self._subjects, random=self._random)
         self._body_markov = MarkovGenerator(
-            self._bodies, random=self._random, add_paragraph_on_empty_chain=True)
+            self._bodies,
+            random=self._random,
+            add_paragraph_on_empty_chain=True)
 
     def generate_mail(self):
         body = self._body_markov.generate(150)

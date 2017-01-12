@@ -90,7 +90,8 @@ class TestRootResource(unittest.TestCase):
             'x-requested-with', ['XMLHttpRequest'])
         request.requestHeaders.setRawHeaders('x-xsrf-token', [csrf_token])
 
-    def test_should_unauthorize_child_resource_ajax_requests_when_csrf_mismatch(self):
+    def test_should_unauthorize_child_resource_ajax_requests_when_csrf_mismatch(
+            self):
         request = DummyRequest(['/child'])
         request.method = 'POST'
         self._mock_ajax_csrf(request, 'stubbed csrf token')
@@ -137,7 +138,8 @@ class TestRootResource(unittest.TestCase):
         d.addCallback(assert_unauthorized)
         return d
 
-    def test_should_unauthorize_child_resource_non_ajax_POST_requests_when_csrf_input_mismatch(self):
+    def test_should_unauthorize_child_resource_non_ajax_POST_requests_when_csrf_input_mismatch(
+            self):
         request = DummyRequest(['mails'])
         request.method = 'POST'
         request.addArg('csrftoken', 'some csrf token')

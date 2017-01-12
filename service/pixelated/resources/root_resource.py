@@ -91,13 +91,19 @@ class RootResource(BaseResource):
             request.content.read()).get('csrftoken', [None])[0]
         return csrf_input and csrf_input == xsrf_token
 
-    def initialize(self, provider=None, disclaimer_banner=None, authenticator=None):
+    def initialize(
+            self,
+            provider=None,
+            disclaimer_banner=None,
+            authenticator=None):
         self._child_resources.add(
             'sandbox', SandboxResource(self._static_folder))
         self._child_resources.add('assets', File(self._static_folder))
         self._child_resources.add('keys', KeysResource(self._services_factory))
         self._child_resources.add(
-            AttachmentsResource.BASE_URL, AttachmentsResource(self._services_factory))
+            AttachmentsResource.BASE_URL,
+            AttachmentsResource(
+                self._services_factory))
         self._child_resources.add(
             'contacts', ContactsResource(self._services_factory))
         self._child_resources.add('features', FeaturesResource(provider))
@@ -111,8 +117,13 @@ class RootResource(BaseResource):
             'user-settings', UserSettingsResource(self._services_factory))
         self._child_resources.add(
             'users', UsersResource(self._services_factory))
-        self._child_resources.add(LoginResource.BASE_URL,
-                                  LoginResource(self._services_factory, provider, disclaimer_banner=disclaimer_banner, authenticator=authenticator))
+        self._child_resources.add(
+            LoginResource.BASE_URL,
+            LoginResource(
+                self._services_factory,
+                provider,
+                disclaimer_banner=disclaimer_banner,
+                authenticator=authenticator))
         self._child_resources.add(
             LogoutResource.BASE_URL, LogoutResource(self._services_factory))
 

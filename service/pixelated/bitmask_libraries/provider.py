@@ -37,11 +37,25 @@ class LeapProvider(object):
 
     @property
     def provider_api_cert(self):
-        return str(os.path.join(leap_config.leap_home, 'providers', self.server_name, 'keys', 'client', 'api.pem'))
+        return str(
+            os.path.join(
+                leap_config.leap_home,
+                'providers',
+                self.server_name,
+                'keys',
+                'client',
+                'api.pem'))
 
     @property
     def combined_cerfificates_path(self):
-        return str(os.path.join(leap_config.leap_home, 'providers', self.server_name, 'keys', 'client', 'ca_bundle'))
+        return str(
+            os.path.join(
+                leap_config.leap_home,
+                'providers',
+                self.server_name,
+                'keys',
+                'client',
+                'ca_bundle'))
 
     @property
     def api_uri(self):
@@ -125,8 +139,9 @@ class LeapProvider(object):
         digest = get_digest(cert_data, method)
 
         if fingerprint.strip() != digest:
-            raise Exception('Certificate fingerprints don\'t match! Expected [%s] but got [%s]' % (
-                fingerprint.strip(), digest))
+            raise Exception(
+                'Certificate fingerprints don\'t match! Expected [%s] but got [%s]' %
+                (fingerprint.strip(), digest))
 
     def smtp_info(self):
         hosts = self.smtp_json['hosts']
@@ -138,7 +153,9 @@ class LeapProvider(object):
         session = requests.session()
         try:
             session.mount(
-                'https://', EnforceTLSv1Adapter(assert_fingerprint=LeapCertificate.LEAP_FINGERPRINT))
+                'https://',
+                EnforceTLSv1Adapter(
+                    assert_fingerprint=LeapCertificate.LEAP_FINGERPRINT))
             response = session.get(url, verify=LeapCertificate(
                 self).provider_web_cert, timeout=REQUESTS_TIMEOUT)
             response.raise_for_status()
@@ -156,7 +173,9 @@ class LeapProvider(object):
         service_url = "%s/%s/config/soledad-service.json" % (
             self.api_uri, self.api_version)
         response = requests.get(
-            service_url, verify=self.provider_api_cert, timeout=REQUESTS_TIMEOUT)
+            service_url,
+            verify=self.provider_api_cert,
+            timeout=REQUESTS_TIMEOUT)
         response.raise_for_status()
         return json.loads(response.content)
 
@@ -164,7 +183,9 @@ class LeapProvider(object):
         service_url = '%s/%s/config/smtp-service.json' % (
             self.api_uri, self.api_version)
         response = requests.get(
-            service_url, verify=self.provider_api_cert, timeout=REQUESTS_TIMEOUT)
+            service_url,
+            verify=self.provider_api_cert,
+            timeout=REQUESTS_TIMEOUT)
         response.raise_for_status()
         return json.loads(response.content)
 
@@ -203,7 +224,7 @@ class LeapProvider(object):
         path = os.path.join(leap_config.leap_home, 'providers',
                             self.server_name, 'keys', 'client')
         if not os.path.isdir(path):
-            os.makedirs(path, 0700)
+            os.makedirs(path, 0o700)
         self._download_cert(self.provider_api_cert)
 
     def _download_cert(self, cert_file_name):

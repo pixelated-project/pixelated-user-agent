@@ -40,7 +40,8 @@ class TagsTest(SoledadTestBase):
         self.assertEquals('Mail with tags', mails[0].subject)
 
     @defer.inlineCallbacks
-    def test_use_old_casing_when_same_tag_with_different_casing_is_posted(self):
+    def test_use_old_casing_when_same_tag_with_different_casing_is_posted(
+            self):
         input_mail = MailBuilder().with_subject('Mail with tags').build_input_mail()
         mail = yield self.app_test_client.add_mail_to_inbox(input_mail)
         yield self.app_test_client.post_tags(mail.ident, self._tags_json(['ImPoRtAnT']))
@@ -93,7 +94,8 @@ class TagsTest(SoledadTestBase):
         for tag in SPECIAL_TAGS:
             response = yield self.app_test_client.post_tags(mail.ident, self._tags_json([tag.name.upper()]))
             self.assertEquals(
-                "None of the following words can be used as tags: %s" % tag.name, response)
+                "None of the following words can be used as tags: %s" %
+                tag.name, response)
 
         mail = yield self.app_test_client.mail_store.get_mail(mail.ident)
         self.assertNotIn('drafts', mail.tags)

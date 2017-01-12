@@ -54,8 +54,10 @@ class Authenticator(object):
         srp_auth = Session(credentials, srp_provider,
                            self._leap_provider.local_ca_crt)
         yield srp_auth.authenticate()
-        returnValue(Authentication(user, srp_auth.token,
-                                   srp_auth.uuid, 'session_id', {'is_admin': False}))
+        returnValue(
+            Authentication(
+                user, srp_auth.token, srp_auth.uuid, 'session_id', {
+                    'is_admin': False}))
 
     def clean_username(self, username):
         if '@' not in username:

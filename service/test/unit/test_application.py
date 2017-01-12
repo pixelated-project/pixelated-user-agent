@@ -9,7 +9,13 @@ class ApplicationTest(unittest.TestCase):
 
     class MockConfig:
 
-        def __init__(self, port, host, sslkey=None, sslcert=None, manhole=False):
+        def __init__(
+                self,
+                port,
+                host,
+                sslkey=None,
+                sslcert=None,
+                manhole=False):
             self.port = port
             self.host = host
             self.sslkey = sslkey
@@ -19,7 +25,8 @@ class ApplicationTest(unittest.TestCase):
 
     @patch('leap.common.events.client')
     @patch('pixelated.application.reactor')
-    def test_that_start_site_binds_to_tcp_port_if_no_ssl_options(self, reactor_mock, _):
+    def test_that_start_site_binds_to_tcp_port_if_no_ssl_options(
+            self, reactor_mock, _):
         app_mock = MagicMock()
         config = ApplicationTest.MockConfig(12345, '127.0.0.1')
 
@@ -30,7 +37,8 @@ class ApplicationTest(unittest.TestCase):
 
     @patch('leap.common.events.client')
     @patch('pixelated.application.reactor')
-    def test_that_start_site_binds_to_ssl_if_ssl_options(self, reactor_mock, _):
+    def test_that_start_site_binds_to_ssl_if_ssl_options(
+            self, reactor_mock, _):
         app_mock = MagicMock()
         pixelated.application._ssl_options = lambda x, y: 'options'
 
@@ -45,7 +53,8 @@ class ApplicationTest(unittest.TestCase):
     @patch('leap.common.events.client')
     @patch('pixelated.application.reactor')
     @patch('pixelated.application.services.Services')
-    def test_that_start_user_agent_binds_to_tcp_port_if_no_ssl_options(self, services_mock, reactor_mock, _):
+    def test_that_start_user_agent_binds_to_tcp_port_if_no_ssl_options(
+            self, services_mock, reactor_mock, _):
         # FIXME patch something closer, instead of leap.common
         app_mock = MagicMock()
         services_factory_mock = MagicMock()
@@ -65,7 +74,8 @@ class ApplicationTest(unittest.TestCase):
     @patch('leap.common.events.client')
     @patch('pixelated.application.reactor')
     @patch('pixelated.application.services.Services')
-    def test_that_start_user_agent_binds_to_ssl_if_ssl_options(self, services_mock, reactor_mock, _):
+    def test_that_start_user_agent_binds_to_ssl_if_ssl_options(
+            self, services_mock, reactor_mock, _):
         # FIXME patch something closer, instead of leap.common
         app_mock = MagicMock()
         services_factory_mock = MagicMock()
@@ -88,7 +98,8 @@ class ApplicationTest(unittest.TestCase):
     @patch('leap.common.events.client')
     @patch('pixelated.application.reactor')
     @patch('pixelated.application.services.Services')
-    def test_should_log_user_out_if_invalid_soledad_token(self, services_mock, reactor_mock, events_mock):
+    def test_should_log_user_out_if_invalid_soledad_token(
+            self, services_mock, reactor_mock, events_mock):
         app_mock = MagicMock()
         services_factory_mock = MagicMock()
 
@@ -134,7 +145,8 @@ class ApplicationTest(unittest.TestCase):
 
     @patch('pixelated.application.reactor')
     @patch('pixelated.application._setup_multi_user')
-    def test_should_defer_fail_errors_during_multi_user_start_site(self, mock_multi_user_bootstrap, reactor_mock):
+    def test_should_defer_fail_errors_during_multi_user_start_site(
+            self, mock_multi_user_bootstrap, reactor_mock):
         args_mock = MagicMock()
         root_resources_mock = MagicMock()
         services_factory_mock = MagicMock()
@@ -147,8 +159,8 @@ class ApplicationTest(unittest.TestCase):
 
         def _assert_the_same_error_is_relayed_in_the_deferred(e):
             self.assertIsInstance(e.value, Exception)
-            self.assertEqual(
-                e.value.message, 'multi-user failed bootstrap for whatever reason')
+            self.assertEqual(e.value.message,
+                             'multi-user failed bootstrap for whatever reason')
 
         d.addErrback(_assert_the_same_error_is_relayed_in_the_deferred)
         return d
@@ -156,7 +168,8 @@ class ApplicationTest(unittest.TestCase):
     @patch('pixelated.application.reactor')
     @patch('pixelated.application.start_site')
     @patch('pixelated.application._setup_multi_user')
-    def test_should_defer_fail_errors_during_multi_user_bootstrap(self, ignore_setup_multi_user, mock_start_site, reactor_mock):
+    def test_should_defer_fail_errors_during_multi_user_bootstrap(
+            self, ignore_setup_multi_user, mock_start_site, reactor_mock):
         args_mock = MagicMock()
         root_resources_mock = MagicMock()
         services_factory_mock = MagicMock()
@@ -170,7 +183,8 @@ class ApplicationTest(unittest.TestCase):
         def _assert_the_same_error_is_relayed_in_the_deferred(e):
             self.assertIsInstance(e.value, Exception)
             self.assertEqual(
-                e.value.message, 'multi-user failed start site for whatever reason')
+                e.value.message,
+                'multi-user failed start site for whatever reason')
 
         d.addErrback(_assert_the_same_error_is_relayed_in_the_deferred)
         return d

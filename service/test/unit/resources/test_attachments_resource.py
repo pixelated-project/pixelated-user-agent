@@ -38,17 +38,26 @@ class AttachmentsResourceTest(unittest.TestCase):
         _file.type = 'some mocked type'
         _file.filename = 'filename.txt'
         mock_fields.return_value = {'attachment': _file}
-        when(self.mail_service).save_attachment('some mocked value',
-                                                'some mocked type').thenReturn(defer.succeed(attachment_id))
+        when(
+            self.mail_service).save_attachment(
+            'some mocked value',
+            'some mocked type').thenReturn(
+            defer.succeed(attachment_id))
 
         d = self.web.get(request)
 
         def assert_response(_):
             self.assertEqual(201, request.code)
-            self.assertEqual('/attachment/%s' % attachment_id,
-                             request.responseHeaders.getRawHeaders("location")[0])
-            response_json = {'ident': attachment_id, 'content-type': 'some mocked type',
-                             'name': 'filename.txt', 'size': 17, 'encoding': 'base64'}
+            self.assertEqual(
+                '/attachment/%s' %
+                attachment_id,
+                request.responseHeaders.getRawHeaders("location")[0])
+            response_json = {
+                'ident': attachment_id,
+                'content-type': 'some mocked type',
+                'name': 'filename.txt',
+                'size': 17,
+                'encoding': 'base64'}
             self.assertEqual(response_json, json.loads(request.written[0]))
             verify(self.mail_service).save_attachment(
                 'some mocked value', 'some mocked type')
@@ -66,8 +75,11 @@ class AttachmentsResourceTest(unittest.TestCase):
         _file.value = 'some mocked value'
         _file.type = 'some mocked type'
         mock_fields.return_value = {'attachment': _file}
-        when(self.mail_service).save_attachment('some mocked value',
-                                                'some mocked type').thenReturn(defer.fail(Exception))
+        when(
+            self.mail_service).save_attachment(
+            'some mocked value',
+            'some mocked type').thenReturn(
+            defer.fail(Exception))
 
         d = self.web.get(request)
 

@@ -33,12 +33,14 @@ def not_found_mock(url, request):
 
 @urlmatch(netloc=r'(.*\.)?some-provider\.test$', path='/provider.json')
 def provider_json_mock(url, request):
-    return provider_json_response("SHA256: 06e2300bdbc118c290eda0dc977c24080718f4eeca68c8b0ad431872a2baa22d")
+    return provider_json_response(
+        "SHA256: 06e2300bdbc118c290eda0dc977c24080718f4eeca68c8b0ad431872a2baa22d")
 
 
 @urlmatch(netloc=r'(.*\.)?some-provider\.test$', path='/provider.json')
 def provider_json_invalid_fingerprint_mock(url, request):
-    return provider_json_response("SHA256: 0123456789012345678901234567890123456789012345678901234567890123")
+    return provider_json_response(
+        "SHA256: 0123456789012345678901234567890123456789012345678901234567890123")
 
 
 def provider_json_response(fingerprint):
@@ -58,7 +60,8 @@ def provider_json_response(fingerprint):
     }
 
 
-@urlmatch(netloc=r'api\.some-provider\.test:4430$', path='/1/config/soledad-service.json')
+@urlmatch(netloc=r'api\.some-provider\.test:4430$',
+          path='/1/config/soledad-service.json')
 def soledad_json_mock(url, request):
     content = {
         "some key": "some value",
@@ -69,7 +72,8 @@ def soledad_json_mock(url, request):
     }
 
 
-@urlmatch(netloc=r'api\.some-provider\.test:4430$', path='/1/config/smtp-service.json')
+@urlmatch(netloc=r'api\.some-provider\.test:4430$',
+          path='/1/config/smtp-service.json')
 def smtp_json_mock(url, request):
     content = {
         "hosts": {
@@ -156,8 +160,9 @@ class LeapProviderTest(AbstractLeapTest):
                 "https://api.some-provider.test:4430", provider.api_uri)
             self.assertEqual(
                 "https://some-provider.test/ca.crt", provider.ca_cert_uri)
-            self.assertEqual("SHA256: 06e2300bdbc118c290eda0dc977c24080718f4eeca68c8b0ad431872a2baa22d",
-                             provider.ca_cert_fingerprint)
+            self.assertEqual(
+                "SHA256: 06e2300bdbc118c290eda0dc977c24080718f4eeca68c8b0ad431872a2baa22d",
+                provider.ca_cert_fingerprint)
             self.assertEqual(["mx"], provider.services)
 
     def test_provider_json_throws_exception_on_status_code(self):
@@ -210,9 +215,13 @@ class LeapProviderTest(AbstractLeapTest):
                     provider.fetch_valid_certificate()
 
         session.get.assert_any_call(
-            'https://some-provider.test/ca.crt', verify=PROVIDER_WEB_CERT, timeout=15)
+            'https://some-provider.test/ca.crt',
+            verify=PROVIDER_WEB_CERT,
+            timeout=15)
         session.get.assert_any_call(
-            'https://some-provider.test/provider.json', verify=PROVIDER_WEB_CERT, timeout=15)
+            'https://some-provider.test/provider.json',
+            verify=PROVIDER_WEB_CERT,
+            timeout=15)
 
     def test_that_provider_cert_is_used_to_fetch_soledad_json(self):
         get_func = MagicMock(wraps=requests.get)
@@ -221,8 +230,10 @@ class LeapProviderTest(AbstractLeapTest):
             with HTTMock(provider_json_mock, soledad_json_mock, not_found_mock):
                 provider = LeapProvider('some-provider.test')
                 provider.fetch_soledad_json()
-        get_func.assert_called_with('https://api.some-provider.test:4430/1/config/soledad-service.json',
-                                    verify='/tmp/foobar/providers/some-provider.test/keys/client/api.pem', timeout=15)
+        get_func.assert_called_with(
+            'https://api.some-provider.test:4430/1/config/soledad-service.json',
+            verify='/tmp/foobar/providers/some-provider.test/keys/client/api.pem',
+            timeout=15)
 
     def test_that_leap_fingerprint_is_validated(self):
         session = MagicMock(wraps=requests.session())
@@ -244,4 +255,5 @@ class LeapProviderTest(AbstractLeapTest):
             certs = provider.provider_api_cert
 
         self.assertEqual(
-            '/tmp/foobar/providers/some-provider.test/keys/client/api.pem', certs)
+            '/tmp/foobar/providers/some-provider.test/keys/client/api.pem',
+            certs)

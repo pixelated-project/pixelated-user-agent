@@ -39,4 +39,7 @@ class SearchIndexStorageKey(object):
         return os.urandom(64)  # 32 for encryption, 32 for hmac
 
     def _store_key_in_soledad(self, index_key):
-        return self._soledad.create_doc(dict(type='index_key', value=base64.encodestring(index_key)))
+        return self._soledad.create_doc(
+            dict(
+                type='index_key',
+                value=base64.encodestring(index_key)))

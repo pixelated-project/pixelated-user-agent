@@ -17,7 +17,12 @@
 
 class LeapSMTPConfig(object):
 
-    def __init__(self, account_email, cert_path, remote_smtp_host, remote_smtp_port):
+    def __init__(
+            self,
+            account_email,
+            cert_path,
+            remote_smtp_host,
+            remote_smtp_port):
         self.account_email = account_email
         self.cert_path = cert_path
         self.remote_smtp_host = remote_smtp_host

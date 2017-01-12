@@ -61,7 +61,10 @@ class MailSenderTest(unittest.TestCase):
         self._remote_smtp_host = 'some.host.test'
         self._remote_smtp_port = 1234
         self._smtp_config = LeapSMTPConfig(
-            'someone@somedomain.tld', self._cert_path, self._remote_smtp_host, self._remote_smtp_port)
+            'someone@somedomain.tld',
+            self._cert_path,
+            self._remote_smtp_host,
+            self._remote_smtp_port)
         self.sender = MailSender(self._smtp_config, self._keymanager_mock)
 
     def tearDown(self):
@@ -77,7 +80,8 @@ class MailSenderTest(unittest.TestCase):
 
         yield self.sender.sendmail(input_mail)
 
-        for recipient in flatten([input_mail.to, input_mail.cc, input_mail.bcc]):
+        for recipient in flatten(
+                [input_mail.to, input_mail.cc, input_mail.bcc]):
             verify(OutgoingMail).send_message(
                 any(), TwistedSmtpUserCapture(recipient))
 
@@ -109,8 +113,9 @@ class MailSenderTest(unittest.TestCase):
         try:
             yield self.sender.sendmail(input_mail)
             self.fail('Exception expected!')
-        except MailSenderException, e:
-            for recipient in flatten([input_mail.to, input_mail.cc, input_mail.bcc]):
+        except MailSenderException as e:
+            for recipient in flatten(
+                    [input_mail.to, input_mail.cc, input_mail.bcc]):
                 self.assertTrue(recipient in e.email_error_map)
 
     @defer.inlineCallbacks
@@ -122,15 +127,22 @@ class MailSenderTest(unittest.TestCase):
             defer.succeed(None))
         when(OutgoingMail)._fix_headers(any(), any(), any()).thenReturn(
             defer.succeed((None, mock())))
-        when(self._keymanager_mock).encrypt(any(), any(), sign=any(),
-                                            fetch_remote=any()).thenReturn(defer.fail(Exception('pretend key expired')))
+        when(
+            self._keymanager_mock).encrypt(
+            any(),
+            any(),
+            sign=any(),
+            fetch_remote=any()).thenReturn(
+            defer.fail(
+                Exception('pretend key expired')))
 
         with patch('leap.bitmask.mail.outgoing.service.emit_async'):
             try:
                 yield self.sender.sendmail(input_mail)
                 self.fail('Exception expected!')
-            except MailSenderException, e:
-                for recipient in flatten([input_mail.to, input_mail.cc, input_mail.bcc]):
+            except MailSenderException as e:
+                for recipient in flatten(
+                        [input_mail.to, input_mail.cc, input_mail.bcc]):
                     self.assertTrue(recipient in e.email_error_map)
 
     @defer.inlineCallbacks
@@ -144,6 +156,7 @@ class MailSenderTest(unittest.TestCase):
 
         yield self.sender.sendmail(input_mail)
 
-        for recipient in flatten([input_mail.to, input_mail.cc, input_mail.bcc]):
+        for recipient in flatten(
+                [input_mail.to, input_mail.cc, input_mail.bcc]):
             verify(OutgoingMail).send_message(MailToSmtpFormatCapture(
                 recipient, bccs), TwistedSmtpUserCapture(recipient))

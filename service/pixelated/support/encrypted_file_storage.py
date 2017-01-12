@@ -117,7 +117,8 @@ class EncryptedFileStorage(FileStorage):
             struct_file.seek(0)
             content = struct_file.file.read()
             file_hash = sha256(content).digest()
-            if name in self.length_cache and file_hash == self.length_cache[name][1]:
+            if name in self.length_cache and file_hash == self.length_cache[
+                    name][1]:
                 return
             self.length_cache[name] = (len(content), file_hash)
             encrypted_content = self.encrypt(content)
@@ -148,6 +149,6 @@ class EncryptedFileStorage(FileStorage):
             encrypted_content = self.encrypt(content)
             with open(self._fpath(name), 'w+b') as f:
                 f.write(encrypted_content)
-        except Exception, e:
+        except Exception as e:
             print e
             raise

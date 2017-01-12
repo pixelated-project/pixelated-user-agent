@@ -50,7 +50,11 @@ class UserAgentMode(object):
 
 
 @defer.inlineCallbacks
-def start_user_agent_in_single_user_mode(root_resource, services_factory, leap_home, leap_session):
+def start_user_agent_in_single_user_mode(
+        root_resource,
+        services_factory,
+        leap_home,
+        leap_session):
     log.info('Bootstrap done, loading services for user %s' %
              leap_session.user_auth.username)
 
@@ -115,8 +119,10 @@ def add_top_level_system_callbacks(deferred, services_factory):
 
     def _log_user_out(event, user_data):
         log.info('Invalid soledad token, logging out %s' % user_data)
-        user_data = {'user_id': user_data['uuid']} if 'uuid' in user_data else {
-            'user_id': user_data, 'using_email': True}
+        user_data = {
+            'user_id': user_data['uuid']} if 'uuid' in user_data else {
+            'user_id': user_data,
+            'using_email': True}
         services_factory.destroy_session(**user_data)
 
     def _log_user_out_on_token_expire(leap_session):
@@ -152,20 +158,31 @@ def _setup_multi_user(args, root_resource, services_factory):
     init_monkeypatches()
     events_server.ensure_server()
     provider = initialize_leap_provider(
-        args.provider, args.leap_provider_cert, args.leap_provider_cert_fingerprint, args.leap_home)
+        args.provider,
+        args.leap_provider_cert,
+        args.leap_provider_cert_fingerprint,
+        args.leap_home)
     protected_resource = set_up_protected_resources(
         root_resource, provider, services_factory, banner=args.banner)
     return protected_resource
 
 
-def set_up_protected_resources(root_resource, provider, services_factory, banner=None, authenticator=None):
+def set_up_protected_resources(
+        root_resource,
+        provider,
+        services_factory,
+        banner=None,
+        authenticator=None):
     session_checker = SessionChecker(services_factory)
 
     realm = PixelatedRealm()
     _portal = portal.Portal(realm, [session_checker, AllowAnonymousAccess()])
 
     anonymous_resource = LoginResource(
-        services_factory, provider, disclaimer_banner=banner, authenticator=authenticator)
+        services_factory,
+        provider,
+        disclaimer_banner=banner,
+        authenticator=authenticator)
     protected_resource = PixelatedAuthSessionWrapper(
         _portal, root_resource, anonymous_resource, [])
     root_resource.initialize(
@@ -220,7 +237,12 @@ def start_site(config, resource):
     site = PixelatedSite(resource)
     site.displayTracebacks = False
     if config.sslkey and config.sslcert:
-        reactor.listenSSL(config.port, site, _ssl_options(config.sslkey, config.sslcert),
-                          interface=config.host)
+        reactor.listenSSL(
+            config.port,
+            site,
+            _ssl_options(
+                config.sslkey,
+                config.sslcert),
+            interface=config.host)
     else:
         reactor.listenTCP(config.port, site, interface=config.host)

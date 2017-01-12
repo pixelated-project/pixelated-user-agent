@@ -30,7 +30,9 @@ class TestRegister(unittest.TestCase):
         mock_provider = Mock()
         with patch('pixelated.register.LeapProvider', return_value=mock_provider) as mock_instantiate_provider:
             provider = _set_provider(
-                'mocked_provider_cert', 'mocked_provider_cert_fingerprint', 'mocked_server_name')
+                'mocked_provider_cert',
+                'mocked_provider_cert_fingerprint',
+                'mocked_server_name')
             mock_instantiate_provider.assert_called_once_with(
                 'mocked_server_name')
             self.assertEqual(provider, mock_provider)

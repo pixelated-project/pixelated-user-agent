@@ -45,7 +45,14 @@ def _get_static_folder():
     # this is a workaround for packaging
     if not os.path.exists(static_folder):
         static_folder = os.path.abspath(
-            os.path.join(os.path.abspath(__file__), "..", "..", "..", "..", "web-ui", "dist"))
+            os.path.join(
+                os.path.abspath(__file__),
+                "..",
+                "..",
+                "..",
+                "..",
+                "web-ui",
+                "dist"))
     if not os.path.exists(static_folder):
         static_folder = os.path.join(
             '/', 'usr', 'share', 'pixelated-user-agent')
@@ -81,9 +88,13 @@ class DisclaimerElement(Element):
         try:
             return super(DisclaimerElement, self).render(request)
         except SAXParseException:
-            return ["Invalid XML template format for %s." % self._banner_filename]
+            return [
+                "Invalid XML template format for %s." %
+                self._banner_filename]
         except IOError:
-            return ["Disclaimer banner file %s could not be read or does not exit." % self._banner_filename]
+            return [
+                "Disclaimer banner file %s could not be read or does not exit." %
+                self._banner_filename]
 
 
 class LoginWebSite(Element):
@@ -109,7 +120,12 @@ class LoginWebSite(Element):
 class LoginResource(BaseResource):
     BASE_URL = 'login'
 
-    def __init__(self, services_factory, provider=None, disclaimer_banner=None, authenticator=None):
+    def __init__(
+            self,
+            services_factory,
+            provider=None,
+            disclaimer_banner=None,
+            authenticator=None):
         BaseResource.__init__(self, services_factory)
         self._static_folder = _get_static_folder()
         self._startup_folder = _get_startup_folder()
@@ -155,7 +171,8 @@ class LoginResource(BaseResource):
             log.info('Login error for %s' % request.args['username'][0])
             log.info('%s' % error)
             request.setResponseCode(UNAUTHORIZED)
-            return self._render_template(request, 'Invalid username or password')
+            return self._render_template(
+                request, 'Invalid username or password')
 
         d = self._handle_login(request)
         d.addCallbacks(render_response, render_error)
@@ -172,8 +189,9 @@ class LoginResource(BaseResource):
 
     def _complete_bootstrap(self, user_auth, request):
         def log_error(error):
-            log.error('Login error during %s services setup: %s \n %s' % (
-                user_auth.username, error.getErrorMessage(), error.getTraceback()))
+            log.error(
+                'Login error during %s services setup: %s \n %s' %
+                (user_auth.username, error.getErrorMessage(), error.getTraceback()))
 
         def set_session_cookies(_):
             session = IPixelatedSession(request.getSession())

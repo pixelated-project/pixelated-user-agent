@@ -63,7 +63,8 @@ class MultiUserClient(AppTestClient):
 
     def login(self, username='username', password='password'):
         session = Authentication(
-            username, 'some_user_token', 'some_user_uuid', 'session_id', {'is_admin': False})
+            username, 'some_user_token', 'some_user_uuid', 'session_id', {
+                'is_admin': False})
         leap_session = self._test_account.leap_session
         leap_session.user_auth = session
         config = mock()
@@ -84,8 +85,12 @@ class MultiUserClient(AppTestClient):
         when(pixelated.config.services).Services(
             ANY()).thenReturn(self.services)
 
-        request = request_mock(path='/login', method="POST",
-                               body={'username': username, 'password': password})
+        request = request_mock(
+            path='/login',
+            method="POST",
+            body={
+                'username': username,
+                'password': password})
         return self._render(request, as_json=False)
 
     def get(self, path, get_args='', as_json=True, from_request=None):
@@ -96,10 +101,23 @@ class MultiUserClient(AppTestClient):
             request.session = session
         return self._render(request, as_json)
 
-    def post(self, path, body='', headers=None, ajax=True, csrf='token', as_json=True, from_request=None):
+    def post(
+            self,
+            path,
+            body='',
+            headers=None,
+            ajax=True,
+            csrf='token',
+            as_json=True,
+            from_request=None):
         headers = headers or {'Content-Type': 'application/json'}
-        request = request_mock(path=path, method="POST",
-                               body=body, headers=headers, ajax=ajax, csrf=csrf)
+        request = request_mock(
+            path=path,
+            method="POST",
+            body=body,
+            headers=headers,
+            ajax=ajax,
+            csrf=csrf)
 
         if from_request:
             session = from_request.getSession()

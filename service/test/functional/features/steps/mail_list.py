@@ -123,7 +123,8 @@ def _wait_for_mail_list_to_be_empty(context):
     def mail_list_is_empty(_):
         with ImplicitWait(context, timeout=0.1):
             try:
-                return 0 == len(context.browser.find_elements_by_css_selector('.mail-list-entry'))
+                return 0 == len(
+                    context.browser.find_elements_by_css_selector('.mail-list-entry'))
             except TimeoutException:
                 return False
 

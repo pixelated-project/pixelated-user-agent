@@ -134,7 +134,9 @@ class Mail(object):
 
     def _parse_charset_header(self, charset_header, default_charset='utf-8'):
         try:
-            return re.compile('.*charset=([a-zA-Z0-9-]+)', re.MULTILINE | re.DOTALL).match(charset_header).group(1)
+            return re.compile(
+                '.*charset=([a-zA-Z0-9-]+)',
+                re.MULTILINE | re.DOTALL).match(charset_header).group(1)
         except:
             return default_charset
 
@@ -201,7 +203,10 @@ class InputMail(Mail):
     def from_dict(mail_dict, from_address):
         input_mail = InputMail()
         input_mail.headers = {
-            key.capitalize(): value for key, value in mail_dict.get('header', {}).items()}
+            key.capitalize(): value for key,
+            value in mail_dict.get(
+                'header',
+                {}).items()}
 
         input_mail.headers['Date'] = date.mail_date_now()
         input_mail.headers['From'] = from_address

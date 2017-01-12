@@ -14,7 +14,11 @@ from twisted.logger import Logger
 log = Logger()
 
 
-def initialize_leap_provider(provider_hostname, provider_cert, provider_fingerprint, leap_home):
+def initialize_leap_provider(
+        provider_hostname,
+        provider_cert,
+        provider_fingerprint,
+        leap_home):
     LeapCertificate.set_cert_and_fingerprint(provider_cert,
                                              provider_fingerprint)
     leap_config.set_leap_home(leap_home)
@@ -55,7 +59,10 @@ def initialize_leap_single_user(leap_provider_cert,
     provider, username, password = credentials.read(credentials_file)
 
     provider = initialize_leap_provider(
-        provider, leap_provider_cert, leap_provider_cert_fingerprint, leap_home)
+        provider,
+        leap_provider_cert,
+        leap_provider_cert_fingerprint,
+        leap_home)
 
     auth = yield Authenticator(provider).authenticate(username, password)
 

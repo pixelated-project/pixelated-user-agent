@@ -22,7 +22,10 @@ def remove_duplicates(recipients):
 
 
 def remove_address(recipients, current_user):
-    return [recipient for recipient in recipients if not parsed_mail_matches(recipient, current_user)]
+    return [
+        recipient for recipient in recipients if not parsed_mail_matches(
+            recipient,
+            current_user)]
 
 
 def parsed_mail_matches(to_parse, expected):

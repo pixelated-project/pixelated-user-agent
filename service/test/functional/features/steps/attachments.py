@@ -50,7 +50,8 @@ def build_mail_with_attachment(subject):
 
 @wait_for(timeout=10.0)
 def load_mail_into_soledad(context, mail):
-    return context.single_user_client.mail_store.add_mail('INBOX', mail.as_string())
+    return context.single_user_client.mail_store.add_mail(
+        'INBOX', mail.as_string())
 
 
 @then(u'I see the mail has an attachment')

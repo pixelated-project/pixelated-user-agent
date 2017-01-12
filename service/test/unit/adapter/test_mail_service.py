@@ -40,7 +40,11 @@ class TestMailService(unittest.TestCase):
         self.mail_sender = mock()
         self.search_engine = mock()
         self.mail_service = MailService(
-            self.mail_sender, self.mail_store, self.search_engine, 'acount@email', self.attachment_store)
+            self.mail_sender,
+            self.mail_store,
+            self.search_engine,
+            'acount@email',
+            self.attachment_store)
         self.mail = InputMail.from_dict(
             duplicates_in_fields_mail_dict(), from_address='pixelated@org')
 
