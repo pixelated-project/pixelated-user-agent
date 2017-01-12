@@ -73,7 +73,8 @@ def _setup_webdriver(context):
     try:
         context.browser = supported_webdrivers[browser]()
     except KeyError:
-        raise UnsuportedWebDriverError('{} is not a supported webdriver'.format(browser))
+        raise UnsuportedWebDriverError(
+            '{} is not a supported webdriver'.format(browser))
 
     context.browser.set_window_size(1280, 1024)
     context.browser.implicitly_wait(DEFAULT_IMPLICIT_WAIT_TIMEOUT_IN_S)

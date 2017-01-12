@@ -8,9 +8,12 @@ def generate_recipients(sender, to, ccs, current_user):
     to = remove_duplicates(to)
     ccs = remove_duplicates(ccs)
 
-    result['single'] = swap_recipient_if_needed(sender, remove_address(to, current_user), current_user)
-    result['all']['to-field'] = remove_address(to, current_user) if len(to) > 1 else to
-    result['all']['cc-field'] = remove_address(ccs, current_user) if len(ccs) > 1 else ccs
+    result['single'] = swap_recipient_if_needed(
+        sender, remove_address(to, current_user), current_user)
+    result['all'][
+        'to-field'] = remove_address(to, current_user) if len(to) > 1 else to
+    result['all'][
+        'cc-field'] = remove_address(ccs, current_user) if len(ccs) > 1 else ccs
     return result
 
 

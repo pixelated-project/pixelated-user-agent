@@ -25,6 +25,7 @@ from test.support.integration.soledad_test_base import SoledadTestBase
 
 
 class RetrieveAttachmentTest(SoledadTestBase):
+
     @defer.inlineCallbacks
     def test_attachment_content_is_retrieved(self):
         attachment_id, input_mail = self._create_mail_with_attachment()
@@ -38,8 +39,10 @@ class RetrieveAttachmentTest(SoledadTestBase):
 
         self.assertEqual(200, req.code)
         self.assertEquals('pretend to be binary attachment data', attachment)
-        self.assertEquals(expected_content_disposition, req.responseHeaders.getRawHeaders('content-disposition')[0])
-        self.assertEquals(expected_content_type, req.responseHeaders.getRawHeaders('content-type')[0])
+        self.assertEquals(expected_content_disposition,
+                          req.responseHeaders.getRawHeaders('content-disposition')[0])
+        self.assertEquals(expected_content_type,
+                          req.responseHeaders.getRawHeaders('content-type')[0])
 
     @defer.inlineCallbacks
     def test_should_retrieve_attachment_even_if_xsrf_token_not_passed(self):
@@ -57,14 +60,17 @@ class RetrieveAttachmentTest(SoledadTestBase):
 
         self.assertEqual(200, req.code)
         self.assertEquals('pretend to be binary attachment data', attachment)
-        self.assertEquals(expected_content_disposition, req.responseHeaders.getRawHeaders('content-disposition')[0])
-        self.assertEquals(expected_content_type, req.responseHeaders.getRawHeaders('content-type')[0])
+        self.assertEquals(expected_content_disposition,
+                          req.responseHeaders.getRawHeaders('content-disposition')[0])
+        self.assertEquals(expected_content_type,
+                          req.responseHeaders.getRawHeaders('content-type')[0])
 
     def _create_mail_with_attachment(self):
         input_mail = MIMEMultipart()
         input_mail.attach(MIMEText(u'a utf8 message', _charset='utf-8'))
         attachment = MIMEApplication('pretend to be binary attachment data')
-        attachment.add_header('Content-Disposition', 'attachment', filename='file name.txt')
+        attachment.add_header('Content-Disposition',
+                              'attachment', filename='file name.txt')
         attachment.add_header('Content-Type', 'text/plain')
         input_mail.attach(attachment)
         attachment_id = 'B5B4ED80AC3B894523D72E375DACAA2FC6606C18EDF680FE95903086C8B5E14A'
@@ -82,14 +88,16 @@ class RetrieveAttachmentTest(SoledadTestBase):
         content_type = 'text/plain'
         filename = 'filename.txt'
         data = 'pretend to be binary attachment data'
-        file = MultipartParam('attachment', value=data, filename=filename, filetype=content_type)
+        file = MultipartParam('attachment', value=data,
+                              filename=filename, filetype=content_type)
         datagen, headers = multipart_encode([file])
         post_data = "".join(datagen)
 
         _, req = yield self.app_test_client.post_attachment(post_data, headers)
 
         self.assertEqual(201, req.code)
-        self.assertEqual('/attachment/B5B4ED80AC3B894523D72E375DACAA2FC6606C18EDF680FE95903086C8B5E14A', req.responseHeaders.getRawHeaders('location')[0])
+        self.assertEqual('/attachment/B5B4ED80AC3B894523D72E375DACAA2FC6606C18EDF680FE95903086C8B5E14A',
+                         req.responseHeaders.getRawHeaders('location')[0])
         response_json = {'ident': 'B5B4ED80AC3B894523D72E375DACAA2FC6606C18EDF680FE95903086C8B5E14A',
                          'content-type': content_type,
                          'name': filename,

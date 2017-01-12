@@ -26,6 +26,7 @@ from twisted.mail.smtp import User
 
 
 class SMTPDownException(Exception):
+
     def __init__(self):
         Exception.__init__(self, "Couldn't send mail now, try again later.")
 
@@ -58,7 +59,8 @@ class MailSender(object):
 
         if not all_succeeded:
             error_map = self._build_error_map(recipients, results)
-            raise MailSenderException('Failed to send mail to all recipients', error_map)
+            raise MailSenderException(
+                'Failed to send mail to all recipients', error_map)
 
         defer.returnValue(all_succeeded)
 
@@ -70,7 +72,8 @@ class MailSender(object):
         for recipient in recipients:
             self._define_bcc_field(mail, recipient, bccs)
             smtp_recipient = self._create_twisted_smtp_recipient(recipient)
-            deferreds.append(outgoing_mail.send_message(mail.to_smtp_format(), smtp_recipient))
+            deferreds.append(outgoing_mail.send_message(
+                mail.to_smtp_format(), smtp_recipient))
 
         return defer.DeferredList(deferreds, fireOnOneErrback=False, consumeErrors=True)
 

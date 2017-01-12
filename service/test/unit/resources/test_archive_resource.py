@@ -8,6 +8,7 @@ from twisted.internet import defer
 
 
 class TestArchiveResource(unittest.TestCase):
+
     def setUp(self):
         self.mail_service = mock()
         self.web = DummySite(MailsArchiveResource(self.mail_service))
@@ -19,8 +20,10 @@ class TestArchiveResource(unittest.TestCase):
         content = mock()
         when(content).read().thenReturn(json.dumps({'idents': ['1', '2']}))
 
-        when(self.mail_service).archive_mail('1').thenReturn(defer.succeed(None))
-        when(self.mail_service).archive_mail('2').thenReturn(defer.succeed(None))
+        when(self.mail_service).archive_mail(
+            '1').thenReturn(defer.succeed(None))
+        when(self.mail_service).archive_mail(
+            '2').thenReturn(defer.succeed(None))
 
         request.content = content
         d = self.web.get(request)

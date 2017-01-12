@@ -52,11 +52,13 @@ def send_impl(context):
 
 @when(u'I toggle the cc and bcc fields')
 def collapse_cc_bcc_fields(context):
-    cc_and_bcc_chevron = find_element_by_css_selector(context, '#cc-bcc-collapse')
+    cc_and_bcc_chevron = find_element_by_css_selector(
+        context, '#cc-bcc-collapse')
     cc_and_bcc_chevron.click()
 
 
 def _enter_recipient(context, recipients_field, to_type):
     recipients_field = recipients_field.lower()
-    field = find_element_by_css_selector(context, '#recipients-%s-area .tt-input' % recipients_field)
+    field = find_element_by_css_selector(
+        context, '#recipients-%s-area .tt-input' % recipients_field)
     field.send_keys(to_type)

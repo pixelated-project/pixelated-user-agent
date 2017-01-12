@@ -109,8 +109,10 @@ class MailGenerator(object):
         self._subjects, self._bodies = load_all_mails(sample_mail_list)
 
         self._potential_tags = search_for_tags(' '.join(self._bodies))
-        self._subject_markov = MarkovGenerator(self._subjects, random=self._random)
-        self._body_markov = MarkovGenerator(self._bodies, random=self._random, add_paragraph_on_empty_chain=True)
+        self._subject_markov = MarkovGenerator(
+            self._subjects, random=self._random)
+        self._body_markov = MarkovGenerator(
+            self._bodies, random=self._random, add_paragraph_on_empty_chain=True)
 
     def generate_mail(self):
         body = self._body_markov.generate(150)
@@ -140,7 +142,8 @@ class MailGenerator(object):
         return self._random.choice(['could not verify', 'valid'])
 
     def _random_from(self):
-        name = self._random.choice(filter(lambda name: name != self._receiver, MailGenerator.NAMES))
+        name = self._random.choice(
+            filter(lambda name: name != self._receiver, MailGenerator.NAMES))
 
         return '%s@%s' % (name, self._domain_name)
 

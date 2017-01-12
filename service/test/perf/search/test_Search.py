@@ -28,11 +28,15 @@ class Search(FunkLoadTestCase):
     def setUpBench(self):
 
         # setup data
-        CLIENT.add_multiple_to_mailbox(10, 'INBOX', to='to@inbox.com', cc='cc@inbox.com', bcc='bcc@inbox.com', tags=['inbox'])
-        CLIENT.add_multiple_to_mailbox(10, 'TRASH', to='to@trash.com', cc='cc@trash.com', bcc='bcc@trash.com', tags=['trash'])
-        CLIENT.add_multiple_to_mailbox(10, 'DRAFTS', to='to@drafts.com', cc='cc@drafts.com', bcc='bcc@drafts.com', tags=['drafts'])
+        CLIENT.add_multiple_to_mailbox(
+            10, 'INBOX', to='to@inbox.com', cc='cc@inbox.com', bcc='bcc@inbox.com', tags=['inbox'])
+        CLIENT.add_multiple_to_mailbox(
+            10, 'TRASH', to='to@trash.com', cc='cc@trash.com', bcc='bcc@trash.com', tags=['trash'])
+        CLIENT.add_multiple_to_mailbox(
+            10, 'DRAFTS', to='to@drafts.com', cc='cc@drafts.com', bcc='bcc@drafts.com', tags=['drafts'])
 
-        self.call_to_terminate = CLIENT.run_on_a_thread(logfile='results/app.log')
+        self.call_to_terminate = CLIENT.run_on_a_thread(
+            logfile='results/app.log')
 
     def tearDownBench(self):
         self.call_to_terminate()
@@ -57,7 +61,8 @@ class Search(FunkLoadTestCase):
             self.get(contacts_url, description='Query for contacts')
             idents = self.idents_by_tag(tags[i % 3])
             tag_data = Data('application/json', '{"newtags":["newtag%s"]}' % i)
-            self.post(mail_tags_url % idents[i % 3], tag_data, description='Change tags on a mail')
+            self.post(mail_tags_url % idents[
+                      i % 3], tag_data, description='Change tags on a mail')
             self.idents_by_tag(tags[i % 3])
             self.get(all_tags_url, description='Query for all tags listing')
 

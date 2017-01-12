@@ -43,22 +43,27 @@ class MultiUserClient(AppTestClient):
         self.cleanup = lambda: self._test_account.cleanup()
         self.soledad = self._test_account.soledad
 
-        self.service_factory = ServicesFactory(UserAgentMode(is_single_user=False))
+        self.service_factory = ServicesFactory(
+            UserAgentMode(is_single_user=False))
 
         root_resource = RootResource(self.service_factory)
         leap_provider = mock()
         self.credentials_checker = StubSRPChecker(leap_provider)
-        self.resource = set_up_protected_resources(root_resource, leap_provider, self.service_factory)
+        self.resource = set_up_protected_resources(
+            root_resource, leap_provider, self.service_factory)
 
     def _mock_bonafide_auth(self, username, password):
         if username == 'username' and password == 'password':
             self.credentials_checker.add_user(username, password)
-            when(Authenticator)._bonafide_auth(username, password).thenReturn(self.user_auth)
+            when(Authenticator)._bonafide_auth(
+                username, password).thenReturn(self.user_auth)
         else:
-            when(Authenticator)._bonafide_auth(username, password).thenRaise(SRPAuthError)
+            when(Authenticator)._bonafide_auth(
+                username, password).thenRaise(SRPAuthError)
 
     def login(self, username='username', password='password'):
-        session = Authentication(username, 'some_user_token', 'some_user_uuid', 'session_id', {'is_admin': False})
+        session = Authentication(
+            username, 'some_user_token', 'some_user_uuid', 'session_id', {'is_admin': False})
         leap_session = self._test_account.leap_session
         leap_session.user_auth = session
         config = mock()
@@ -71,12 +76,16 @@ class MultiUserClient(AppTestClient):
 
         self._mock_bonafide_auth(username, password)
 
-        when(LeapSessionFactory).create(username, password, session).thenReturn(leap_session)
+        when(LeapSessionFactory).create(
+            username, password, session).thenReturn(leap_session)
         with patch('mockito.invocation.AnswerSelector', AnswerSelector):
-            when(leap_session).initial_sync().thenAnswer(lambda: defer.succeed(None))
-        when(pixelated.config.services).Services(ANY()).thenReturn(self.services)
+            when(leap_session).initial_sync().thenAnswer(
+                lambda: defer.succeed(None))
+        when(pixelated.config.services).Services(
+            ANY()).thenReturn(self.services)
 
-        request = request_mock(path='/login', method="POST", body={'username': username, 'password': password})
+        request = request_mock(path='/login', method="POST",
+                               body={'username': username, 'password': password})
         return self._render(request, as_json=False)
 
     def get(self, path, get_args='', as_json=True, from_request=None):
@@ -89,7 +98,8 @@ class MultiUserClient(AppTestClient):
 
     def post(self, path, body='', headers=None, ajax=True, csrf='token', as_json=True, from_request=None):
         headers = headers or {'Content-Type': 'application/json'}
-        request = request_mock(path=path, method="POST", body=body, headers=headers, ajax=ajax, csrf=csrf)
+        request = request_mock(path=path, method="POST",
+                               body=body, headers=headers, ajax=ajax, csrf=csrf)
 
         if from_request:
             session = from_request.getSession()

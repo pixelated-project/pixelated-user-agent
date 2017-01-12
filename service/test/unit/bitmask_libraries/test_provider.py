@@ -138,6 +138,7 @@ PROVIDER_WEB_CERT = '/tmp/bootstrap-ca.crt'
 
 
 class LeapProviderTest(AbstractLeapTest):
+
     def setUp(self):
         leap_config.leap_home = '/tmp/foobar'
         LeapCertificate.set_cert_and_fingerprint(PROVIDER_WEB_CERT, None)
@@ -151,8 +152,10 @@ class LeapProviderTest(AbstractLeapTest):
 
             self.assertEqual("1", provider.api_version)
             self.assertEqual("some-provider.test", provider.domain)
-            self.assertEqual("https://api.some-provider.test:4430", provider.api_uri)
-            self.assertEqual("https://some-provider.test/ca.crt", provider.ca_cert_uri)
+            self.assertEqual(
+                "https://api.some-provider.test:4430", provider.api_uri)
+            self.assertEqual(
+                "https://some-provider.test/ca.crt", provider.ca_cert_uri)
             self.assertEqual("SHA256: 06e2300bdbc118c290eda0dc977c24080718f4eeca68c8b0ad431872a2baa22d",
                              provider.ca_cert_fingerprint)
             self.assertEqual(["mx"], provider.services)
@@ -172,7 +175,8 @@ class LeapProviderTest(AbstractLeapTest):
         with HTTMock(provider_json_mock, soledad_json_mock, smtp_json_mock, not_found_mock):
             provider = LeapProvider('some-provider.test')
             smtp = provider.fetch_smtp_json()
-            self.assertEqual('mx.some-provider.test', smtp.get('hosts').get('leap-mx').get('hostname'))
+            self.assertEqual('mx.some-provider.test',
+                             smtp.get('hosts').get('leap-mx').get('hostname'))
 
     def test_throw_exception_for_fetch_smtp_status_code(self):
         with HTTMock(provider_json_mock, soledad_json_mock, not_found_mock):
@@ -205,8 +209,10 @@ class LeapProviderTest(AbstractLeapTest):
                     provider = LeapProvider('some-provider.test')
                     provider.fetch_valid_certificate()
 
-        session.get.assert_any_call('https://some-provider.test/ca.crt', verify=PROVIDER_WEB_CERT, timeout=15)
-        session.get.assert_any_call('https://some-provider.test/provider.json', verify=PROVIDER_WEB_CERT, timeout=15)
+        session.get.assert_any_call(
+            'https://some-provider.test/ca.crt', verify=PROVIDER_WEB_CERT, timeout=15)
+        session.get.assert_any_call(
+            'https://some-provider.test/provider.json', verify=PROVIDER_WEB_CERT, timeout=15)
 
     def test_that_provider_cert_is_used_to_fetch_soledad_json(self):
         get_func = MagicMock(wraps=requests.get)
@@ -215,7 +221,8 @@ class LeapProviderTest(AbstractLeapTest):
             with HTTMock(provider_json_mock, soledad_json_mock, not_found_mock):
                 provider = LeapProvider('some-provider.test')
                 provider.fetch_soledad_json()
-        get_func.assert_called_with('https://api.some-provider.test:4430/1/config/soledad-service.json', verify='/tmp/foobar/providers/some-provider.test/keys/client/api.pem', timeout=15)
+        get_func.assert_called_with('https://api.some-provider.test:4430/1/config/soledad-service.json',
+                                    verify='/tmp/foobar/providers/some-provider.test/keys/client/api.pem', timeout=15)
 
     def test_that_leap_fingerprint_is_validated(self):
         session = MagicMock(wraps=requests.session())
@@ -227,7 +234,8 @@ class LeapProviderTest(AbstractLeapTest):
                 provider = LeapProvider('some-provider.test')
                 provider.fetch_valid_certificate()
 
-        session.get.assert_any_call('https://some-provider.test/ca.crt', verify=False, timeout=15)
+        session.get.assert_any_call(
+            'https://some-provider.test/ca.crt', verify=False, timeout=15)
         session.mount.assert_called_with('https://', ANY)
 
     def test_provider_api_cert(self):
@@ -235,4 +243,5 @@ class LeapProviderTest(AbstractLeapTest):
             provider = LeapProvider('some-provider.test')
             certs = provider.provider_api_cert
 
-        self.assertEqual('/tmp/foobar/providers/some-provider.test/keys/client/api.pem', certs)
+        self.assertEqual(
+            '/tmp/foobar/providers/some-provider.test/keys/client/api.pem', certs)

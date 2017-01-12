@@ -21,14 +21,16 @@ class TestKeysResource(unittest.TestCase):
         self.services_factory.mode = UserAgentMode(is_single_user=True)
         self.services = mock()
         self.services.keymanager = self.keymanager
-        self.services_factory._services_by_user = {'someuserid': self.keymanager}
+        self.services_factory._services_by_user = {
+            'someuserid': self.keymanager}
         when(self.services_factory).services(ANY()).thenReturn(self.services)
         self.web = DummySite(KeysResource(self.services_factory))
 
     def test_returns_404_if_key_not_found(self):
         request = DummyRequest(['/keys'])
         request.addArg('search', 'some@inexistent.key')
-        when(self.keymanager).get_key('some@inexistent.key').thenReturn(defer.fail(KeyNotFound()))
+        when(self.keymanager).get_key(
+            'some@inexistent.key').thenReturn(defer.fail(KeyNotFound()))
 
         d = self.web.get(request)
 
@@ -41,7 +43,8 @@ class TestKeysResource(unittest.TestCase):
     def test_returns_the_key_as_json_if_found(self):
         request = DummyRequest(['/keys'])
         request.addArg('search', 'some@key')
-        when(self.keymanager).get_key('some@key').thenReturn(defer.succeed(OpenPGPKey('some@key')))
+        when(self.keymanager).get_key('some@key').thenReturn(
+            defer.succeed(OpenPGPKey('some@key')))
 
         d = self.web.get(request)
 
@@ -68,7 +71,8 @@ class TestKeysResource(unittest.TestCase):
     def test_returns_unauthorized_if_key_is_private(self):
         request = DummyRequest(['/keys'])
         request.addArg('search', 'some@key')
-        when(self.keymanager).get_key('some@key').thenReturn(defer.succeed(OpenPGPKey('some@key', private=True)))
+        when(self.keymanager).get_key('some@key').thenReturn(
+            defer.succeed(OpenPGPKey('some@key', private=True)))
 
         d = self.web.get(request)
 

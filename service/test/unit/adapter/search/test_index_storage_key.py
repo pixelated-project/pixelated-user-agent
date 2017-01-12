@@ -30,7 +30,8 @@ class TestSearchIndexStorageKey(unittest.TestCase):
     def test_get_or_create_key_returns_key(self):
         soledad = mock()
 
-        when(soledad).get_from_index('by-type', 'index_key').thenReturn([SoledadDocument(json='{"value": "somekey"}')])
+        when(soledad).get_from_index(
+            'by-type', 'index_key').thenReturn([SoledadDocument(json='{"value": "somekey"}')])
 
         key = yield SearchIndexStorageKey(soledad).get_or_create_key()
 
@@ -49,4 +50,5 @@ class TestSearchIndexStorageKey(unittest.TestCase):
 
         self.assertEqual(expected_key, key)
 
-        verify(soledad).create_doc(dict(type='index_key', value=base64_encoded_key))
+        verify(soledad).create_doc(
+            dict(type='index_key', value=base64_encoded_key))

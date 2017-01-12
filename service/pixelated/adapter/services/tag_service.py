@@ -15,7 +15,8 @@
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 from pixelated.adapter.model.tag import Tag
 
-SPECIAL_TAGS = {Tag('inbox', True), Tag('sent', True), Tag('drafts', True), Tag('trash', True), Tag('ALL', True)}
+SPECIAL_TAGS = {Tag('inbox', True), Tag('sent', True), Tag(
+    'drafts', True), Tag('trash', True), Tag('ALL', True)}
 
 
 def extract_reserved_tags(tags):

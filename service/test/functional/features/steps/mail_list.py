@@ -60,7 +60,8 @@ def impl(context):
 @when('I open the first mail in the mail list')
 def impl(context):
     # it seems page is often still loading so staleness exceptions happen often
-    context.current_mail_id = 'mail-' + execute_ignoring_staleness(lambda: get_first_email(context).get_attribute('href').split('/')[-1])
+    context.current_mail_id = 'mail-' + execute_ignoring_staleness(
+        lambda: get_first_email(context).get_attribute('href').split('/')[-1])
     execute_ignoring_staleness(lambda: get_first_email(context).click())
 
 
@@ -89,7 +90,8 @@ def impl(context):
 @given('I have mails')
 @then(u'I have mails')
 def impl(context):
-    emails = find_elements_by_css_selector(context, '.mail-list-entry', timeout=40)
+    emails = find_elements_by_css_selector(
+        context, '.mail-list-entry', timeout=40)
     assert len(emails) > 0
 
 
@@ -106,7 +108,8 @@ def impl(context):
 
 @when('I delete the email')
 def impl(context):
-    mail_id = find_element_by_css_selector(context, '.mail-list-entry').get_attribute('id')
+    mail_id = find_element_by_css_selector(
+        context, '.mail-list-entry').get_attribute('id')
 
     find_element_by_css_selector(context, '#%s input' % mail_id).click()
     find_element_by_id(context, 'delete-selected').click()

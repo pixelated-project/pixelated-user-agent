@@ -38,9 +38,12 @@ class Contacts(FunkLoadTestCase):
         proxy = Proxy(proxy_port='8889', app_port='4567')
 
         # setup data
-        client.add_multiple_to_mailbox(10, 'INBOX', to='to@inbox.com', cc='cc@inbox.com', bcc='bcc@inbox.com')
-        client.add_multiple_to_mailbox(10, 'TRASH', to='to@trash.com', cc='cc@trash.com', bcc='bcc@trash.com')
-        client.add_multiple_to_mailbox(10, 'DRAFTS', to='to@drafts.com', cc='cc@drafts.com', bcc='bcc@drafts.com')
+        client.add_multiple_to_mailbox(
+            10, 'INBOX', to='to@inbox.com', cc='cc@inbox.com', bcc='bcc@inbox.com')
+        client.add_multiple_to_mailbox(
+            10, 'TRASH', to='to@trash.com', cc='cc@trash.com', bcc='bcc@trash.com')
+        client.add_multiple_to_mailbox(
+            10, 'DRAFTS', to='to@drafts.com', cc='cc@drafts.com', bcc='bcc@drafts.com')
 
         self.call_to_terminate = proxy.run_on_a_thread()
 

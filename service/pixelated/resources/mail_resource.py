@@ -21,7 +21,8 @@ class MailTags(Resource):
         new_tags = json.loads(request.content.read()).get('newtags')
 
         d = self._mail_service.update_tags(self._mail_id, new_tags)
-        d.addCallback(lambda mail: respond_json_deferred(mail.as_dict(), request))
+        d.addCallback(lambda mail: respond_json_deferred(
+            mail.as_dict(), request))
 
         def handle403(failure):
             failure.trap(ValueError)
@@ -45,12 +46,14 @@ class Mail(Resource):
             sender = mail.headers.get('Reply-to', mail.headers.get('From'))
             to = mail.headers.get('To', [])
             ccs = mail.headers.get('Cc', [])
-            mail_dict['replying'] = replier.generate_recipients(sender, to, ccs, current_user)
+            mail_dict['replying'] = replier.generate_recipients(
+                sender, to, ccs, current_user)
             return mail_dict
 
         d = self._mail_service.mail(self._mail_id)
         d.addCallback(lambda mail: populate_reply(mail))
-        d.addCallback(lambda mail_dict: respond_json_deferred(mail_dict, request))
+        d.addCallback(
+            lambda mail_dict: respond_json_deferred(mail_dict, request))
         d.addErrback(handle_error_deferred, request)
 
         return NOT_DONE_YET
@@ -62,12 +65,14 @@ class Mail(Resource):
             sender = mail.headers.get('Reply-to', mail.headers.get('From'))
             to = mail.headers.get('To', [])
             ccs = mail.headers.get('Cc', [])
-            mail_dict['replying'] = replier.generate_recipients(sender, to, ccs, current_user)
+            mail_dict['replying'] = replier.generate_recipients(
+                sender, to, ccs, current_user)
             return mail_dict
 
         d = self._mail_service.raw_mail(self._mail_id)
         d.addCallback(lambda mail: populate_reply(mail))
-        d.addCallback(lambda mail_dict: respond_json_deferred(mail_dict, request))
+        d.addCallback(
+            lambda mail_dict: respond_json_deferred(mail_dict, request))
         d.addErrback(handle_error_deferred, request)
 
         return NOT_DONE_YET

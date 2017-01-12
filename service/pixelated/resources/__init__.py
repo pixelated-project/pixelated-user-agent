@@ -28,6 +28,7 @@ log = Logger()
 
 
 class SetEncoder(json.JSONEncoder):
+
     def default(self, obj):
         if isinstance(obj, set):
             return list(obj)
@@ -36,14 +37,16 @@ class SetEncoder(json.JSONEncoder):
 
 def respond_json(entity, request, status_code=200):
     json_response = json.dumps(entity, cls=SetEncoder)
-    request.responseHeaders.setRawHeaders(b"content-type", [b"application/json"])
+    request.responseHeaders.setRawHeaders(
+        b"content-type", [b"application/json"])
     request.code = status_code
     return json_response
 
 
 def respond_json_deferred(entity, request, status_code=200):
     json_response = json.dumps(entity, cls=SetEncoder)
-    request.responseHeaders.setRawHeaders(b"content-type", [b"application/json"])
+    request.responseHeaders.setRawHeaders(
+        b"content-type", [b"application/json"])
     request.code = status_code
     request.write(json_response)
     request.finish()
@@ -119,6 +122,7 @@ class UnAuthorizedResource(Resource):
 
 
 class UnavailableResource(Resource):
+
     def __init__(self):
         Resource.__init__(self)
 

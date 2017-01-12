@@ -44,7 +44,8 @@ class SearchEngine(object):
         self._index = self._create_index()
 
     def _add_to_tags(self, tags, group, skip_default_tags, count_type, query=None):
-        query_matcher = re.compile(".*%s.*" % query.lower()) if query else re.compile(".*")
+        query_matcher = re.compile(
+            ".*%s.*" % query.lower()) if query else re.compile(".*")
 
         for tag, count in group.iteritems():
 
@@ -59,12 +60,15 @@ class SearchEngine(object):
     def _search_tag_groups(self, is_filtering_tags):
         seen = None
         query_parser = QueryParser('tag', self._index.schema)
-        options = {'limit': None, 'groupedby': sorting.FieldFacet('tag', allow_overlap=True), 'maptype': sorting.Count}
+        options = {'limit': None, 'groupedby': sorting.FieldFacet(
+            'tag', allow_overlap=True), 'maptype': sorting.Count}
 
         with self._index.searcher() as searcher:
-            total = searcher.search(query_parser.parse('*'), **options).groups()
+            total = searcher.search(
+                query_parser.parse('*'), **options).groups()
             if not is_filtering_tags:
-                seen = searcher.search(query_parser.parse("* AND flags:%s" % Status.SEEN), **options).groups()
+                seen = searcher.search(query_parser.parse(
+                    "* AND flags:%s" % Status.SEEN), **options).groups()
         return seen, total
 
     def _init_tags_defaults(self):
@@ -86,14 +90,16 @@ class SearchEngine(object):
         tags = {}
         if not skip_default_tags:
             tags = self._init_tags_defaults()
-        self._add_to_tags(tags, total, skip_default_tags, count_type='total', query=query)
+        self._add_to_tags(tags, total, skip_default_tags,
+                          count_type='total', query=query)
         if seen:
             self._add_to_tags(tags, seen, skip_default_tags, count_type='read')
         return tags.values()
 
     def tags(self, query, skip_default_tags):
         is_filtering_tags = True if query else False
-        seen, total = self._search_tag_groups(is_filtering_tags=is_filtering_tags)
+        seen, total = self._search_tag_groups(
+            is_filtering_tags=is_filtering_tags)
         return self._build_tags(seen, total, skip_default_tags, query)
 
     def _mail_schema(self):
@@ -179,7 +185,8 @@ class SearchEngine(object):
     def _search_all_mails(self, query):
         with self._index.searcher() as searcher:
             sorting_facet = sorting.FieldFacet('date', reverse=True)
-            results = searcher.search(query, sortedby=sorting_facet, reverse=True, limit=None)
+            results = searcher.search(
+                query, sortedby=sorting_facet, reverse=True, limit=None)
             return unique([mail['ident'] for mail in results])
 
     def _paginated_search_mails(self, query, window, page):
@@ -187,9 +194,11 @@ class SearchEngine(object):
         window = int(window) if window is not None else 25
 
         with self._index.searcher() as searcher:
-            tags_facet = sorting.FieldFacet('tag', allow_overlap=True, maptype=sorting.Count)
+            tags_facet = sorting.FieldFacet(
+                'tag', allow_overlap=True, maptype=sorting.Count)
             sorting_facet = sorting.FieldFacet('date', reverse=True)
-            results = searcher.search_page(query, page, pagelen=window, groupedby=tags_facet, sortedby=sorting_facet)
+            results = searcher.search_page(
+                query, page, pagelen=window, groupedby=tags_facet, sortedby=sorting_facet)
             return unique([mail['ident'] for mail in results]), sum(results.results.groups().values())
 
     def prepare_query(self, query):

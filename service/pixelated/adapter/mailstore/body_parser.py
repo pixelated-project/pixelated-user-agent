@@ -63,7 +63,8 @@ class BodyParser(object):
             try:
                 return encoded_text + self._content.encode(charset)
             except UnicodeError, e:
-                logger.warn('Failed to encode content for charset %s. Ignoring invalid chars: %s' % (charset, e))
+                logger.warn(
+                    'Failed to encode content for charset %s. Ignoring invalid chars: %s' % (charset, e))
                 return encoded_text + self._content.encode(charset, 'ignore')
         else:
             return encoded_text + self._content

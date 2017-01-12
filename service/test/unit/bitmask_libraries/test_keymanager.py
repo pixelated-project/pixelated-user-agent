@@ -42,7 +42,8 @@ class KeymanagerTest(TestCase):
 
     @patch('pixelated.bitmask_libraries.keymanager.KeyManager')
     def test_keymanager_is_created(self, keymanager_mock):
-        when(self.provider)._discover_nicknym_server().thenReturn('nicknym_server')
+        when(self.provider)._discover_nicknym_server(
+        ).thenReturn('nicknym_server')
         self.provider.provider_api_cert = 'ca_cert_path'
         self.provider.api_uri = 'api_uri'
         self.provider.api_version = '1'
@@ -69,7 +70,8 @@ class KeymanagerTest(TestCase):
 
     def test_keymanager_generate_openpgp_key_generates_key_correctly(self):
         self.keymanager._synchronize_remote_key = MagicMock()
-        when(self.keymanager)._key_exists('test_user@some-server.test').thenReturn(None)
+        when(self.keymanager)._key_exists(
+            'test_user@some-server.test').thenReturn(None)
 
         self.leap_keymanager.gen_key = MagicMock()
         self.leap_keymanager.send_key = MagicMock()
@@ -82,7 +84,8 @@ class KeymanagerTest(TestCase):
     def test_keymanager_generate_openpgp_key_doesnt_regenerate_preexisting_key(self):
         mock_open_pgp_key = MagicMock()
         mock_open_pgp_key.needs_renewal = MagicMock(return_value=False)
-        when(self.keymanager)._key_exists('test_user@some-server.test').thenReturn(mock_open_pgp_key)
+        when(self.keymanager)._key_exists(
+            'test_user@some-server.test').thenReturn(mock_open_pgp_key)
 
         self.leap_keymanager.gen_key = MagicMock()
 
@@ -94,7 +97,8 @@ class KeymanagerTest(TestCase):
         self.keymanager._synchronize_remote_key = MagicMock()
         mock_open_pgp_key = MagicMock()
         mock_open_pgp_key.needs_renewal = MagicMock(return_value=False)
-        when(self.keymanager)._key_exists('test_user@some-server.test').thenReturn(mock_open_pgp_key)
+        when(self.keymanager)._key_exists(
+            'test_user@some-server.test').thenReturn(mock_open_pgp_key)
 
         self.leap_keymanager.send_key = MagicMock()
 
@@ -104,10 +108,12 @@ class KeymanagerTest(TestCase):
 
     @defer.inlineCallbacks
     def test_keymanager_generate_openpgp_key_deletes_key_when_upload_fails(self):
-        when(self.keymanager)._key_exists('test_user@some-server.test').thenReturn(None)
+        when(self.keymanager)._key_exists(
+            'test_user@some-server.test').thenReturn(None)
 
         self.keymanager.delete_key_pair = MagicMock()
-        when(self.leap_keymanager).send_key().thenRaise(Exception('Could not upload key'))
+        when(self.leap_keymanager).send_key().thenRaise(
+            Exception('Could not upload key'))
 
         with self.assertRaises(UploadKeyError):
             yield self.keymanager.generate_openpgp_key()
@@ -119,7 +125,8 @@ class KeymanagerTest(TestCase):
         self.keymanager._synchronize_remote_key = MagicMock()
         mock_open_pgp_key = MagicMock()
         mock_open_pgp_key.needs_renewal = MagicMock(return_value=True)
-        when(self.keymanager)._key_exists('test_user@some-server.test').thenReturn(mock_open_pgp_key)
+        when(self.keymanager)._key_exists(
+            'test_user@some-server.test').thenReturn(mock_open_pgp_key)
 
         yield self.keymanager.generate_openpgp_key()
 
@@ -130,8 +137,10 @@ class KeymanagerTest(TestCase):
     def test_key_regeneration_does_not_delete_key_when_upload_fails(self):
         mock_open_pgp_key = MagicMock()
         mock_open_pgp_key.needs_renewal = MagicMock(return_value=True)
-        when(self.keymanager)._key_exists('test_user@some-server.test').thenReturn(mock_open_pgp_key)
-        when(self.leap_keymanager).send_key().thenRaise(Exception('Could not upload key'))
+        when(self.keymanager)._key_exists(
+            'test_user@some-server.test').thenReturn(mock_open_pgp_key)
+        when(self.leap_keymanager).send_key().thenRaise(
+            Exception('Could not upload key'))
 
         self.keymanager.delete_key_pair = MagicMock()
 
@@ -143,20 +152,24 @@ class KeymanagerTest(TestCase):
 
     @defer.inlineCallbacks
     def test_key_is_syncronized_with_server(self):
-        self.keymanager._is_key_synchronized_with_server = MagicMock(return_value=True)
+        self.keymanager._is_key_synchronized_with_server = MagicMock(
+            return_value=True)
         mock_open_pgp_key = MagicMock()
         mock_open_pgp_key.needs_renewal = MagicMock(return_value=False)
-        when(self.keymanager)._key_exists('test_user@some-server.test').thenReturn(mock_open_pgp_key)
+        when(self.keymanager)._key_exists(
+            'test_user@some-server.test').thenReturn(mock_open_pgp_key)
 
         yield self.keymanager.generate_openpgp_key()
         self.leap_keymanager.send_key.assert_not_called()
 
     @defer.inlineCallbacks
     def test_key_is_not_syncronized_with_server(self):
-        self.keymanager._is_key_synchronized_with_server = MagicMock(return_value=False)
+        self.keymanager._is_key_synchronized_with_server = MagicMock(
+            return_value=False)
         mock_open_pgp_key = MagicMock()
         mock_open_pgp_key.needs_renewal = MagicMock(return_value=False)
-        when(self.keymanager)._key_exists('test_user@some-server.test').thenReturn(mock_open_pgp_key)
+        when(self.keymanager)._key_exists(
+            'test_user@some-server.test').thenReturn(mock_open_pgp_key)
 
         yield self.keymanager.generate_openpgp_key()
         self.leap_keymanager.send_key.assert_called_once()

@@ -21,6 +21,7 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
 class User(object):
+
     def __init__(self, number, provider, certificate):
         self._username = 'loadtest%d' % number
         self._password = 'password_%d' % number
@@ -67,9 +68,12 @@ def mass_register(number, invite_code, provider):
 
 def _parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--number', '-n', default=1, type=int, help='the number of user to be registered')
-    parser.add_argument('--invite-code', '-i', default=None, help='invite code')
-    parser.add_argument('--provider', '-p', default=None, help='leap provider e.g. unstable.pix.org')
+    parser.add_argument('--number', '-n', default=1, type=int,
+                        help='the number of user to be registered')
+    parser.add_argument('--invite-code', '-i',
+                        default=None, help='invite code')
+    parser.add_argument('--provider', '-p', default=None,
+                        help='leap provider e.g. unstable.pix.org')
     return parser.parse_args()
 
 

@@ -36,7 +36,8 @@ def prompt_for_credentials():
 
 def read_from_file(credentials_file):
     config_parser = ConfigParser.ConfigParser()
-    credentials_file_path = os.path.abspath(os.path.expanduser(credentials_file))
+    credentials_file_path = os.path.abspath(
+        os.path.expanduser(credentials_file))
     config_parser.read(credentials_file_path)
     provider, user, password = \
         config_parser.get('pixelated', 'leap_server_name'), \

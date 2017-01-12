@@ -27,6 +27,7 @@ from test.unit.resources import DummySite
 
 
 class TestMailsResource(unittest.TestCase):
+
     def setUp(self):
         self.mail_service = mock()
         self.services_factory = mock()
@@ -34,7 +35,8 @@ class TestMailsResource(unittest.TestCase):
         self.services = mock()
         self.services.mail_service = self.mail_service
         self.services.draft_service = mock()
-        self.services_factory._services_by_user = {'someuserid': self.mail_service}
+        self.services_factory._services_by_user = {
+            'someuserid': self.mail_service}
         when(self.services_factory).services(ANY()).thenReturn(self.services)
 
     @patch('leap.common.events.register')
@@ -46,7 +48,8 @@ class TestMailsResource(unittest.TestCase):
         request.addArg('p', 1)
 
         unicodified_search_term = u'coração'
-        when(self.mail_service).mails(unicodified_search_term, 25, 1).thenReturn(defer.succeed(([], 0)))
+        when(self.mail_service).mails(unicodified_search_term,
+                                      25, 1).thenReturn(defer.succeed(([], 0)))
 
         mails_resource = MailsResource(self.services_factory)
         web = DummySite(mails_resource)
@@ -63,8 +66,10 @@ class TestMailsResource(unittest.TestCase):
         request = DummyRequest([])
         request.method = 'PUT'
         request.content = mock()
-        when(request.content).read().thenReturn('{"attachments": [{"ident": "some fake attachment id"}]}')
-        when(self.mail_service).attachment('some fake attachment id').thenReturn(defer.succeed({'content': mock()}))
+        when(request.content).read().thenReturn(
+            '{"attachments": [{"ident": "some fake attachment id"}]}')
+        when(self.mail_service).attachment('some fake attachment id').thenReturn(
+            defer.succeed({'content': mock()}))
 
         mails_resource = MailsResource(self.services_factory)
         web = DummySite(mails_resource)
@@ -81,8 +86,10 @@ class TestMailsResource(unittest.TestCase):
         request = DummyRequest([])
         request.method = 'POST'
         request.content = mock()
-        when(request.content).read().thenReturn('{"attachments": [{"ident": "some fake attachment id"}]}')
-        when(self.mail_service).attachment('some fake attachment id').thenReturn(defer.succeed({"content": "some content"}))
+        when(request.content).read().thenReturn(
+            '{"attachments": [{"ident": "some fake attachment id"}]}')
+        when(self.mail_service).attachment('some fake attachment id').thenReturn(
+            defer.succeed({"content": "some content"}))
         as_dictable = mock()
         when(as_dictable).as_dict().thenReturn({})
         when(self.mail_service).send_mail({"attachments": [{"ident": "some fake attachment id", "raw": "some content"}]})\
@@ -94,7 +101,8 @@ class TestMailsResource(unittest.TestCase):
 
         def assert_response(_):
             verify(self.mail_service).attachment('some fake attachment id')
-            verify(self.mail_service).send_mail({"attachments": [{"ident": "some fake attachment id", "raw": "some content"}]})
+            verify(self.mail_service).send_mail(
+                {"attachments": [{"ident": "some fake attachment id", "raw": "some content"}]})
 
         d.addCallback(assert_response)
         return d

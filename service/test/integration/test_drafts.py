@@ -28,14 +28,16 @@ class DraftsTest(SoledadTestBase):
     def test_post_sends_mail_and_deletes_previous_draft_if_it_exists(self):
         # act as if sending the mail by SMTP succeeded
         sendmail_deferred = defer.Deferred()
-        when(self.app_test_client.mail_sender).sendmail(any()).thenReturn(sendmail_deferred)
+        when(self.app_test_client.mail_sender).sendmail(
+            any()).thenReturn(sendmail_deferred)
 
         # creates one draft
         first_draft = MailBuilder().with_subject('First draft').build_json()
         first_draft_ident = (yield self.app_test_client.put_mail(first_draft)[0])['ident']
 
         # sends an updated version of the draft
-        second_draft = MailBuilder().with_subject('Second draft').with_ident(first_draft_ident).build_json()
+        second_draft = MailBuilder().with_subject(
+            'Second draft').with_ident(first_draft_ident).build_json()
         deferred_res = self.post_mail(second_draft)
 
         sendmail_deferred.callback(None)  # SMTP succeeded
@@ -45,7 +47,8 @@ class DraftsTest(SoledadTestBase):
         sent_mails = yield self.app_test_client.get_mails_by_tag('sent')
         drafts = yield self.app_test_client.get_mails_by_tag('drafts')
 
-        # make sure there is one email in the sent mailbox and it is the second draft
+        # make sure there is one email in the sent mailbox and it is the second
+        # draft
         self.assertEquals(1, len(sent_mails))
         self.assertEquals('Second draft', sent_mails[0].subject)
 
@@ -56,7 +59,8 @@ class DraftsTest(SoledadTestBase):
     def test_post_sends_mail_even_when_draft_does_not_exist(self):
         # act as if sending the mail by SMTP succeeded
         sendmail_deferred = defer.Deferred()
-        when(self.app_test_client.mail_sender).sendmail(any()).thenReturn(sendmail_deferred)
+        when(self.app_test_client.mail_sender).sendmail(
+            any()).thenReturn(sendmail_deferred)
 
         first_draft = MailBuilder().with_subject('First draft').build_json()
         res = self.post_mail(first_draft)
@@ -87,7 +91,8 @@ class DraftsTest(SoledadTestBase):
         draft = MailBuilder().with_subject('First draft').build_json()
         draft_ident = (yield self.app_test_client.put_mail(draft)[0])['ident']
 
-        updated_draft = MailBuilder().with_subject('First draft edited').with_ident(draft_ident).build_json()
+        updated_draft = MailBuilder().with_subject(
+            'First draft edited').with_ident(draft_ident).build_json()
         yield self.app_test_client.put_mail(updated_draft)[0]
 
         drafts = yield self.app_test_client.get_mails_by_tag('drafts')

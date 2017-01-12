@@ -54,7 +54,8 @@ class TestCommands(unittest.TestCase):
         self.soledad.delete_doc.assert_called_once_with(doc)
 
     def test_only_mail_documents_are_deleted(self):
-        docs = self._create_docs_of_type(['head', 'cnt', 'flags', 'mbx', 'foo', None])
+        docs = self._create_docs_of_type(
+            ['head', 'cnt', 'flags', 'mbx', 'foo', None])
         self.soledad.get_all_docs.return_value = (1, docs)
 
         delete_all_mails(self.args)
@@ -79,10 +80,12 @@ class TestCommands(unittest.TestCase):
 
     def test_load_mails_adds_mails(self):
         # given
-        mail_root = pkg_resources.resource_filename('test.unit.fixtures', 'mailset')
+        mail_root = pkg_resources.resource_filename(
+            'test.unit.fixtures', 'mailset')
         firstMailDeferred = defer.succeed(MagicMock())
         secondMailDeferred = defer.succeed(MagicMock())
-        self.mail_store.add_mail.side_effect = [firstMailDeferred, secondMailDeferred]
+        self.mail_store.add_mail.side_effect = [
+            firstMailDeferred, secondMailDeferred]
         self.mail_store.add_mailbox.return_value = defer.succeed(None)
 
         # when
@@ -91,8 +94,10 @@ class TestCommands(unittest.TestCase):
         # then
         def assert_mails_added(_):
             self.assertTrue(self.mail_store.add_mail.called)
-            self.mail_store.add_mail.assert_any_call('INBOX', self._mail_content(join(mail_root, 'new', 'mbox00000000')))
-            self.mail_store.add_mail.assert_any_call('INBOX', self._mail_content(join(mail_root, 'new', 'mbox00000001')))
+            self.mail_store.add_mail.assert_any_call(
+                'INBOX', self._mail_content(join(mail_root, 'new', 'mbox00000000')))
+            self.mail_store.add_mail.assert_any_call(
+                'INBOX', self._mail_content(join(mail_root, 'new', 'mbox00000001')))
             # TODO Should we check for flags?
 
         def error_callack(err):
@@ -106,14 +111,16 @@ class TestCommands(unittest.TestCase):
 
     def test_load_mails_supports_mbox(self):
         # given
-        mbox_file = pkg_resources.resource_filename('test.unit.fixtures', 'mbox')
+        mbox_file = pkg_resources.resource_filename(
+            'test.unit.fixtures', 'mbox')
 
         d = load_mails(self.args, [mbox_file])
 
         # then
         def assert_mails_added(_):
             self.assertTrue(self.mail_store.add_mail.called)
-            self.mail_store.add_mail.assert_any_call('INBOX', self._mail_content(mbox_file))
+            self.mail_store.add_mail.assert_any_call(
+                'INBOX', self._mail_content(mbox_file))
 
         def error_callack(err):
             print err

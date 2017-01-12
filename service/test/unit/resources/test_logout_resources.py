@@ -9,6 +9,7 @@ from test.unit.resources import DummySite
 
 
 class TestLogoutResource(unittest.TestCase):
+
     def setUp(self):
         self.services_factory = MagicMock()
         self.resource = LogoutResource(self.services_factory)
@@ -28,7 +29,8 @@ class TestLogoutResource(unittest.TestCase):
 
         def expire_session_and_redirect(_):
             session = self.resource.get_session(request)
-            self.services_factory.destroy_session.assert_called_once_with(session.user_uuid)
+            self.services_factory.destroy_session.assert_called_once_with(
+                session.user_uuid)
             session.expire.assert_called_once_with()
             mock_redirect.assert_called_once_with('/login', request)
 

@@ -24,4 +24,5 @@ def no_require_transport_security(f):
     return wrapper
 
 
-smtp.ESMTPSenderFactory = no_require_transport_security(smtp.ESMTPSenderFactory)
+smtp.ESMTPSenderFactory = no_require_transport_security(
+    smtp.ESMTPSenderFactory)

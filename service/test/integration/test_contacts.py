@@ -34,7 +34,8 @@ class ContactsTest(SoledadTestBase):
 
     @defer.inlineCallbacks
     def test_FROM_address_is_being_searched(self):
-        input_mail = MailBuilder().with_tags(['important']).with_from('Formatted Sender <sender@from.com>').build_input_mail()
+        input_mail = MailBuilder().with_tags(['important']).with_from(
+            'Formatted Sender <sender@from.com>').build_input_mail()
         yield self.app_test_client.add_mail_to_inbox(input_mail)
 
         contacts = yield self.app_test_client.get_contacts(query='Sender')
@@ -57,7 +58,8 @@ class ContactsTest(SoledadTestBase):
 
     @defer.inlineCallbacks
     def test_deduplication_on_same_mail_address_using_largest(self):
-        input_mail = MailBuilder().with_tags(['important']).with_from('sender@from.com').build_input_mail()
+        input_mail = MailBuilder().with_tags(['important']).with_from(
+            'sender@from.com').build_input_mail()
 
         formatted_input_mail = MailBuilder().with_tags(['important'])
         formatted_input_mail.with_to('Recipient Principal <recipient@to.com>')

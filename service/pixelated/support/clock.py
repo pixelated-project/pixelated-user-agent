@@ -13,4 +13,5 @@ class Clock():
         end = datetime.now()
         with open(expanduser('~/MetricsTime'), 'a') as f:
             flag = ' fresh-account' if fresh else ''
-            f.write('{} {:.5f} {} {}\n'.format((self.user or user or 'Unknown'), (end - self.start).total_seconds(), self.label, flag))
+            f.write('{} {:.5f} {} {}\n'.format((self.user or user or 'Unknown'),
+                                               (end - self.start).total_seconds(), self.label, flag))

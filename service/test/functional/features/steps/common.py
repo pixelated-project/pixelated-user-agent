@@ -29,6 +29,7 @@ DEFAULT_IMPLICIT_WAIT_TIMEOUT_IN_S = 10.0
 
 
 class ImplicitWait(object):
+
     def __init__(self, context, timeout=5.0):
         self._context = context
         self._timeout = timeout
@@ -37,7 +38,8 @@ class ImplicitWait(object):
         self._context.browser.implicitly_wait(self._timeout)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self._context.browser.implicitly_wait(DEFAULT_IMPLICIT_WAIT_TIMEOUT_IN_S)
+        self._context.browser.implicitly_wait(
+            DEFAULT_IMPLICIT_WAIT_TIMEOUT_IN_S)
 
 
 def wait_until_element_is_invisible_by_locator(context, locator_tuple, timeout=TIMEOUT_IN_S):
@@ -46,11 +48,13 @@ def wait_until_element_is_invisible_by_locator(context, locator_tuple, timeout=T
 
 
 def wait_for_loading_to_finish(context, timeout=TIMEOUT_IN_S):
-    wait_until_element_is_invisible_by_locator(context, (By.ID, 'loading'), timeout)
+    wait_until_element_is_invisible_by_locator(
+        context, (By.ID, 'loading'), timeout)
 
 
 def wait_for_user_alert_to_disapear(context, timeout=TIMEOUT_IN_S):
-    wait_until_element_is_invisible_by_locator(context, (By.ID, 'user-alerts'), timeout)
+    wait_until_element_is_invisible_by_locator(
+        context, (By.ID, 'user-alerts'), timeout)
 
 
 def _wait_until_elements_are_visible_by_locator(context, locator_tuple, timeout=TIMEOUT_IN_S):
@@ -66,7 +70,8 @@ def _wait_until_element_is_visible_by_locator(context, locator_tuple, timeout=TI
 
 
 def wait_for_condition(context, predicate_func, timeout=TIMEOUT_IN_S, poll_frequency=0.1):
-    wait = WebDriverWait(context.browser, timeout, poll_frequency=poll_frequency)
+    wait = WebDriverWait(context.browser, timeout,
+                         poll_frequency=poll_frequency)
     wait.until(predicate_func)
 
 
@@ -76,7 +81,8 @@ def fill_by_xpath(context, xpath, text):
 
 
 def fill_by_css_selector(context, css_selector, text, timeout=TIMEOUT_IN_S):
-    field = find_element_by_css_selector(context, css_selector, timeout=timeout)
+    field = find_element_by_css_selector(
+        context, css_selector, timeout=timeout)
     field.send_keys(text)
 
 
@@ -138,7 +144,8 @@ def execute_ignoring_staleness(func, timeout=TIMEOUT_IN_S):
             return func()
         except StaleElementReferenceException:
             pass
-    raise TimeoutException('did not solve stale state until timeout %f' % timeout)
+    raise TimeoutException(
+        'did not solve stale state until timeout %f' % timeout)
 
 
 def click_button(context, title, element='button'):

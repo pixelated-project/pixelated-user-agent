@@ -13,7 +13,8 @@ class AddSecurityHeadersRequest(Request):
         self.setHeader('X-Content-Type-Options', 'nosniff')
 
         if self.isSecure():
-            self.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
+            self.setHeader('Strict-Transport-Security',
+                           'max-age=31536000; includeSubDomains')
 
         Request.process(self)
 

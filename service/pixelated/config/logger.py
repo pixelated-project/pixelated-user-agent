@@ -25,7 +25,8 @@ class PrivateKeyFilter(logging.Filter):
 
     def filter(self, record):
         if '-----BEGIN PGP PRIVATE KEY BLOCK-----' in record.msg:
-            record.msg = '*** private key removed by %s.%s ***' % (type(self).__module__, type(self).__name__)
+            record.msg = '*** private key removed by %s.%s ***' % (
+                type(self).__module__, type(self).__name__)
         return True
 
 
@@ -42,9 +43,11 @@ def init(debug=False):
     logging.getLogger('gnupg').addFilter(PrivateKeyFilter())
 
     def formatter(event):
-        event['log_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(event['log_time']))
+        event['log_time'] = time.strftime(
+            '%Y-%m-%d %H:%M:%S', time.localtime(event['log_time']))
         event['log_level'] = event['log_level'].name.upper()
-        logstring = u'{log_time} [{log_namespace}] {log_level} ' + event['log_format'] + '\n'
+        logstring = u'{log_time} [{log_namespace}] {log_level} ' + \
+            event['log_format'] + '\n'
         return logstring.format(**event)
 
     observers = [FileLogObserver(sys.stdout, formatter)]

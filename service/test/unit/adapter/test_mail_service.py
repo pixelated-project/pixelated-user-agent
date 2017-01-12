@@ -25,6 +25,7 @@ from twisted.internet import defer
 
 
 class TestMailService(unittest.TestCase):
+
     def setUp(self):
         self.drafts = mock()
         self.mail_store = mock()
@@ -38,8 +39,10 @@ class TestMailService(unittest.TestCase):
 
         self.mail_sender = mock()
         self.search_engine = mock()
-        self.mail_service = MailService(self.mail_sender, self.mail_store, self.search_engine, 'acount@email', self.attachment_store)
-        self.mail = InputMail.from_dict(duplicates_in_fields_mail_dict(), from_address='pixelated@org')
+        self.mail_service = MailService(
+            self.mail_sender, self.mail_store, self.search_engine, 'acount@email', self.attachment_store)
+        self.mail = InputMail.from_dict(
+            duplicates_in_fields_mail_dict(), from_address='pixelated@org')
 
     def tearDown(self):
         unstub()
@@ -81,11 +84,13 @@ class TestMailService(unittest.TestCase):
         when(self.mail).raw = 'raw mail'
         when(InputMail).from_dict(ANY(), ANY()).thenReturn(self.mail)
         when(self.mail_store).delete_mail('12').thenReturn(defer.succeed(None))
-        when(self.mail_sender).sendmail(self.mail).thenReturn(defer.succeed(None))
+        when(self.mail_sender).sendmail(
+            self.mail).thenReturn(defer.succeed(None))
 
         sent_mail = LeapMail('id', 'INBOX')
         add_mail_deferral = defer.succeed(sent_mail)
-        when(self.mail_store).add_mail('SENT', ANY()).thenReturn(add_mail_deferral)
+        when(self.mail_store).add_mail(
+            'SENT', ANY()).thenReturn(add_mail_deferral)
 
         yield self.mail_service.send_mail({'ident': '12'})
 
@@ -130,7 +135,8 @@ class TestMailService(unittest.TestCase):
     @defer.inlineCallbacks
     def test_delete_mail(self):
         mail_to_delete = LeapMail(1, 'INBOX')
-        when(self.mail_store).get_mail(1, include_body=True).thenReturn(defer.succeed(mail_to_delete))
+        when(self.mail_store).get_mail(1, include_body=True).thenReturn(
+            defer.succeed(mail_to_delete))
 
         yield self.mail_service.delete_mail(1)
 
@@ -140,7 +146,8 @@ class TestMailService(unittest.TestCase):
     def test_delete_mail_does_not_fail_for_invalid_mail(self):
         no_mail = None
         mail_id = 1
-        when(self.mail_store).get_mail(mail_id, include_body=True).thenReturn(defer.succeed(no_mail))
+        when(self.mail_store).get_mail(
+            mail_id, include_body=True).thenReturn(defer.succeed(no_mail))
 
         yield self.mail_service.delete_mail(mail_id)
 
@@ -151,7 +158,8 @@ class TestMailService(unittest.TestCase):
     def test_recover_mail(self):
         mail_to_recover = LeapMail(1, 'TRASH')
         when(self.mail_service).mail(1).thenReturn(mail_to_recover)
-        when(self.mail_store).move_mail_to_mailbox(1, 'INBOX').thenReturn(mail_to_recover)
+        when(self.mail_store).move_mail_to_mailbox(
+            1, 'INBOX').thenReturn(mail_to_recover)
 
         yield self.mail_service.recover_mail(1)
 
@@ -159,8 +167,10 @@ class TestMailService(unittest.TestCase):
 
     @defer.inlineCallbacks
     def test_get_attachment(self):
-        attachment_dict = {'content': bytearray('data'), 'content-type': 'text/plain'}
-        when(self.attachment_store).get_mail_attachment('some attachment id').thenReturn(defer.succeed(attachment_dict))
+        attachment_dict = {'content': bytearray(
+            'data'), 'content-type': 'text/plain'}
+        when(self.attachment_store).get_mail_attachment(
+            'some attachment id').thenReturn(defer.succeed(attachment_dict))
 
         attachment = yield self.mail_service.attachment('some attachment id')
 
@@ -170,7 +180,8 @@ class TestMailService(unittest.TestCase):
     def test_update_tags_return_a_set_with_the_current_tags(self):
         mail = LeapMail(1, 'INBOX', tags={'custom_1', 'custom_2'})
         when(self.mail_store).get_mail(1, include_body=True).thenReturn(mail)
-        when(self.search_engine).tags(query='', skip_default_tags=True).thenReturn([])
+        when(self.search_engine).tags(
+            query='', skip_default_tags=True).thenReturn([])
 
         updated_mail = yield self.mail_service.update_tags(1, {'custom_1', 'custom_3'})
 
@@ -179,7 +190,8 @@ class TestMailService(unittest.TestCase):
 
     @defer.inlineCallbacks
     def test_if_recipient_doubled_in_fields_send_only_in_bcc(self):
-        mail = InputMail.from_dict(duplicates_in_fields_mail_dict(), from_address='pixelated@org')
+        mail = InputMail.from_dict(
+            duplicates_in_fields_mail_dict(), from_address='pixelated@org')
 
         yield self.mail_service._deduplicate_recipients(mail)
 
@@ -189,7 +201,8 @@ class TestMailService(unittest.TestCase):
 
     @defer.inlineCallbacks
     def test_if_recipient_doubled_in_fields_send_only_in_to(self):
-        mail = InputMail.from_dict(duplicates_in_fields_mail_dict(), from_address='pixelated@org')
+        mail = InputMail.from_dict(
+            duplicates_in_fields_mail_dict(), from_address='pixelated@org')
 
         yield self.mail_service._deduplicate_recipients(mail)
 
@@ -200,24 +213,29 @@ class TestMailService(unittest.TestCase):
 
     @defer.inlineCallbacks
     def test_if_deduplicates_when_recipient_repeated_in_field(self):
-        mail = InputMail.from_dict(duplicates_in_fields_mail_dict(), from_address='pixelated@org')
+        mail = InputMail.from_dict(
+            duplicates_in_fields_mail_dict(), from_address='pixelated@org')
 
         yield self.mail_service._deduplicate_recipients(mail)
 
-        self.assertItemsEqual(['bcc@pixelated.org', 'another@pixelated.org'], mail.bcc)
-        self.assertItemsEqual(['third@pixelated.org', 'to@pixelated.org'], mail.to)
+        self.assertItemsEqual(
+            ['bcc@pixelated.org', 'another@pixelated.org'], mail.bcc)
+        self.assertItemsEqual(
+            ['third@pixelated.org', 'to@pixelated.org'], mail.to)
         self.assertItemsEqual(['cc@pixelated.org'], mail.cc)
 
     def test_remove_canonical_recipient_when_it_is_not_canonical(self):
         recipient = u'user@pixelated.org'
 
-        non_canonical = self.mail_service._remove_canonical_recipient(recipient)
+        non_canonical = self.mail_service._remove_canonical_recipient(
+            recipient)
 
         self.assertEqual(recipient, non_canonical)
 
     def test_remove_canonical_recipient_when_it_is_canonical(self):
         recipient = u'User <user@pixelated.org>'
 
-        non_canonical = self.mail_service._remove_canonical_recipient(recipient)
+        non_canonical = self.mail_service._remove_canonical_recipient(
+            recipient)
 
         self.assertEqual(u'user@pixelated.org', non_canonical)

@@ -50,12 +50,14 @@ class LeapAttachmentStore(object):
         attachment = MIMENonMultipart(major, sub)
         attachment.set_payload(content)
         encoder(attachment)
-        attachment.add_header('Content-Disposition', 'attachment', filename='does_not_matter.txt')
+        attachment.add_header('Content-Disposition',
+                              'attachment', filename='does_not_matter.txt')
 
         pseudo_mail = MIMEMultipart()
         pseudo_mail.attach(attachment)
 
-        tmp_mail = SoledadMailAdaptor().get_msg_from_string(MessageClass=Message, raw_msg=pseudo_mail.as_string())
+        tmp_mail = SoledadMailAdaptor().get_msg_from_string(
+            MessageClass=Message, raw_msg=pseudo_mail.as_string())
 
         cdoc = tmp_mail.get_wrapper().cdocs[1]
         return cdoc

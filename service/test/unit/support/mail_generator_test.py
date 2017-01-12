@@ -28,7 +28,8 @@ class MailGeneratorTest(unittest.TestCase):
         mail = """Content-Type: text/plain; charset="us-ascii"\nMIME-Version: 1.0\nContent-Transfer-Encoding: 7bit\nSubject: Scott\'s Laws with a longer subject Scott\'s Laws\nTo: alice@domain.test\nFrom: bob@domain.test\nDate: Sun, 18 Oct 2015 21:45:13 -0000\nX-Tags: \nX-Leap-Encryption: true\nX-Leap-Signature: valid\n\nFirst Law: No matter what goes wrong, it will probably look right. Scott\'s Second Law: When an error has been detected and corrected, it will probably look right. Scott\'s Second Law: When an error has been found in error, it will probably look right. Scott\'s Second Law: When an error has been found in error, it will probably look right. Scott\'s Second Law: When an error has been found in error, it will be impossible to fit the original quantity back into the \n\n First Law: No matter what goes wrong, it will be impossible to fit the original quantity back into the \n\n Scott\'s Second Law: When an error has been found in error, it will be found to have been wrong in the first place. After the correction has been found in error, it will be impossible to fit the original quantity back into the \n\n Second Law: When an error"""
         receiver = 'alice'
         domain_name = 'domain.test'
-        mbox_file = pkg_resources.resource_filename('test.unit.fixtures', 'mbox')
+        mbox_file = pkg_resources.resource_filename(
+            'test.unit.fixtures', 'mbox')
         mails = mbox(mbox_file)
         rnd = random.Random(0)
 

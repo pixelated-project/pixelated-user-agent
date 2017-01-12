@@ -72,7 +72,8 @@ class SearchableMailStore(object):  # implementes MailStore
         :param name: attribute name
         :return: method or attribute
         """
-        methods = ([key for key, value in MailStore.__dict__.items() if type(value) == FunctionType])
+        methods = ([key for key, value in MailStore.__dict__.items()
+                    if type(value) == FunctionType])
 
         if name in methods:
             SearchableMailStore._create_delegator(name)

@@ -25,7 +25,8 @@ class MailboxIndexerListener(object):
     @classmethod
     @defer.inlineCallbacks
     def listen(cls, account, mailbox_name, mail_store, search_engine):
-        listener = MailboxIndexerListener(mailbox_name, mail_store, search_engine)
+        listener = MailboxIndexerListener(
+            mailbox_name, mail_store, search_engine)
         mail_collection = yield account.get_collection_by_mailbox(mailbox_name)
         mail_collection.addListener(listener)
 
@@ -39,7 +40,8 @@ class MailboxIndexerListener(object):
     @defer.inlineCallbacks
     def notify_new(self):
         try:
-            indexed_idents = set(self.search_engine.search('tag:' + self.mailbox_name.lower(), all_mails=True))
+            indexed_idents = set(self.search_engine.search(
+                'tag:' + self.mailbox_name.lower(), all_mails=True))
             soledad_idents = yield self.mail_store.get_mailbox_mail_ids(self.mailbox_name)
             soledad_idents = set(soledad_idents)
 

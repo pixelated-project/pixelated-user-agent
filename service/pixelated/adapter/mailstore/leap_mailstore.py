@@ -30,6 +30,7 @@ from pixelated.support import date
 
 
 class AttachmentInfo(object):
+
     def __init__(self, ident, name, encoding=None, ctype='application/octet-stream', size=0):
         self.ident = ident
         self.name = name
@@ -62,7 +63,8 @@ class LeapMail(Mail):
     def headers(self):
         cpy = dict(self._headers)
         for name in set(self._headers.keys()).intersection(['To', 'Cc', 'Bcc']):
-            cpy[name] = [address.strip() for address in (self._headers[name].split(',') if self._headers[name] else [])]
+            cpy[name] = [address.strip() for address in (
+                self._headers[name].split(',') if self._headers[name] else [])]
 
         return cpy
 
@@ -133,8 +135,11 @@ class LeapMail(Mail):
                 return unicode(content.strip(), encoding=encoding or 'ascii', errors='ignore')
 
             try:
-                encoded_chunks = [encode_chunk(content, encoding) for content, encoding in decode_header(header_value)]
-                return ' '.join(encoded_chunks)  # decode_header strips whitespaces on all chunks, joining over ' ' is only a workaround, not a proper fix
+                encoded_chunks = [encode_chunk(
+                    content, encoding) for content, encoding in decode_header(header_value)]
+                # decode_header strips whitespaces on all chunks, joining over
+                # ' ' is only a workaround, not a proper fix
+                return ' '.join(encoded_chunks)
             except UnicodeEncodeError:
                 return unicode(header_value.encode('ascii', errors='ignore'))
 
@@ -154,19 +159,22 @@ class LeapMail(Mail):
     @staticmethod
     def from_dict(mail_dict):
         # TODO: implement this method and also write tests for it
-        headers = {key.capitalize(): value for key, value in mail_dict.get('header', {}).items()}
+        headers = {key.capitalize(): value for key,
+                   value in mail_dict.get('header', {}).items()}
         headers['Date'] = date.mail_date_now()
         body = mail_dict.get('body', '')
         tags = set(mail_dict.get('tags', []))
         status = set(mail_dict.get('status', []))
         attachments = []
 
-        # mail_id, mailbox_name, headers=None, tags=set(), flags=set(), body=None, attachments=[]
+        # mail_id, mailbox_name, headers=None, tags=set(), flags=set(),
+        # body=None, attachments=[]
         return LeapMail(None, None, headers, tags, set(), body, attachments)
 
 
 def _extract_filename(headers, default_filename='UNNAMED'):
-    content_disposition = headers.get('Content-Disposition') or headers.get('content-disposition', '')
+    content_disposition = headers.get(
+        'Content-Disposition') or headers.get('content-disposition', '')
     filename = _extract_filename_from_name_header_part(content_disposition)
     if not filename:
         filename = headers.get('Content-Description', '')
@@ -222,7 +230,8 @@ class LeapMailStore(MailStore):
 
         if gracefully_ignore_errors:
             results = yield DeferredList(deferreds, consumeErrors=True)
-            defer.returnValue([mail for ok, mail in results if ok and mail is not None])
+            defer.returnValue(
+                [mail for ok, mail in results if ok and mail is not None])
         else:
             result = yield defer.gatherResults(deferreds, consumeErrors=True)
             defer.returnValue(result)
@@ -232,7 +241,8 @@ class LeapMailStore(MailStore):
         message = yield self._fetch_msg_from_soledad(mail.mail_id)
         message.get_wrapper().set_tags(tuple(mail.tags))
         message.get_wrapper().set_flags(tuple(mail.flags))
-        yield self._update_mail(message)  # TODO assert this is yielded (otherwise asynchronous)
+        # TODO assert this is yielded (otherwise asynchronous)
+        yield self._update_mail(message)
 
     @defer.inlineCallbacks
     def all_mails(self, gracefully_ignore_errors=False):
@@ -259,7 +269,8 @@ class LeapMailStore(MailStore):
         map = {}
         mbox_docs = yield self.soledad.get_from_index('by-type', 'mbox')
         for doc in mbox_docs:
-            map[underscore_uuid(doc.content.get('uuid'))] = doc.content.get('mbox')
+            map[underscore_uuid(doc.content.get('uuid'))
+                ] = doc.content.get('mbox')
 
         defer.returnValue(map)
 
@@ -272,7 +283,8 @@ class LeapMailStore(MailStore):
         yield SoledadMailAdaptor().create_msg(self.soledad, message)
 
         # add behavious from insert_mdoc_id from mail.py
-        mail = yield self._leap_message_to_leap_mail(message.get_wrapper().mdoc.doc_id, message, include_body=True)  # TODO test that asserts include_body
+        # TODO test that asserts include_body
+        mail = yield self._leap_message_to_leap_mail(message.get_wrapper().mdoc.doc_id, message, include_body=True)
         defer.returnValue(mail)
 
     @defer.inlineCallbacks
@@ -330,15 +342,18 @@ class LeapMailStore(MailStore):
         mbox_uuid = message.get_wrapper().fdoc.mbox_uuid
         mbox_name = yield self._mailbox_name_from_uuid(mbox_uuid)
         attachments = self._extract_attachment_info_from(message)
-        mail = LeapMail(mail_id, mbox_name, message.get_wrapper().hdoc.headers, set(message.get_tags()), set(message.get_flags()), body=body, attachments=attachments)   # TODO assert flags are passed on
+        mail = LeapMail(mail_id, mbox_name, message.get_wrapper().hdoc.headers, set(message.get_tags()), set(
+            message.get_flags()), body=body, attachments=attachments)   # TODO assert flags are passed on
 
         defer.returnValue(mail)
 
     @defer.inlineCallbacks
     def _raw_message_body(self, message):
         content_doc = (yield message.get_wrapper().get_body(self.soledad))
-        parser = BodyParser('', content_type='text/plain', content_transfer_encoding='UTF-8')
-        # It fix the problem when leap doesn'r found body_phash and returns empty string
+        parser = BodyParser('', content_type='text/plain',
+                            content_transfer_encoding='UTF-8')
+        # It fix the problem when leap doesn'r found body_phash and returns
+        # empty string
         if not isinstance(content_doc, str):
             parser = BodyParser(content_doc.raw, content_type=content_doc.content_type,
                                 content_transfer_encoding=content_doc.content_transfer_encoding, charset=content_doc.charset)
@@ -374,7 +389,8 @@ class LeapMailStore(MailStore):
         return self._extract_part_map(part_maps)
 
     def _is_attachment(self, part_map, headers):
-        disposition = headers.get('Content-Disposition') or headers.get('content-disposition')
+        disposition = headers.get(
+            'Content-Disposition') or headers.get('content-disposition')
         content_type = part_map['ctype']
 
         if 'multipart' in content_type:
@@ -399,9 +415,11 @@ class LeapMailStore(MailStore):
 
         for nr, part_map in part_maps.items():
             if 'headers' in part_map and 'phash' in part_map:
-                headers = {header[0]: header[1] for header in part_map['headers']}
+                headers = {header[0]: header[1]
+                           for header in part_map['headers']}
                 if self._is_attachment(part_map, headers):
-                    result.append(self._create_attachment_info_from(part_map, headers))
+                    result.append(
+                        self._create_attachment_info_from(part_map, headers))
             if 'part_map' in part_map:
                 result += self._extract_part_map(part_map['part_map'])
 

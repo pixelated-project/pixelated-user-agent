@@ -29,6 +29,7 @@ from whoosh.util import random_name
 
 
 class DelayedCloseBytesIO(io.BytesIO):
+
     def __init__(self, name):
         super(DelayedCloseBytesIO, self).__init__()
         self._name = name
@@ -43,6 +44,7 @@ class DelayedCloseBytesIO(io.BytesIO):
 
 
 class DelayedCloseStructFile(StructFile):
+
     def __init__(self, fileobj, name=None, onclose=None):
         super(DelayedCloseStructFile, self).__init__(fileobj, name, onclose)
 
@@ -60,6 +62,7 @@ class DelayedCloseStructFile(StructFile):
 
 
 class EncryptedFileStorage(FileStorage):
+
     def __init__(self, path, masterkey=None):
         FileStorage.__init__(self, path, supports_mmap=False)
         self.masterkey = masterkey[:32]
@@ -72,7 +75,8 @@ class EncryptedFileStorage(FileStorage):
         return self._open_encrypted_file(name)
 
     def create_file(self, name, excl=False, mode="w+b", **kwargs):
-        f = DelayedCloseStructFile(DelayedCloseBytesIO(name), name=name, onclose=self._encrypt_index_on_close(name))
+        f = DelayedCloseStructFile(DelayedCloseBytesIO(
+            name), name=name, onclose=self._encrypt_index_on_close(name))
         f.is_real = False
         self._open_files[name] = f
         return f
@@ -100,10 +104,12 @@ class EncryptedFileStorage(FileStorage):
         return ''.join((mac, iv, ciphertext))
 
     def decrypt(self, payload):
-        payload_mac, iv, ciphertext = payload[:32], payload[32:57], payload[57:]
+        payload_mac, iv, ciphertext = payload[
+            :32], payload[32:57], payload[57:]
         generated_mac = self.gen_mac(iv, ciphertext)
         if sha256(payload_mac).digest() != sha256(generated_mac).digest():
-            raise Exception("EncryptedFileStorage  - Error opening file. Wrong MAC")
+            raise Exception(
+                "EncryptedFileStorage  - Error opening file. Wrong MAC")
         return decrypt_sym(ciphertext, self.masterkey, iv)
 
     def _encrypt_index_on_close(self, name):

@@ -42,6 +42,7 @@ from test.support.mockito import AnswerSelector
 
 
 class TestLeapMailStore(TestCase):
+
     def setUp(self):
         self.soledad = mock()
         self.mbox_uuid = str(uuid4())
@@ -50,13 +51,15 @@ class TestLeapMailStore(TestCase):
         self.mbox_soledad_docs = []
 
         with patch('mockito.invocation.AnswerSelector', AnswerSelector):
-            when(self.soledad).get_from_index('by-type', 'mbox').thenAnswer(lambda: defer.succeed(self.mbox_soledad_docs))
+            when(self.soledad).get_from_index(
+                'by-type', 'mbox').thenAnswer(lambda: defer.succeed(self.mbox_soledad_docs))
         self._mock_get_mailbox('INBOX')
 
     @defer.inlineCallbacks
     def test_get_mail_not_exist(self):
         with patch('mockito.invocation.AnswerSelector', AnswerSelector):
-            when(self.soledad).get_doc(ANY()).thenAnswer(lambda: defer.succeed(None))
+            when(self.soledad).get_doc(ANY()).thenAnswer(
+                lambda: defer.succeed(None))
         store = LeapMailStore(self.soledad)
 
         mail = yield store.get_mail(_format_mdoc_id(uuid4(), 1))
@@ -65,7 +68,8 @@ class TestLeapMailStore(TestCase):
 
     @defer.inlineCallbacks
     def test_get_mail(self):
-        mdoc_id, _ = self._add_mail_fixture_to_soledad_from_file('mbox00000000')
+        mdoc_id, _ = self._add_mail_fixture_to_soledad_from_file(
+            'mbox00000000')
 
         store = LeapMailStore(self.soledad)
 
@@ -74,14 +78,16 @@ class TestLeapMailStore(TestCase):
         self.assertIsInstance(mail, LeapMail)
         self.assertEqual('darby.senger@zemlak.biz', mail.from_sender)
         self.assertEqual(['carmel@murazikortiz.name'], mail.to)
-        self.assertEqual('Itaque consequatur repellendus provident sunt quia.', mail.subject)
+        self.assertEqual(
+            'Itaque consequatur repellendus provident sunt quia.', mail.subject)
         self.assertIsNone(mail.body)
         self.assertEqual('INBOX', mail.mailbox_name)
 
     @defer.inlineCallbacks
     def test_get_mail_from_mailbox(self):
         other, _ = self._mock_get_mailbox('OTHER', create_new_uuid=True)
-        mdoc_id, _ = self._add_mail_fixture_to_soledad_from_file('mbox00000000', other.uuid)
+        mdoc_id, _ = self._add_mail_fixture_to_soledad_from_file(
+            'mbox00000000', other.uuid)
 
         store = LeapMailStore(self.soledad)
 
@@ -91,8 +97,10 @@ class TestLeapMailStore(TestCase):
 
     @defer.inlineCallbacks
     def test_get_two_different_mails(self):
-        first_mdoc_id, _ = self._add_mail_fixture_to_soledad_from_file('mbox00000000')
-        second_mdoc_id, _ = self._add_mail_fixture_to_soledad_from_file('mbox00000001')
+        first_mdoc_id, _ = self._add_mail_fixture_to_soledad_from_file(
+            'mbox00000000')
+        second_mdoc_id, _ = self._add_mail_fixture_to_soledad_from_file(
+            'mbox00000001')
 
         store = LeapMailStore(self.soledad)
 
@@ -100,21 +108,27 @@ class TestLeapMailStore(TestCase):
         mail2 = yield store.get_mail(second_mdoc_id)
 
         self.assertNotEqual(mail1, mail2)
-        self.assertEqual('Itaque consequatur repellendus provident sunt quia.', mail1.subject)
-        self.assertEqual('Error illum dignissimos autem eos aspernatur.', mail2.subject)
+        self.assertEqual(
+            'Itaque consequatur repellendus provident sunt quia.', mail1.subject)
+        self.assertEqual(
+            'Error illum dignissimos autem eos aspernatur.', mail2.subject)
 
     @defer.inlineCallbacks
     def test_get_mails(self):
-        first_mdoc_id, _ = self._add_mail_fixture_to_soledad_from_file('mbox00000000')
-        second_mdoc_id, _ = self._add_mail_fixture_to_soledad_from_file('mbox00000001')
+        first_mdoc_id, _ = self._add_mail_fixture_to_soledad_from_file(
+            'mbox00000000')
+        second_mdoc_id, _ = self._add_mail_fixture_to_soledad_from_file(
+            'mbox00000001')
 
         store = LeapMailStore(self.soledad)
 
         mails = yield store.get_mails([first_mdoc_id, second_mdoc_id])
 
         self.assertEqual(2, len(mails))
-        self.assertEqual('Itaque consequatur repellendus provident sunt quia.', mails[0].subject)
-        self.assertEqual('Error illum dignissimos autem eos aspernatur.', mails[1].subject)
+        self.assertEqual(
+            'Itaque consequatur repellendus provident sunt quia.', mails[0].subject)
+        self.assertEqual(
+            'Error illum dignissimos autem eos aspernatur.', mails[1].subject)
 
     @defer.inlineCallbacks
     def test_get_mails_fails_for_invalid_mail_id(self):
@@ -129,7 +143,8 @@ class TestLeapMailStore(TestCase):
     @defer.inlineCallbacks
     def test_get_mail_with_body(self):
         expeted_body = 'Dignissimos ducimus veritatis. Est tenetur consequatur quia occaecati. Vel sit sit voluptas.\n\nEarum distinctio eos. Accusantium qui sint ut quia assumenda. Facere dignissimos inventore autem sit amet. Pariatur voluptatem sint est.\n\nUt recusandae praesentium aspernatur. Exercitationem amet placeat deserunt quae consequatur eum. Unde doloremque suscipit quia.\n\n'
-        mdoc_id, _ = self._add_mail_fixture_to_soledad_from_file('mbox00000000')
+        mdoc_id, _ = self._add_mail_fixture_to_soledad_from_file(
+            'mbox00000000')
 
         store = LeapMailStore(self.soledad)
 
@@ -139,9 +154,11 @@ class TestLeapMailStore(TestCase):
 
     @defer.inlineCallbacks
     def test_update_mail(self):
-        mdoc_id, fdoc_id = self._add_mail_fixture_to_soledad_from_file('mbox00000000')
+        mdoc_id, fdoc_id = self._add_mail_fixture_to_soledad_from_file(
+            'mbox00000000')
         soledad_fdoc = self.doc_by_id[fdoc_id]
-        when(self.soledad).put_doc(soledad_fdoc).thenReturn(defer.succeed(None))
+        when(self.soledad).put_doc(
+            soledad_fdoc).thenReturn(defer.succeed(None))
 
         store = LeapMailStore(self.soledad)
 
@@ -156,9 +173,12 @@ class TestLeapMailStore(TestCase):
 
     @defer.inlineCallbacks
     def test_all_mails(self):
-        first_mdoc_id, _ = self._add_mail_fixture_to_soledad_from_file('mbox00000000')
-        second_mdoc_id, _ = self._add_mail_fixture_to_soledad_from_file('mbox00000001')
-        when(self.soledad).get_from_index('by-type', 'meta').thenReturn(defer.succeed([self.doc_by_id[first_mdoc_id], self.doc_by_id[second_mdoc_id]]))
+        first_mdoc_id, _ = self._add_mail_fixture_to_soledad_from_file(
+            'mbox00000000')
+        second_mdoc_id, _ = self._add_mail_fixture_to_soledad_from_file(
+            'mbox00000001')
+        when(self.soledad).get_from_index('by-type', 'meta').thenReturn(
+            defer.succeed([self.doc_by_id[first_mdoc_id], self.doc_by_id[second_mdoc_id]]))
 
         store = LeapMailStore(self.soledad)
 
@@ -166,17 +186,24 @@ class TestLeapMailStore(TestCase):
 
         self.assertIsNotNone(mails)
         self.assertEqual(2, len(mails))
-        self.assertEqual('Itaque consequatur repellendus provident sunt quia.', mails[0].subject)
-        self.assertEqual('Error illum dignissimos autem eos aspernatur.', mails[1].subject)
+        self.assertEqual(
+            'Itaque consequatur repellendus provident sunt quia.', mails[0].subject)
+        self.assertEqual(
+            'Error illum dignissimos autem eos aspernatur.', mails[1].subject)
 
     @defer.inlineCallbacks
     def test_add_mailbox(self):
-        when(self.soledad).list_indexes().thenReturn(defer.succeed(MAIL_INDEXES)).thenReturn(defer.succeed(MAIL_INDEXES))
-        when(self.soledad).get_from_index('by-type-and-mbox', 'mbox', 'TEST').thenReturn(defer.succeed([]))
-        self._mock_create_soledad_doc(self.mbox_uuid, MailboxWrapper(mbox='TEST'))
+        when(self.soledad).list_indexes().thenReturn(defer.succeed(
+            MAIL_INDEXES)).thenReturn(defer.succeed(MAIL_INDEXES))
+        when(self.soledad).get_from_index('by-type-and-mbox',
+                                          'mbox', 'TEST').thenReturn(defer.succeed([]))
+        self._mock_create_soledad_doc(
+            self.mbox_uuid, MailboxWrapper(mbox='TEST'))
         with patch('mockito.invocation.AnswerSelector', AnswerSelector):
-            when(self.soledad).get_doc(self.mbox_uuid).thenAnswer(lambda: defer.succeed(self.doc_by_id[self.mbox_uuid]))
-            when(self.soledad).put_doc(ANY()).thenAnswer(lambda: defer.succeed(None))
+            when(self.soledad).get_doc(self.mbox_uuid).thenAnswer(
+                lambda: defer.succeed(self.doc_by_id[self.mbox_uuid]))
+            when(self.soledad).put_doc(ANY()).thenAnswer(
+                lambda: defer.succeed(None))
         store = LeapMailStore(self.soledad)
 
         mbox = yield store.add_mailbox('TEST')
@@ -211,7 +238,8 @@ class TestLeapMailStore(TestCase):
         new_uuid = 'UNICORN'
 
         # if no mailbox doc is created yet (async hell?)
-        when(self.soledad).get_from_index('by-type', 'mbox').thenReturn(defer.succeed([]))
+        when(self.soledad).get_from_index(
+            'by-type', 'mbox').thenReturn(defer.succeed([]))
 
         # then it should point to empty, which is all mails
         name = yield store._mailbox_name_from_uuid(new_uuid)
@@ -219,7 +247,8 @@ class TestLeapMailStore(TestCase):
 
     @defer.inlineCallbacks
     def test_add_mail(self):
-        expected_message = self._add_create_mail_mocks_to_soledad_from_fixture_file('mbox00000000')
+        expected_message = self._add_create_mail_mocks_to_soledad_from_fixture_file(
+            'mbox00000000')
         mail = self._load_mail_from_file('mbox00000000')
         self._mock_get_mailbox('INBOX')
 
@@ -235,14 +264,16 @@ class TestLeapMailStore(TestCase):
         input_mail = MIMEMultipart()
         input_mail.attach(MIMEText(u'a utf8 message', _charset='utf-8'))
         attachment = MIMEApplication('pretend to be binary attachment data')
-        attachment.add_header('Content-Disposition', 'attachment', filename='filename.txt')
+        attachment.add_header('Content-Disposition',
+                              'attachment', filename='filename.txt')
         input_mail.attach(attachment)
         mocked_message = self._add_create_mail_mocks_to_soledad(input_mail)
         store = LeapMailStore(self.soledad)
 
         message = yield store.add_mail('INBOX', input_mail.as_string())
 
-        expected = [{'ident': self._cdoc_phash_from_message(mocked_message, 2), 'name': 'filename.txt', 'encoding': 'base64', 'size': 48, 'content-type': 'application/octet-stream'}]
+        expected = [{'ident': self._cdoc_phash_from_message(
+            mocked_message, 2), 'name': 'filename.txt', 'encoding': 'base64', 'size': 48, 'content-type': 'application/octet-stream'}]
         self.assertEqual(expected, message.as_dict()['attachments'])
 
     @defer.inlineCallbacks
@@ -250,14 +281,16 @@ class TestLeapMailStore(TestCase):
         input_mail = MIMEMultipart()
         input_mail.attach(MIMEText(u'a utf8 message', _charset='utf-8'))
         attachment = MIMEApplication('pretend to be an inline attachment')
-        attachment.add_header('Content-Disposition', 'u\'inline;\n\tfilename=super_nice_photo.jpg')
+        attachment.add_header('Content-Disposition',
+                              'u\'inline;\n\tfilename=super_nice_photo.jpg')
         input_mail.attach(attachment)
         mocked_message = self._add_create_mail_mocks_to_soledad(input_mail)
         store = LeapMailStore(self.soledad)
 
         message = yield store.add_mail('INBOX', input_mail.as_string())
 
-        expected = [{'ident': self._cdoc_phash_from_message(mocked_message, 2), 'name': 'super_nice_photo.jpg', 'encoding': 'base64', 'size': 48, 'content-type': 'application/octet-stream'}]
+        expected = [{'ident': self._cdoc_phash_from_message(
+            mocked_message, 2), 'name': 'super_nice_photo.jpg', 'encoding': 'base64', 'size': 48, 'content-type': 'application/octet-stream'}]
         self.assertEqual(expected, message.as_dict()['attachments'])
 
     @defer.inlineCallbacks
@@ -265,7 +298,8 @@ class TestLeapMailStore(TestCase):
         input_mail = MIMEMultipart()
         input_mail.attach(MIMEText(u'a utf8 message', _charset='utf-8'))
         attachment = MIMEApplication('pretend to be binary attachment data')
-        attachment.add_header('Content-Disposition', 'attachment', filename='filename.txt')
+        attachment.add_header('Content-Disposition',
+                              'attachment', filename='filename.txt')
         nested_attachment = MIMEMultipart()
         nested_attachment.attach(attachment)
         input_mail.attach(nested_attachment)
@@ -274,19 +308,24 @@ class TestLeapMailStore(TestCase):
 
         message = yield store.add_mail('INBOX', input_mail.as_string())
 
-        expected = [{'ident': self._cdoc_phash_from_message(mocked_message, 2), 'name': 'filename.txt', 'encoding': 'base64', 'size': 48, 'content-type': 'application/octet-stream'}]
+        expected = [{'ident': self._cdoc_phash_from_message(
+            mocked_message, 2), 'name': 'filename.txt', 'encoding': 'base64', 'size': 48, 'content-type': 'application/octet-stream'}]
         self.assertEqual(expected, message.as_dict()['attachments'])
 
     def test_extract_attachment_filename_with_or_without_quotes(self):
         input_mail = MIMEMultipart()
         input_mail.attach(MIMEText(u'a utf8 message', _charset='utf-8'))
 
-        attachment_without_quotes = MIMEApplication('pretend to be an attachment from apple mail')
-        attachment_without_quotes.add_header('Content-Disposition', 'u\'attachment;\n\tfilename=batatinha.rtf')
+        attachment_without_quotes = MIMEApplication(
+            'pretend to be an attachment from apple mail')
+        attachment_without_quotes.add_header(
+            'Content-Disposition', 'u\'attachment;\n\tfilename=batatinha.rtf')
         input_mail.attach(attachment_without_quotes)
 
-        attachment_with_quotes = MIMEApplication('pretend to be an attachment from thunderbird')
-        attachment_with_quotes.add_header('Content-Disposition', 'u\'attachment; filename="receipt.pdf"')
+        attachment_with_quotes = MIMEApplication(
+            'pretend to be an attachment from thunderbird')
+        attachment_with_quotes.add_header(
+            'Content-Disposition', 'u\'attachment; filename="receipt.pdf"')
         input_mail.attach(attachment_with_quotes)
 
         message = self._add_create_mail_mocks_to_soledad(input_mail)
@@ -300,14 +339,19 @@ class TestLeapMailStore(TestCase):
         input_mail = MIMEMultipart()
         input_mail.attach(MIMEText(u'a utf8 message', _charset='utf-8'))
 
-        attachment_without_description = MIMEApplication('pretend to be an attachment from apple mail', _subtype='pgp-keys')
-        attachment_without_description.add_header('Content-Disposition', 'attachment')
-        attachment_without_description.add_header('Content-Description', 'Some GPG Key')
+        attachment_without_description = MIMEApplication(
+            'pretend to be an attachment from apple mail', _subtype='pgp-keys')
+        attachment_without_description.add_header(
+            'Content-Disposition', 'attachment')
+        attachment_without_description.add_header(
+            'Content-Description', 'Some GPG Key')
 
         input_mail.attach(attachment_without_description)
 
-        attachment_with_name_in_content_type = MIMEApplication('pretend to be an attachment from thunderbird', _subtype='pgp-signature; name="signature.asc"')
-        attachment_with_name_in_content_type.add_header('Content-Disposition', 'inline')
+        attachment_with_name_in_content_type = MIMEApplication(
+            'pretend to be an attachment from thunderbird', _subtype='pgp-signature; name="signature.asc"')
+        attachment_with_name_in_content_type.add_header(
+            'Content-Disposition', 'inline')
         input_mail.attach(attachment_with_name_in_content_type)
 
         message = self._add_create_mail_mocks_to_soledad(input_mail)
@@ -320,21 +364,24 @@ class TestLeapMailStore(TestCase):
     @defer.inlineCallbacks
     def test_add_mail_with_special_chars(self):
         input_mail = MIMEText(u'a utf8 message', _charset='utf-8')
-        input_mail['From'] = Header(u'"Älbert Übrö" <äüö@example.mail>', 'iso-8859-1')
+        input_mail['From'] = Header(
+            u'"Älbert Übrö" <äüö@example.mail>', 'iso-8859-1')
         input_mail['Subject'] = Header(u'Hällö Wörld', 'iso-8859-1')
         self._add_create_mail_mocks_to_soledad(input_mail)
         store = LeapMailStore(self.soledad)
 
         message = yield store.add_mail('INBOX', input_mail.as_string())
 
-        self.assertEqual(u'"\xc4lbert \xdcbr\xf6" <\xe4\xfc\xf6@example.mail>', message.as_dict()['header']['from'])
+        self.assertEqual(u'"\xc4lbert \xdcbr\xf6" <\xe4\xfc\xf6@example.mail>',
+                         message.as_dict()['header']['from'])
 
     def _cdoc_phash_from_message(self, mocked_message, attachment_nr):
         return mocked_message.get_wrapper().cdocs[attachment_nr].future_doc_id[2:]
 
     @defer.inlineCallbacks
     def test_delete_mail(self):
-        mdoc_id, fdoc_id = self._add_mail_fixture_to_soledad_from_file('mbox00000000')
+        mdoc_id, fdoc_id = self._add_mail_fixture_to_soledad_from_file(
+            'mbox00000000')
 
         store = LeapMailStore(self.soledad)
 
@@ -344,8 +391,10 @@ class TestLeapMailStore(TestCase):
 
     @defer.inlineCallbacks
     def test_get_mailbox_mail_ids(self):
-        mdoc_id, fdoc_id = self._add_mail_fixture_to_soledad_from_file('mbox00000000')
-        when(self.soledad).get_from_index('by-type-and-mbox-uuid', 'flags', underscore_uuid(self.mbox_uuid)).thenReturn(defer.succeed([self.doc_by_id[fdoc_id]]))
+        mdoc_id, fdoc_id = self._add_mail_fixture_to_soledad_from_file(
+            'mbox00000000')
+        when(self.soledad).get_from_index('by-type-and-mbox-uuid', 'flags',
+                                          underscore_uuid(self.mbox_uuid)).thenReturn(defer.succeed([self.doc_by_id[fdoc_id]]))
         self._mock_get_mailbox('INBOX')
         store = LeapMailStore(self.soledad)
 
@@ -358,42 +407,53 @@ class TestLeapMailStore(TestCase):
     def test_delete_mailbox(self):
         _, mbox_soledad_doc = self._mock_get_mailbox('INBOX')
         store = LeapMailStore(self.soledad)
-        when(self.soledad).delete_doc(mbox_soledad_doc).thenReturn(defer.succeed(None))
+        when(self.soledad).delete_doc(
+            mbox_soledad_doc).thenReturn(defer.succeed(None))
 
         yield store.delete_mailbox('INBOX')
 
-        verify(self.soledad).delete_doc(self.doc_by_id[mbox_soledad_doc.doc_id])
+        verify(self.soledad).delete_doc(
+            self.doc_by_id[mbox_soledad_doc.doc_id])
         # should also verify index is updated
 
     @defer.inlineCallbacks
     def test_copy_mail_to_mailbox(self):
-        expected_message = self._add_create_mail_mocks_to_soledad_from_fixture_file('mbox00000000')
-        mail_id, fdoc_id = self._add_mail_fixture_to_soledad_from_file('mbox00000000')
+        expected_message = self._add_create_mail_mocks_to_soledad_from_fixture_file(
+            'mbox00000000')
+        mail_id, fdoc_id = self._add_mail_fixture_to_soledad_from_file(
+            'mbox00000000')
         self._mock_get_mailbox('TRASH')
         store = LeapMailStore(self.soledad)
 
         mail = yield store.copy_mail_to_mailbox(mail_id, 'TRASH')
 
-        self._assert_message_docs_created(expected_message, mail, only_mdoc_and_fdoc=True)
+        self._assert_message_docs_created(
+            expected_message, mail, only_mdoc_and_fdoc=True)
 
     @defer.inlineCallbacks
     def test_move_to_mailbox(self):
-        expected_message = self._add_create_mail_mocks_to_soledad_from_fixture_file('mbox00000000')
-        mail_id, fdoc_id = self._add_mail_fixture_to_soledad_from_file('mbox00000000')
+        expected_message = self._add_create_mail_mocks_to_soledad_from_fixture_file(
+            'mbox00000000')
+        mail_id, fdoc_id = self._add_mail_fixture_to_soledad_from_file(
+            'mbox00000000')
         self._mock_get_mailbox('TRASH')
         store = LeapMailStore(self.soledad)
 
         mail = yield store.move_mail_to_mailbox(mail_id, 'TRASH')
 
-        self._assert_message_docs_created(expected_message, mail, only_mdoc_and_fdoc=True)
+        self._assert_message_docs_created(
+            expected_message, mail, only_mdoc_and_fdoc=True)
         self._assert_mail_got_deleted(fdoc_id, mail_id)
 
     @defer.inlineCallbacks
     def test_all_mail_graceful_error_handling(self):
-        mail_id, fdoc_id = self._add_mail_fixture_to_soledad_from_file('mbox00000000')
-        when(self.soledad).get_from_index('by-type', 'meta').thenReturn(defer.succeed([self.doc_by_id[mail_id]]))
+        mail_id, fdoc_id = self._add_mail_fixture_to_soledad_from_file(
+            'mbox00000000')
+        when(self.soledad).get_from_index(
+            'by-type', 'meta').thenReturn(defer.succeed([self.doc_by_id[mail_id]]))
         with patch('mockito.invocation.AnswerSelector', AnswerSelector):
-            when(self.soledad).get_doc(self.doc_by_id[mail_id].content['cdocs'][0]).thenAnswer(lambda: defer.fail(Exception('fail loading attachment')))
+            when(self.soledad).get_doc(self.doc_by_id[mail_id].content['cdocs'][
+                0]).thenAnswer(lambda: defer.fail(Exception('fail loading attachment')))
         store = LeapMailStore(self.soledad)
 
         mails = yield store.all_mails(gracefully_ignore_errors=True)
@@ -407,12 +467,16 @@ class TestLeapMailStore(TestCase):
     def _assert_message_docs_created(self, expected_message, actual_message, only_mdoc_and_fdoc=False):
         wrapper = expected_message.get_wrapper()
 
-        verify(self.soledad).create_doc(wrapper.mdoc.serialize(), doc_id=actual_message.mail_id)
-        verify(self.soledad).create_doc(wrapper.fdoc.serialize(), doc_id=wrapper.fdoc.future_doc_id)
+        verify(self.soledad).create_doc(
+            wrapper.mdoc.serialize(), doc_id=actual_message.mail_id)
+        verify(self.soledad).create_doc(
+            wrapper.fdoc.serialize(), doc_id=wrapper.fdoc.future_doc_id)
         if not only_mdoc_and_fdoc:
-            verify(self.soledad).create_doc(wrapper.hdoc.serialize(), doc_id=wrapper.hdoc.future_doc_id)
+            verify(self.soledad).create_doc(
+                wrapper.hdoc.serialize(), doc_id=wrapper.hdoc.future_doc_id)
             for nr, cdoc in wrapper.cdocs.items():
-                verify(self.soledad).create_doc(cdoc.serialize(), doc_id=wrapper.cdocs[nr].future_doc_id)
+                verify(self.soledad).create_doc(cdoc.serialize(),
+                                                doc_id=wrapper.cdocs[nr].future_doc_id)
 
     def _mock_get_mailbox(self, mailbox_name, create_new_uuid=False):
         mbox_uuid = self.mbox_uuid if not create_new_uuid else str(uuid4())
@@ -420,8 +484,10 @@ class TestLeapMailStore(TestCase):
             defer.succeed(MAIL_INDEXES))
         doc_id = str(uuid4())
         mbox = MailboxWrapper(doc_id=doc_id, mbox=mailbox_name, uuid=mbox_uuid)
-        soledad_doc = SoledadDocument(doc_id, json=json.dumps(mbox.serialize()))
-        when(self.soledad).get_from_index('by-type-and-mbox', 'mbox', mailbox_name).thenReturn(defer.succeed([soledad_doc]))
+        soledad_doc = SoledadDocument(
+            doc_id, json=json.dumps(mbox.serialize()))
+        when(self.soledad).get_from_index('by-type-and-mbox', 'mbox',
+                                          mailbox_name).thenReturn(defer.succeed([soledad_doc]))
         self._mock_get_soledad_doc(doc_id, mbox)
 
         self.mbox_uuid_by_name[mailbox_name] = mbox_uuid
@@ -482,20 +548,24 @@ class TestLeapMailStore(TestCase):
         soledad_doc = SoledadDocument(doc_id, json=json.dumps(doc.serialize()))
 
         with patch('mockito.invocation.AnswerSelector', AnswerSelector):
-            when(self.soledad).get_doc(doc_id).thenAnswer(lambda: defer.succeed(soledad_doc))
+            when(self.soledad).get_doc(doc_id).thenAnswer(
+                lambda: defer.succeed(soledad_doc))
 
         self.doc_by_id[doc_id] = soledad_doc
 
     def _mock_create_soledad_doc(self, doc_id, doc):
         soledad_doc = SoledadDocument(doc_id, json=json.dumps(doc.serialize()))
         if doc.future_doc_id:
-            when(self.soledad).create_doc(doc.serialize(), doc_id=doc_id).thenReturn(defer.succeed(soledad_doc))
+            when(self.soledad).create_doc(doc.serialize(),
+                                          doc_id=doc_id).thenReturn(defer.succeed(soledad_doc))
         else:
-            when(self.soledad).create_doc(doc.serialize()).thenReturn(defer.succeed(soledad_doc))
+            when(self.soledad).create_doc(doc.serialize()
+                                          ).thenReturn(defer.succeed(soledad_doc))
         self.doc_by_id[doc_id] = soledad_doc
 
     def _load_mail_from_file(self, mail_file):
-        mailset_dir = pkg_resources.resource_filename('test.unit.fixtures', 'mailset')
+        mailset_dir = pkg_resources.resource_filename(
+            'test.unit.fixtures', 'mailset')
         mail_file = os.path.join(mailset_dir, 'new', mail_file)
         with open(mail_file) as f:
             mail = Parser().parse(f)

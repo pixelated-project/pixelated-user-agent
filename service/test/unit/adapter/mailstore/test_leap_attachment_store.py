@@ -31,6 +31,7 @@ from test.support.mockito import AnswerSelector
 
 
 class TestLeapAttachmentStore(TestCase):
+
     def setUp(self):
         self.soledad = mock()
         self.mbox_uuid = str(uuid4())
@@ -39,19 +40,23 @@ class TestLeapAttachmentStore(TestCase):
         self.mbox_soledad_docs = []
 
         with patch('mockito.invocation.AnswerSelector', AnswerSelector):
-            when(self.soledad).get_from_index('by-type', 'mbox').thenAnswer(lambda: defer.succeed(self.mbox_soledad_docs))
+            when(self.soledad).get_from_index(
+                'by-type', 'mbox').thenAnswer(lambda: defer.succeed(self.mbox_soledad_docs))
         self._mock_get_mailbox('INBOX')
 
     @defer.inlineCallbacks
     def test_get_mail_attachment(self):
         attachment_id = 'AAAA9AAD9E153D24265395203C53884506ABA276394B9FEC02B214BF9E77E48E'
-        doc = SoledadDocument(json=json.dumps({'content_type': 'foo/bar', 'raw': 'asdf'}))
-        when(self.soledad).get_from_index('by-type-and-payloadhash', 'cnt', attachment_id).thenReturn(defer.succeed([doc]))
+        doc = SoledadDocument(json=json.dumps(
+            {'content_type': 'foo/bar', 'raw': 'asdf'}))
+        when(self.soledad).get_from_index('by-type-and-payloadhash',
+                                          'cnt', attachment_id).thenReturn(defer.succeed([doc]))
         store = LeapAttachmentStore(self.soledad)
 
         attachment = yield store.get_mail_attachment(attachment_id)
 
-        self.assertEqual({'content-type': 'foo/bar', 'content': bytearray('asdf')}, attachment)
+        self.assertEqual({'content-type': 'foo/bar',
+                          'content': bytearray('asdf')}, attachment)
 
     @defer.inlineCallbacks
     def test_store_attachment(self):
@@ -66,7 +71,8 @@ class TestLeapAttachmentStore(TestCase):
 
         attachment_id = yield store.add_attachment(content, content_type)
 
-        self.assertEqual('9863729729D2E2EE8E52F0A7115CE33AD18DDA4B58E49AE08DD092D1C8E699B0', attachment_id)
+        self.assertEqual(
+            '9863729729D2E2EE8E52F0A7115CE33AD18DDA4B58E49AE08DD092D1C8E699B0', attachment_id)
 
         verify(self.soledad).create_doc(cdoc_serialized, doc_id=attachment_id)
 
@@ -79,12 +85,15 @@ class TestLeapAttachmentStore(TestCase):
                            'ctype': '', 'raw': 'dGhpcyBpcyBzb21lIGF0dGFjaG1lbnQgY29udGVudA==',
                            'phash': '9863729729D2E2EE8E52F0A7115CE33AD18DDA4B58E49AE08DD092D1C8E699B0',
                            'content_type': 'text/plain', 'type': 'cnt'}
-        doc = SoledadDocument(json=json.dumps({'content_type': content_type, 'raw': content}))
-        when(self.soledad).get_from_index('by-type-and-payloadhash', 'cnt', attachment_id).thenReturn(defer.succeed([doc]))
+        doc = SoledadDocument(json=json.dumps(
+            {'content_type': content_type, 'raw': content}))
+        when(self.soledad).get_from_index('by-type-and-payloadhash',
+                                          'cnt', attachment_id).thenReturn(defer.succeed([doc]))
 
         store = LeapAttachmentStore(self.soledad)
 
-        when(self.soledad).create_doc(cdoc_serialized, doc_id=attachment_id).thenRaise(l2db.errors.RevisionConflict())
+        when(self.soledad).create_doc(cdoc_serialized,
+                                      doc_id=attachment_id).thenRaise(l2db.errors.RevisionConflict())
 
         actual_attachment_id = yield store.add_attachment(content, content_type)
 
@@ -100,7 +109,8 @@ class TestLeapAttachmentStore(TestCase):
         for transfer_encoding, data, encoded_data in encoding_examples:
             doc = SoledadDocument(json=json.dumps({'content_type': 'foo/bar', 'raw': encoded_data,
                                                    'content_transfer_encoding': transfer_encoding}))
-            when(self.soledad).get_from_index('by-type-and-payloadhash', 'cnt', attachment_id).thenReturn(defer.succeed([doc]))
+            when(self.soledad).get_from_index('by-type-and-payloadhash',
+                                              'cnt', attachment_id).thenReturn(defer.succeed([doc]))
             store = LeapAttachmentStore(self.soledad)
 
             attachment = yield store.get_mail_attachment(attachment_id)
@@ -110,7 +120,8 @@ class TestLeapAttachmentStore(TestCase):
     @defer.inlineCallbacks
     def test_get_mail_attachment_throws_exception_if_attachment_does_not_exist(self):
         attachment_id = '1B0A9AAD9E153D24265395203C53884506ABA276394B9FEC02B214BF9E77E48E'
-        when(self.soledad).get_from_index('by-type-and-payloadhash', 'cnt', attachment_id).thenReturn(defer.succeed([]))
+        when(self.soledad).get_from_index('by-type-and-payloadhash',
+                                          'cnt', attachment_id).thenReturn(defer.succeed([]))
         store = LeapAttachmentStore(self.soledad)
         try:
             yield store.get_mail_attachment(attachment_id)
@@ -124,8 +135,10 @@ class TestLeapAttachmentStore(TestCase):
             defer.succeed(MAIL_INDEXES))
         doc_id = str(uuid4())
         mbox = MailboxWrapper(doc_id=doc_id, mbox=mailbox_name, uuid=mbox_uuid)
-        soledad_doc = SoledadDocument(doc_id, json=json.dumps(mbox.serialize()))
-        when(self.soledad).get_from_index('by-type-and-mbox', 'mbox', mailbox_name).thenReturn(defer.succeed([soledad_doc]))
+        soledad_doc = SoledadDocument(
+            doc_id, json=json.dumps(mbox.serialize()))
+        when(self.soledad).get_from_index('by-type-and-mbox', 'mbox',
+                                          mailbox_name).thenReturn(defer.succeed([soledad_doc]))
         self._mock_get_soledad_doc(doc_id, mbox)
 
         self.mbox_uuid_by_name[mailbox_name] = mbox_uuid
@@ -137,6 +150,7 @@ class TestLeapAttachmentStore(TestCase):
         soledad_doc = SoledadDocument(doc_id, json=json.dumps(doc.serialize()))
 
         with patch('mockito.invocation.AnswerSelector', AnswerSelector):
-            when(self.soledad).get_doc(doc_id).thenAnswer(lambda: defer.succeed(soledad_doc))
+            when(self.soledad).get_doc(doc_id).thenAnswer(
+                lambda: defer.succeed(soledad_doc))
 
         self.doc_by_id[doc_id] = soledad_doc

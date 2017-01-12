@@ -56,7 +56,8 @@ def impl(context, tag):
             e = find_element_by_id(context, 'tag-%s' % tag)
             e.click()
 
-            find_element_by_css_selector(context, ".mail-list-entry__item[href*='%s']" % tag)
+            find_element_by_css_selector(
+                context, ".mail-list-entry__item[href*='%s']" % tag)
             success = True
         except TimeoutException:
             pass

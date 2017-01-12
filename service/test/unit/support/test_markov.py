@@ -29,7 +29,8 @@ class MarkovGeneratorTest(unittest.TestCase):
         self.random = random.Random(0)
 
     def test_starts_with_capital_case_workd(self):
-        gen = MarkovGenerator(['lower Upper smaller Capital'], random=self.random)
+        gen = MarkovGenerator(
+            ['lower Upper smaller Capital'], random=self.random)
 
         result = gen.generate(1)
 
@@ -54,14 +55,16 @@ class MarkovGeneratorTest(unittest.TestCase):
         self.assertRaises(ValueError, MarkovGenerator, ['1', '2', '3'])
 
     def test_add_paragraph_on_empty_chain(self):
-        gen = MarkovGenerator([SAMPLE_TEXT], random=self.random, add_paragraph_on_empty_chain=True)
+        gen = MarkovGenerator(
+            [SAMPLE_TEXT], random=self.random, add_paragraph_on_empty_chain=True)
 
         result = gen.generate(5)
 
         self.assertEqual('One two three four \n\n One', result)
 
     def test_multiple_inputs(self):
-        gen = MarkovGenerator([SAMPLE_TEXT, 'Five Six seven eight'], random=self.random)
+        gen = MarkovGenerator(
+            [SAMPLE_TEXT, 'Five Six seven eight'], random=self.random)
 
         result = gen.generate(3)
 
@@ -76,7 +79,8 @@ class MarkovGeneratorTest(unittest.TestCase):
         self.assertEqual('One two three', result)
 
     def test_multiple_word_occurences(self):
-        gen = MarkovGenerator(['One Two One Three One Two One Four'], random=self.random)
+        gen = MarkovGenerator(
+            ['One Two One Three One Two One Four'], random=self.random)
 
         result = gen.generate(2)
 

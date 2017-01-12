@@ -20,6 +20,7 @@ PROVIDER_JSON = {
 
 
 class AuthenticatorTest(unittest.TestCase):
+
     def setUp(self):
         self._domain = 'domain.org'
         with patch.object(LeapProvider, 'fetch_provider_json', return_value=PROVIDER_JSON):
@@ -35,17 +36,20 @@ class AuthenticatorTest(unittest.TestCase):
                 try:
                     yield auth.authenticate('username', 'password')
                 except UnauthorizedLogin as e:
-                    self.assertEqual("User typed wrong password/username combination.", e.message)
+                    self.assertEqual(
+                        "User typed wrong password/username combination.", e.message)
                     raise
 
     @inlineCallbacks
     def test_domain_name_is_stripped_before_making_bonafide_srp_auth(self):
         username_without_domain = 'username'
-        username_with_domain = '%s@%s' % (username_without_domain, self._domain)
+        username_with_domain = '%s@%s' % (
+            username_without_domain, self._domain)
         auth = Authenticator(self._leap_provider)
         with patch.object(Authenticator, '_bonafide_auth') as mock_leap_authenticate:
             yield auth.authenticate(username_with_domain, 'password')
-            mock_leap_authenticate.assert_called_once_with(username_without_domain, 'password')
+            mock_leap_authenticate.assert_called_once_with(
+                username_without_domain, 'password')
 
     @inlineCallbacks
     def test_successful_bonafide_auth_should_return_the_user_authentication_object(self):
@@ -65,17 +69,21 @@ class AuthenticatorTest(unittest.TestCase):
     def test_username_without_domain_is_not_changed(self):
         username_without_domain = 'username'
         auth = Authenticator(self._leap_provider)
-        self.assertEqual(username_without_domain, auth.clean_username(username_without_domain))
+        self.assertEqual(username_without_domain,
+                         auth.clean_username(username_without_domain))
 
     def test_username_with_domain_is_stripped(self):
         username_without_domain = 'username'
-        username_with_domain = '%s@%s' % (username_without_domain, self._domain)
+        username_with_domain = '%s@%s' % (
+            username_without_domain, self._domain)
         auth = Authenticator(self._leap_provider)
-        self.assertEqual(username_without_domain, auth.clean_username(username_with_domain))
+        self.assertEqual(username_without_domain,
+                         auth.clean_username(username_with_domain))
 
     def test_username_with_wrong_domain_raises_exception(self):
         username_without_domain = 'username'
-        username_with_wrong_domain = '%s@%s' % (username_without_domain, 'wrongdomain.org')
+        username_with_wrong_domain = '%s@%s' % (
+            username_without_domain, 'wrongdomain.org')
         auth = Authenticator(self._leap_provider)
         with self.assertRaises(UnauthorizedLogin):
             try:

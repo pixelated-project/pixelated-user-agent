@@ -13,6 +13,7 @@ from test.unit.resources import DummySite
 
 
 class TestParseAcceptLanguage(unittest.TestCase):
+
     def test_parse_pt_br_simple(self):
         all_headers = {
             'accept-language': 'pt-BR,pt;q=0.8,en-US;q=0.5,en;q=0.3'}
@@ -33,6 +34,7 @@ class TestParseAcceptLanguage(unittest.TestCase):
 
 
 class TestLoginResource(unittest.TestCase):
+
     def setUp(self):
         self.services_factory = mock()
         self.portal = mock()
@@ -131,7 +133,8 @@ class TestLoginResource(unittest.TestCase):
         def assert_default_invalid_banner_disclaimer_rendered(_):
             self.assertEqual(200, request.responseCode)
             written_response = ''.join(request.written)
-            self.assertIn("Invalid XML template format for service/_trial_temp/banner.txt.", written_response)
+            self.assertIn(
+                "Invalid XML template format for service/_trial_temp/banner.txt.", written_response)
 
         def tear_down(_):
             os.remove(banner_file_name)
@@ -152,13 +155,15 @@ class TestLoginResource(unittest.TestCase):
         def assert_default_invalid_banner_disclaimer_rendered(_):
             self.assertEqual(200, request.responseCode)
             written_response = ''.join(request.written)
-            self.assertIn("Disclaimer banner file banner.txt could not be read or does not exit.", written_response)
+            self.assertIn(
+                "Disclaimer banner file banner.txt could not be read or does not exit.", written_response)
 
         d.addCallback(assert_default_invalid_banner_disclaimer_rendered)
         return d
 
 
 class TestLoginPOST(unittest.TestCase):
+
     def setUp(self):
         self.services_factory = mock()
         self.provider = mock()
@@ -203,12 +208,14 @@ class TestLoginPOST(unittest.TestCase):
         d = self.web.get(self.request)
 
         def assert_error_response_and_user_services_not_setup(_):
-            mock_authenticate.assert_called_once_with(self.username, self.password)
+            mock_authenticate.assert_called_once_with(
+                self.username, self.password)
             self.assertEqual(401, self.request.responseCode)
             written_response = ''.join(self.request.written)
             self.assertIn('Invalid username or password', written_response)
             self.assertFalse(mock_user_bootstrap_setup.called)
-            self.assertFalse(self.resource.get_session(self.request).is_logged_in())
+            self.assertFalse(self.resource.get_session(
+                self.request).is_logged_in())
 
         d.addCallback(assert_error_response_and_user_services_not_setup)
         return d
@@ -221,7 +228,8 @@ class TestLoginPOST(unittest.TestCase):
         d = self.web.get(self.request)
 
         def assert_interstitial_in_response(_):
-            mock_authenticate.assert_called_once_with(self.username, self.password)
+            mock_authenticate.assert_called_once_with(
+                self.username, self.password)
             interstitial_js_in_template = '<script src="startup-assets/Interstitial.js"></script>'
             self.assertIn(interstitial_js_in_template, self.request.written[0])
 
@@ -236,7 +244,8 @@ class TestLoginPOST(unittest.TestCase):
         d = self.web.get(self.request)
 
         def assert_login_setup_service_for_user(_):
-            mock_user_bootstrap_setup.assert_called_once_with(self.user_auth, self.password, 'pt-BR')
+            mock_user_bootstrap_setup.assert_called_once_with(
+                self.user_auth, self.password, 'pt-BR')
 
         d.addCallback(assert_login_setup_service_for_user)
         return d
@@ -251,7 +260,8 @@ class TestLoginPOST(unittest.TestCase):
         d = self.web.get(self.request)
 
         def assert_login_setup_service_for_user(_):
-            self.assertTrue(self.resource.get_session(self.request).is_logged_in())
+            self.assertTrue(self.resource.get_session(
+                self.request).is_logged_in())
 
         d.addCallback(assert_login_setup_service_for_user)
         return d

@@ -16,6 +16,7 @@
 
 
 class MailStore(object):
+
     def get_mail(self, mail_id):
         pass
 

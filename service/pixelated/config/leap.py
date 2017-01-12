@@ -31,7 +31,8 @@ def initialize_leap_multi_user(provider_hostname,
                                credentials_file,
                                leap_home):
 
-    config, provider = initialize_leap_provider(provider_hostname, leap_provider_cert, leap_provider_cert_fingerprint, leap_home)
+    config, provider = initialize_leap_provider(
+        provider_hostname, leap_provider_cert, leap_provider_cert_fingerprint, leap_home)
 
     defer.returnValue((config, provider))
 
@@ -53,7 +54,8 @@ def initialize_leap_single_user(leap_provider_cert,
 
     provider, username, password = credentials.read(credentials_file)
 
-    provider = initialize_leap_provider(provider, leap_provider_cert, leap_provider_cert_fingerprint, leap_home)
+    provider = initialize_leap_provider(
+        provider, leap_provider_cert, leap_provider_cert_fingerprint, leap_home)
 
     auth = yield Authenticator(provider).authenticate(username, password)
 
@@ -83,7 +85,8 @@ class BootstrapUserServices(object):
         user_id = leap_session.user_auth.uuid
         if not self._services_factory.has_session(user_id):
             yield self._services_factory.create_services_from(leap_session)
-            self._services_factory.map_email(leap_session.user_auth.username, user_id)
+            self._services_factory.map_email(
+                leap_session.user_auth.username, user_id)
 
     @defer.inlineCallbacks
     def _add_welcome_email(self, leap_session, language):

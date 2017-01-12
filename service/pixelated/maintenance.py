@@ -221,7 +221,8 @@ def markov_generate(args, mail_paths, limit, seed):
     username = leap_session.user_auth.username
     server_name = leap_session.provider.server_name
 
-    markov_mails = _generate_mails(limit, mail_paths, seed, server_name, username)
+    markov_mails = _generate_mails(
+        limit, mail_paths, seed, server_name, username)
     deferreds = []
     yield add_mail_folder(store, markov_mails, 'INBOX', deferreds)
     yield defer.gatherResults(deferreds, consumeErrors=True)
@@ -234,7 +235,8 @@ def _generate_mails(limit, mail_paths, seed, server_name, username):
     for path in mail_paths:
         mbox_mails = mbox(path, factory=None)
         mails.extend(mbox_mails)
-    gen = MailGenerator(username, server_name, mails, random=random.Random(seed))
+    gen = MailGenerator(username, server_name, mails,
+                        random=random.Random(seed))
     markov_mails = [gen.generate_mail() for _ in range(limit)]
     return markov_mails
 

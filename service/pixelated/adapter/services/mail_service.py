@@ -60,7 +60,8 @@ class MailService(object):
         new_tags = self._filter_white_space_tags(new_tags)
         reserved_words = extract_reserved_tags(new_tags)
         if len(reserved_words):
-            raise ValueError('None of the following words can be used as tags: ' + ' '.join(reserved_words))
+            raise ValueError(
+                'None of the following words can be used as tags: ' + ' '.join(reserved_words))
         new_tags = self._favor_existing_tags_casing(new_tags)
         mail = yield self.mail(mail_id)
         mail.tags = set(new_tags)
@@ -72,7 +73,8 @@ class MailService(object):
         return [tag.strip() for tag in tags if not tag.isspace()]
 
     def _favor_existing_tags_casing(self, new_tags):
-        current_tags = [tag['name'] for tag in self.search_engine.tags(query='', skip_default_tags=True)]
+        current_tags = [tag['name'] for tag in self.search_engine.tags(
+            query='', skip_default_tags=True)]
         current_tags_lower = [tag.lower() for tag in current_tags]
 
         def _use_current_casing(new_tag_lower):
@@ -117,8 +119,10 @@ class MailService(object):
         mail.headers['Bcc'] = map(self._remove_canonical_recipient, mail.bcc)
 
     def _remove_duplicates_form_cc_and_to(self, mail):
-        mail.headers['To'] = list(set(self._remove_duplicates(mail.to)).difference(set(mail.bcc)))
-        mail.headers['Cc'] = list((set(self._remove_duplicates(mail.cc)).difference(set(mail.bcc)).difference(set(mail.to))))
+        mail.headers['To'] = list(
+            set(self._remove_duplicates(mail.to)).difference(set(mail.bcc)))
+        mail.headers['Cc'] = list((set(self._remove_duplicates(
+            mail.cc)).difference(set(mail.bcc)).difference(set(mail.to))))
         mail.headers['Bcc'] = self._remove_duplicates(mail.bcc)
 
     def _remove_duplicates(self, recipient):

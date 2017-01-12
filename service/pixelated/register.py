@@ -42,7 +42,8 @@ def _set_provider(provider_cert, provider_cert_fingerprint, server_name, leap_ho
     if leap_home:
         leap_config.set_leap_home(leap_home)
 
-    LeapCertificate.set_cert_and_fingerprint(provider_cert, provider_cert_fingerprint)
+    LeapCertificate.set_cert_and_fingerprint(
+        provider_cert, provider_cert_fingerprint)
     provider = LeapProvider(server_name)
     provider.setup_ca()
     provider.download_settings()

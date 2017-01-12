@@ -27,7 +27,8 @@ from common import (
 
 @then('I see that the subject reads \'{subject}\'')
 def impl(context, subject):
-    e = find_element_by_css_selector(context, '#mail-view .mail-read-view__header-subject')
+    e = find_element_by_css_selector(
+        context, '#mail-view .mail-read-view__header-subject')
     assert e.text == subject
 
 
@@ -43,7 +44,8 @@ def impl(context, expected_body):
 @then('that email has the \'{tag}\' tag')
 def impl(context, tag):
     find_element_by_css_selector(context, '#mail-view .tagsArea .tag')
-    elements = find_elements_by_css_selector(context, '#mail-view .tagsArea .tag')
+    elements = find_elements_by_css_selector(
+        context, '#mail-view .tagsArea .tag')
     tags = [e.text for e in elements]
     assert tag in tags
 
@@ -69,7 +71,8 @@ def impl(context):
 @when('I try to delete the first mail')
 def impl(context):
     context.execute_steps(u"When I open the first mail in the mail list")
-    find_element_by_css_selector(context, '#mail-view #view-more-actions').click()
+    find_element_by_css_selector(
+        context, '#mail-view #view-more-actions').click()
     context.browser.execute_script("$('#delete-button-top').click();")
 
     e = find_element_by_css_selector(context, '.message-panel__growl--success')
@@ -105,8 +108,10 @@ def impl(context):
 
 @then('I see the mail has a cc and a bcc recipient')
 def impl(context):
-    cc = find_element_by_css_selector(context, '.mail-read-view__header-recipients .cc')
-    bcc = find_element_by_css_selector(context, '.mail-read-view__header-recipients .bcc')
+    cc = find_element_by_css_selector(
+        context, '.mail-read-view__header-recipients .cc')
+    bcc = find_element_by_css_selector(
+        context, '.mail-read-view__header-recipients .bcc')
 
     assert cc is not None
     assert bcc is not None

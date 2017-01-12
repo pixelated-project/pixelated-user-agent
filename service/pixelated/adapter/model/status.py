@@ -38,5 +38,6 @@ class Status:
 
     @staticmethod
     def to_flags(statuses):
-        statuses_to_flags = dict(zip(Status.FLAGS_TO_STATUSES.values(), Status.FLAGS_TO_STATUSES.keys()))
+        statuses_to_flags = dict(
+            zip(Status.FLAGS_TO_STATUSES.values(), Status.FLAGS_TO_STATUSES.keys()))
         return [statuses_to_flags[status] for status in statuses]

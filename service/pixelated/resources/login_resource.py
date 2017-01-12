@@ -40,13 +40,15 @@ def _get_startup_folder():
 
 
 def _get_static_folder():
-    static_folder = os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "..", "..", "web-ui", "dist"))
+    static_folder = os.path.abspath(os.path.join(
+        os.path.abspath(__file__), "..", "..", "..", "web-ui", "dist"))
     # this is a workaround for packaging
     if not os.path.exists(static_folder):
         static_folder = os.path.abspath(
             os.path.join(os.path.abspath(__file__), "..", "..", "..", "..", "web-ui", "dist"))
     if not os.path.exists(static_folder):
-        static_folder = os.path.join('/', 'usr', 'share', 'pixelated-user-agent')
+        static_folder = os.path.join(
+            '/', 'usr', 'share', 'pixelated-user-agent')
     return static_folder
 
 
@@ -60,7 +62,8 @@ def parse_accept_language(all_headers):
 
 
 class DisclaimerElement(Element):
-    loader = XMLFile(FilePath(os.path.join(_get_startup_folder(), '_login_disclaimer_banner.html')))
+    loader = XMLFile(FilePath(os.path.join(
+        _get_startup_folder(), '_login_disclaimer_banner.html')))
 
     def __init__(self, banner):
         super(DisclaimerElement, self).__init__()
@@ -70,7 +73,8 @@ class DisclaimerElement(Element):
     def _set_loader(self, banner):
         if banner:
             current_path = os.path.dirname(os.path.abspath(__file__))
-            banner_file_path = os.path.join(current_path, "..", "..", "..", banner)
+            banner_file_path = os.path.join(
+                current_path, "..", "..", "..", banner)
             self.loader = XMLFile(FilePath(banner_file_path))
 
     def render(self, request):
@@ -83,7 +87,8 @@ class DisclaimerElement(Element):
 
 
 class LoginWebSite(Element):
-    loader = XMLFile(FilePath(os.path.join(_get_startup_folder(), 'login.html')))
+    loader = XMLFile(FilePath(os.path.join(
+        _get_startup_folder(), 'login.html')))
 
     def __init__(self, error_msg=None, disclaimer_banner_file=None):
         super(LoginWebSite, self).__init__()
@@ -111,7 +116,8 @@ class LoginResource(BaseResource):
         self._disclaimer_banner = disclaimer_banner
         self._provider = provider
         self._authenticator = authenticator or Authenticator(provider)
-        self._bootstrap_user_services = BootstrapUserServices(services_factory, provider)
+        self._bootstrap_user_services = BootstrapUserServices(
+            services_factory, provider)
 
         self.putChild('startup-assets', File(self._startup_folder))
         with open(os.path.join(self._startup_folder, 'Interstitial.html')) as f:
@@ -131,7 +137,8 @@ class LoginResource(BaseResource):
         return self._render_template(request)
 
     def _render_template(self, request, error_msg=None):
-        site = LoginWebSite(error_msg=error_msg, disclaimer_banner_file=self._disclaimer_banner)
+        site = LoginWebSite(error_msg=error_msg,
+                            disclaimer_banner_file=self._disclaimer_banner)
         return renderElement(request, site)
 
     def render_POST(self, request):
@@ -165,7 +172,8 @@ class LoginResource(BaseResource):
 
     def _complete_bootstrap(self, user_auth, request):
         def log_error(error):
-            log.error('Login error during %s services setup: %s \n %s' % (user_auth.username, error.getErrorMessage(), error.getTraceback()))
+            log.error('Login error during %s services setup: %s \n %s' % (
+                user_auth.username, error.getErrorMessage(), error.getTraceback()))
 
         def set_session_cookies(_):
             session = IPixelatedSession(request.getSession())

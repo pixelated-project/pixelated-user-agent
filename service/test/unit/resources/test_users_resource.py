@@ -24,7 +24,8 @@ class TestUsersResource(unittest.TestCase):
 
         def assert_users_count(_):
             self.assertEqual(200, request.code)
-            self.assertEqual('{"count": %d}' % number_of_users_online, request.written[0])
+            self.assertEqual('{"count": %d}' %
+                             number_of_users_online, request.written[0])
 
         d.addCallback(assert_users_count)
         return d
@@ -55,7 +56,8 @@ class TestUsersResource(unittest.TestCase):
         request = mock()
         resource = UsersResource(service_factory)
 
-        when(resource)._get_user_id_from_request(request).thenReturn('some_id1')
+        when(resource)._get_user_id_from_request(
+            request).thenReturn('some_id1')
 
         self.assertTrue(resource.is_admin(request))
         verify(auth).is_admin()

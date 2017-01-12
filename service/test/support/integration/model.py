@@ -21,6 +21,7 @@ from pixelated.adapter.model.status import Status
 
 
 class MailBuilder:
+
     def __init__(self):
         self.mail = {
             'header': {
@@ -86,6 +87,7 @@ class MailBuilder:
 
 
 class ResponseMail:
+
     def __init__(self, mail_dict):
         self.mail_dict = mail_dict
 

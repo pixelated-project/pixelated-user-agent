@@ -36,7 +36,8 @@ class DraftServiceTest(SoledadTestBase):
         input_mail = MailBuilder().with_body('some test text').build_input_mail()
         saved_mail = yield self.app_test_client.mail_store.add_mail('DRAFTS', input_mail.raw)
         draft_id = saved_mail.ident
-        new_email = MailBuilder().with_body('other test text').with_ident(draft_id).build_input_mail()
+        new_email = MailBuilder().with_body(
+            'other test text').with_ident(draft_id).build_input_mail()
 
         stored_draft = yield self.app_test_client.draft_service.process_draft(draft_id, new_email)
 
