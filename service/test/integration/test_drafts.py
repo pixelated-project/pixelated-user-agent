@@ -28,11 +28,11 @@ class DraftsTest(SoledadTestBase):
     def test_post_sends_mail_and_deletes_previous_draft_if_it_exists(self):
         # act as if sending the mail by SMTP succeeded
         sendmail_deferred = defer.Deferred()
-        when(self.mail_sender).sendmail(any()).thenReturn(sendmail_deferred)
+        when(self.app_test_client.mail_sender).sendmail(any()).thenReturn(sendmail_deferred)
 
         # creates one draft
         first_draft = MailBuilder().with_subject('First draft').build_json()
-        first_draft_ident = (yield self.put_mail(first_draft)[0])['ident']
+        first_draft_ident = (yield self.app_test_client.put_mail(first_draft)[0])['ident']
 
         # sends an updated version of the draft
         second_draft = MailBuilder().with_subject('Second draft').with_ident(first_draft_ident).build_json()
@@ -42,8 +42,8 @@ class DraftsTest(SoledadTestBase):
 
         yield deferred_res
 
-        sent_mails = yield self.get_mails_by_tag('sent')
-        drafts = yield self.get_mails_by_tag('drafts')
+        sent_mails = yield self.app_test_client.get_mails_by_tag('sent')
+        drafts = yield self.app_test_client.get_mails_by_tag('drafts')
 
         # make sure there is one email in the sent mailbox and it is the second draft
         self.assertEquals(1, len(sent_mails))
@@ -56,41 +56,41 @@ class DraftsTest(SoledadTestBase):
     def test_post_sends_mail_even_when_draft_does_not_exist(self):
         # act as if sending the mail by SMTP succeeded
         sendmail_deferred = defer.Deferred()
-        when(self.mail_sender).sendmail(any()).thenReturn(sendmail_deferred)
+        when(self.app_test_client.mail_sender).sendmail(any()).thenReturn(sendmail_deferred)
 
         first_draft = MailBuilder().with_subject('First draft').build_json()
         res = self.post_mail(first_draft)
         sendmail_deferred.callback(True)
         yield res
 
-        sent_mails = yield self.get_mails_by_tag('sent')
-        drafts = yield self.get_mails_by_tag('drafts')
+        sent_mails = yield self.app_test_client.get_mails_by_tag('sent')
+        drafts = yield self.app_test_client.get_mails_by_tag('drafts')
 
         self.assertEquals(1, len(sent_mails))
         self.assertEquals('First draft', sent_mails[0].subject)
         self.assertEquals(0, len(drafts))
 
     def post_mail(self, data):
-        deferred_res, req = self.post('/mails', data)
+        deferred_res, req = self.app_test_client.post('/mails', data)
         return deferred_res
 
     @defer.inlineCallbacks
     def test_put_creates_a_draft_if_it_does_not_exist(self):
         mail = MailBuilder().with_subject('A new draft').build_json()
-        yield self.put_mail(mail)[0]
-        mails = yield self.get_mails_by_tag('drafts')
+        yield self.app_test_client.put_mail(mail)[0]
+        mails = yield self.app_test_client.get_mails_by_tag('drafts')
 
         self.assertEquals('A new draft', mails[0].subject)
 
     @defer.inlineCallbacks
     def test_put_updates_draft_if_it_already_exists(self):
         draft = MailBuilder().with_subject('First draft').build_json()
-        draft_ident = (yield self.put_mail(draft)[0])['ident']
+        draft_ident = (yield self.app_test_client.put_mail(draft)[0])['ident']
 
         updated_draft = MailBuilder().with_subject('First draft edited').with_ident(draft_ident).build_json()
-        yield self.put_mail(updated_draft)[0]
+        yield self.app_test_client.put_mail(updated_draft)[0]
 
-        drafts = yield self.get_mails_by_tag('drafts')
+        drafts = yield self.app_test_client.get_mails_by_tag('drafts')
 
         self.assertEquals(1, len(drafts))
         self.assertEquals('First draft edited', drafts[0].subject)

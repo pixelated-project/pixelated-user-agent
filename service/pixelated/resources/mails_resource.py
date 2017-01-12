@@ -1,20 +1,21 @@
 import time
 import json
-import logging
-from pixelated.adapter.services.mail_sender import SMTPDownException
-from pixelated.adapter.model.mail import InputMail
+
+from twisted.internet import defer
+from twisted.logger import Logger
 from twisted.web.server import NOT_DONE_YET
-from pixelated.resources import respond_json_deferred, BaseResource
 from twisted.web.resource import Resource
 from twisted.web import server
-from twisted.internet import defer
-from twisted.python.log import err
+
 from leap.common import events
 
+from pixelated.adapter.model.mail import InputMail
+from pixelated.resources import respond_json_deferred, BaseResource
+from pixelated.adapter.services.mail_sender import SMTPDownException
 from pixelated.support.functional import to_unicode
 
 
-log = logging.getLogger(__name__)
+log = Logger()
 
 
 class MailsUnreadResource(Resource):
@@ -66,7 +67,7 @@ class MailsDeleteResource(Resource):
 
     def render_POST(self, request):
         def response_failed(failure):
-            err(failure, 'something failed')
+            log.error('something failed: %s' % failure.getErrorMessage())
             request.finish()
 
         idents = json.loads(request.content.read())['idents']
@@ -174,7 +175,7 @@ class MailsResource(BaseResource):
             if isinstance(error.value, SMTPDownException):
                 respond_json_deferred({'message': str(error.value)}, request, status_code=503)
             else:
-                err(error, 'error occurred while sending')
+                log.error('error occurred while sending: %s' % error.getErrorMessage())
                 respond_json_deferred({'message': 'an error occurred while sending'}, request, status_code=422)
 
         deferred = self._handle_post(request)
@@ -184,7 +185,7 @@ class MailsResource(BaseResource):
 
     def render_PUT(self, request):
         def onError(error):
-                err(error, 'error saving draft')
+                log.error('error saving draft: %s' % error.getErrorMessage())
                 respond_json_deferred("", request, status_code=422)
 
         deferred = self._handle_put(request)

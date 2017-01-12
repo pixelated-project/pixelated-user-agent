@@ -23,7 +23,7 @@ class KeysResource(BaseResource):
             respond_json_deferred(None, request, status_code=404)
 
         _, key_to_find = parseaddr(request.args.get('search')[0])
-        d = _keymanager.fetch_key(key_to_find)
+        d = _keymanager.get_key(key_to_find)
         d.addCallback(finish_request)
         d.addErrback(key_not_found)
 

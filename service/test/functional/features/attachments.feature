@@ -32,7 +32,7 @@ Feature: Attachments
       | Pixelated rocks! | You should definitely use it. Cheers, User. |
       And for the 'To' field I enter 'pixelated@friends.org'
     And I find an attachment icon
-    When I try to upload a file bigger than 1MB
+    When I try to upload a file bigger than 5MB
     Then I see an upload error message
     When I dismiss the error message
     Then It should not show the error message anymore

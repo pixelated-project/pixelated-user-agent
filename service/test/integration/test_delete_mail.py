@@ -22,44 +22,44 @@ class DeleteMailTest(SoledadTestBase):
     @defer.inlineCallbacks
     def test_move_mail_to_trash_when_deleting(self):
         input_mail = MailBuilder().with_subject('Mail with tags').build_input_mail()
-        mail = yield self.add_mail_to_inbox(input_mail)
+        mail = yield self.app_test_client.add_mail_to_inbox(input_mail)
 
-        inbox_mails = yield self.get_mails_by_tag('inbox')
+        inbox_mails = yield self.app_test_client.get_mails_by_tag('inbox')
         self.assertEquals(1, len(inbox_mails))
 
-        yield self.delete_mail(mail.mail_id)
+        yield self.app_test_client.delete_mail(mail.mail_id)
 
-        inbox_mails = yield self.get_mails_by_tag('inbox')
+        inbox_mails = yield self.app_test_client.get_mails_by_tag('inbox')
         self.assertEquals(0, len(inbox_mails))
-        trash_mails = yield self.get_mails_by_tag('trash')
+        trash_mails = yield self.app_test_client.get_mails_by_tag('trash')
         self.assertEquals(1, len(trash_mails))
 
     @defer.inlineCallbacks
     def test_delete_mail_when_trashing_mail_from_trash_mailbox(self):
-        mails = yield self.add_multiple_to_mailbox(1, 'trash')
-        yield self.delete_mails([mails[0].ident])
+        mails = yield self.app_test_client.add_multiple_to_mailbox(1, 'trash')
+        yield self.app_test_client.delete_mails([mails[0].ident])
 
-        trash_mails = yield self.get_mails_by_tag('trash')
+        trash_mails = yield self.app_test_client.get_mails_by_tag('trash')
 
         self.assertEqual(0, len(trash_mails))
 
     @defer.inlineCallbacks
     def test_move_mail_to_trash_when_delete_multiple(self):
-        yield self.add_multiple_to_mailbox(1, 'trash')
-        mails = yield self.add_multiple_to_mailbox(5, 'inbox')
+        yield self.app_test_client.add_multiple_to_mailbox(1, 'trash')
+        mails = yield self.app_test_client.add_multiple_to_mailbox(5, 'inbox')
         mail_idents = [m.ident for m in mails]
 
-        yield self.delete_mails(mail_idents)
+        yield self.app_test_client.delete_mails(mail_idents)
 
-        inbox = yield self.get_mails_by_tag('inbox')
+        inbox = yield self.app_test_client.get_mails_by_tag('inbox')
         self.assertEquals(0, len(inbox))
 
     @defer.inlineCallbacks
     def test_delete_permanently_when_mails_are_in_trash(self):
-        mails = yield self.add_multiple_to_mailbox(5, 'trash')
+        mails = yield self.app_test_client.add_multiple_to_mailbox(5, 'trash')
         mail_idents = [m.ident for m in mails]
 
-        yield self.delete_mails(mail_idents)
+        yield self.app_test_client.delete_mails(mail_idents)
 
-        trash = yield self.get_mails_by_tag('trash')
+        trash = yield self.app_test_client.get_mails_by_tag('trash')
         self.assertEquals(0, len(trash))

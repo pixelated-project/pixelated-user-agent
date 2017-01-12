@@ -1,5 +1,6 @@
 .idea
 .bundle
+*app.min.js
 *.log
 *.DS_Store
 *.egg-info

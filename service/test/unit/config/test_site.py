@@ -1,10 +1,11 @@
-import unittest
-from mockito import mock
+from twisted.trial import unittest
+from mock import MagicMock
 from pixelated.config.site import PixelatedSite
 from twisted.protocols.basic import LineReceiver
 
 
 class TestPixelatedSite(unittest.TestCase):
+
     def test_add_security_headers(self):
         request = self.create_request()
         request.process()
@@ -36,7 +37,7 @@ class TestPixelatedSite(unittest.TestCase):
 
     def create_request(self):
         channel = LineReceiver()
-        channel.site = PixelatedSite(mock())
+        channel.site = PixelatedSite(MagicMock())
         request = PixelatedSite.requestFactory(channel=channel, queued=True)
         request.method = "GET"
         request.uri = "localhost"

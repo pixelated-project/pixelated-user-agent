@@ -1,10 +1,9 @@
-behave==1.2.4
-selenium==2.44.0
-mock==1.0.1
+behave==1.2.5
+selenium==3.0.1
+mock==2.0.0
 httmock==1.2.2
 mockito==0.5.2
 funkload==1.16.1
-tornado==4.0.2
 pep8==1.5.7
 tempdir==0.6
 coverage

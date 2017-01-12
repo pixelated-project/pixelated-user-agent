@@ -13,16 +13,19 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
-from email.mime.application import MIMEApplication
-from time import sleep
-from leap.mail.mail import Message
-from common import *
-from test.support.integration import MailBuilder
-from behave import given
-from crochet import wait_for
-from uuid import uuid4
 from email.MIMEMultipart import MIMEMultipart
+from email.mime.application import MIMEApplication
 from email.mime.text import MIMEText
+from uuid import uuid4
+
+from behave import given, then, when
+from crochet import wait_for
+
+from common import (
+    fill_by_css_selector,
+    find_element_by_css_selector,
+    find_elements_by_css_selector,
+    page_has_css)
 
 
 @given(u'I have a mail with an attachment in my inbox')
@@ -46,7 +49,7 @@ def build_mail_with_attachment(subject):
 
 @wait_for(timeout=10.0)
 def load_mail_into_soledad(context, mail):
-    return context.client.mail_store.add_mail('INBOX', mail.as_string())
+    return context.single_user_client.mail_store.add_mail('INBOX', mail.as_string())
 
 
 @then(u'I see the mail has an attachment')
@@ -60,13 +63,13 @@ def find_icon(context):
     assert find_element_by_css_selector(context, '#attachment-button .fa.fa-paperclip')
 
 
-@when(u'I try to upload a file bigger than 1MB')
+@when(u'I try to upload a file bigger than 5MB')
 def upload_big_file(context):
     base_dir = "test/functional/features/files/"
-    fname = "image_over_1MB.png"
+    fname = "over_5mb.data"
     context.browser.execute_script("$('#fileupload').removeAttr('hidden');")
     fill_by_css_selector(context, '#fileupload', base_dir + fname)
-    wait_until_element_is_visible_by_locator(context, (By.CSS_SELECTOR, '#upload-error-message'))
+    find_element_by_css_selector(context, '#upload-error-message')
 
 
 @then(u'I see an upload error message')
@@ -93,20 +96,19 @@ def should_not_show_upload_error_message(context):
 @when(u'I upload a valid file')
 def upload_attachment(context):
     base_dir = "test/functional/features/files/"
-    fname = "upload_test_file.txt"
+    fname = "5mb.data"
     fill_by_css_selector(context, '#fileupload', base_dir + fname)
-    attachment_list_item = wait_until_element_is_visible_by_locator(context, (By.CSS_SELECTOR, '#attachment-list-item li a'))
-    assert attachment_list_item.text == "%s (36.00 b)" % fname
+    attachment_list_item = find_element_by_css_selector(context, '#attachment-list-item li a')
+    assert attachment_list_item.text == "%s (5.00 Mb)" % fname
 
 
 @when(u'remove the file')
 def click_remove_icon(context):
-    remove_icon = wait_until_element_is_visible_by_locator(context, (By.CSS_SELECTOR, '#attachment-list-item i.remove-icon'))
+    remove_icon = find_element_by_css_selector(context, '#attachment-list-item i.remove-icon')
     remove_icon.click()
 
 
 @then(u'I should not see it attached')
 def assert_attachment_removed(context):
-    attachments_list_ul = find_elements_by_css_selector(context, '#attachment-list-item')
-    attachments_list_li = context.browser.find_elements(By.CSS_SELECTOR, '#attachment-list-item li a')
+    attachments_list_li = context.browser.find_elements_by_css_selector('#attachment-list-item li a')
     assert len(attachments_list_li) == 0

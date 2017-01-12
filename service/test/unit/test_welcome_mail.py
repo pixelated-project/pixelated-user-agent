@@ -16,7 +16,7 @@
 
 import os
 import re
-import unittest
+from twisted.trial import unittest
 from mockito import verify, mock
 from mockito.matchers import Matcher
 from email import message_from_file
@@ -30,7 +30,7 @@ class TestWelcomeMail(unittest.TestCase):
         mail_store = mock()
         input_mail = self._get_welcome_mail()
 
-        add_welcome_mail(mail_store)
+        add_welcome_mail(mail_store, 'pt-BR')
         capture = WelcomeMailCapture()
 
         verify(mail_store).add_mail('INBOX', capture)
@@ -43,7 +43,7 @@ class TestWelcomeMail(unittest.TestCase):
                                '..',
                                'pixelated',
                                'assets',
-                               'welcome.mail')) as mail_template_file:
+                               'welcome.mail.pt-BR')) as mail_template_file:
             mail_template = message_from_file(mail_template_file)
 
         return InputMail.from_python_mail(mail_template)

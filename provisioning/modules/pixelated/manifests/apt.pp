@@ -60,8 +60,8 @@ class pixelated::apt {
   # nodejs latest repo
   file { '/etc/apt/sources.list.d/noderesource.list':
     content =>
-      'deb https://deb.nodesource.com/node_6.x jessie main
-      deb-src https://deb.nodesource.com/node_6.x jessie main',
+      'deb https://deb.nodesource.com/node_7.x jessie main
+      deb-src https://deb.nodesource.com/node_7.x jessie main',
     owner   => 'root'
   }
   exec{'add_nodesource_key':

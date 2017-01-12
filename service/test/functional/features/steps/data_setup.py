@@ -26,8 +26,8 @@ def add_mail_impl(context):
 
     input_mail = MailBuilder().with_subject(subject).build_input_mail()
 
-    context.client.add_mail_to_inbox(input_mail)
-    wait_for_condition(context, lambda _: context.client.search_engine.search(subject)[1] > 0, poll_frequency=0.1)
+    load_mail_into_soledad(context, input_mail)
+    wait_for_condition(context, lambda _: context.single_user_client.search_engine.search(subject)[1] > 0, poll_frequency=0.1)
 
     context.last_subject = subject
 
@@ -38,17 +38,27 @@ def add_mail_to_user_inbox(context, username):
 
     input_mail = MailBuilder().with_subject(subject).build_input_mail()
 
-    context.multi_user_client.add_mail_to_user_inbox(input_mail, username)
+    load_mail_into_user_account(context, input_mail, username)
     wait_for_condition(context, lambda _: context.multi_user_client.account_for(username).search_engine.search(subject)[1] > 0, poll_frequency=0.1)
 
     context.last_subject = subject
 
 
-@wait_for(timeout=10.0)
-def add_multi_user_account(context, username):
-    return context.multi_user_client.create_user('username')
-
-
 @given(u'Account for user {username} exists')
 def add_account(context, username):
     add_multi_user_account(context, username)
+
+
+@wait_for(timeout=10.0)
+def load_mail_into_soledad(context, mail):
+    return context.single_user_client.mail_store.add_mail('INBOX', mail.raw)
+
+
+@wait_for(timeout=10.0)
+def load_mail_into_user_account(context, mail, username):
+    return context.multi_user_client.add_mail_to_user_inbox(mail, username)
+
+
+@wait_for(timeout=10.0)
+def add_multi_user_account(context, username):
+    return context.multi_user_client.create_user('username')

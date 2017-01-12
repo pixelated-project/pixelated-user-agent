@@ -1,4 +1,4 @@
-import unittest
+from twisted.trial import unittest
 import re
 
 from mock import MagicMock, patch
@@ -101,6 +101,22 @@ class TestRootResource(unittest.TestCase):
             self.assertEqual("Unauthorized!", request.written[0])
 
         d.addCallback(assert_unauthorized)
+        return d
+
+    def test_should_404_non_existing_resource_with_valid_csrf(self):
+        request = DummyRequest(['/non-existing-child'])
+        request.method = 'POST'
+        self._mock_ajax_csrf(request, 'stubbed csrf token')
+
+        request.getCookie = MagicMock(return_value='stubbed csrf token')
+
+        d = self.web.get(request)
+
+        def assert_not_found(_):
+            self.assertEqual(404, request.responseCode)
+            self.assertIn("No Such Resource", request.written[0])
+
+        d.addCallback(assert_not_found)
         return d
 
     def test_should_authorize_child_resource_non_ajax_GET_requests(self):

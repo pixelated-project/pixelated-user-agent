@@ -16,12 +16,15 @@
 from time import sleep
 
 from behave import when
-from common import *
+
+from common import (
+    fill_by_css_selector,
+    find_element_by_css_selector)
 
 
 @when('I compose a message with')
 def impl(context):
-    toggle = context.browser.find_element_by_id('compose-mails-trigger')
+    toggle = find_element_by_css_selector(context, '#compose-mails-trigger')
     toggle.click()
 
     for row in context.table:
@@ -43,18 +46,17 @@ def choose_impl(context, recipients_field, to_type):
 
 @when('I send it')
 def send_impl(context):
-    send_button = wait_until_element_is_visible_by_locator(context, (By.CSS_SELECTOR, '#send-button:enabled'))
+    send_button = find_element_by_css_selector(context, '#send-button:enabled')
     send_button.click()
 
 
 @when(u'I toggle the cc and bcc fields')
 def collapse_cc_bcc_fields(context):
-    cc_and_bcc_chevron = wait_until_element_is_visible_by_locator(context, (By.CSS_SELECTOR, '#cc-bcc-collapse'))
+    cc_and_bcc_chevron = find_element_by_css_selector(context, '#cc-bcc-collapse')
     cc_and_bcc_chevron.click()
 
 
 def _enter_recipient(context, recipients_field, to_type):
     recipients_field = recipients_field.lower()
-    browser = context.browser
-    field = browser.find_element_by_css_selector('#recipients-%s-area .tt-input' % recipients_field)
+    field = find_element_by_css_selector(context, '#recipients-%s-area .tt-input' % recipients_field)
     field.send_keys(to_type)

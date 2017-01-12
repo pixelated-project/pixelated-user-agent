@@ -1,4 +1,4 @@
-import unittest
+from twisted.trial import unittest
 from httmock import urlmatch, HTTMock
 from mockito import when
 from twisted.internet import defer

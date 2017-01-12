@@ -13,7 +13,8 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
-from leap.mail.outgoing.service import OutgoingMail
+from leap.bitmask.mail.outgoing.service import OutgoingMail
+from mock import patch
 from twisted.mail.smtp import User
 from twisted.trial import unittest
 
@@ -102,6 +103,25 @@ class MailSenderTest(unittest.TestCase):
         except MailSenderException, e:
             for recipient in flatten([input_mail.to, input_mail.cc, input_mail.bcc]):
                 self.assertTrue(recipient in e.email_error_map)
+
+    @defer.inlineCallbacks
+    def test_keymanager_encrypt_problem_raises_exception(self):
+        input_mail = InputMail.from_dict(mail_dict(), from_address='pixelated@org')
+
+        when(OutgoingMail)._maybe_attach_key(any(), any(), any()).thenReturn(
+            defer.succeed(None))
+        when(OutgoingMail)._fix_headers(any(), any(), any()).thenReturn(
+            defer.succeed((None, mock())))
+        when(self._keymanager_mock).encrypt(any(), any(), sign=any(),
+                                            fetch_remote=any()).thenReturn(defer.fail(Exception('pretend key expired')))
+
+        with patch('leap.bitmask.mail.outgoing.service.emit_async'):
+            try:
+                yield self.sender.sendmail(input_mail)
+                self.fail('Exception expected!')
+            except MailSenderException, e:
+                for recipient in flatten([input_mail.to, input_mail.cc, input_mail.bcc]):
+                    self.assertTrue(recipient in e.email_error_map)
 
     @defer.inlineCallbacks
     def test_iterates_over_recipients_and_send_whitout_bcc_field(self):

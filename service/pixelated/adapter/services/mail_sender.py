@@ -16,7 +16,7 @@
 from StringIO import StringIO
 from email.utils import parseaddr
 from copy import deepcopy
-from leap.mail.outgoing.service import OutgoingMail
+from leap.bitmask.mail.outgoing.service import OutgoingMail
 
 from twisted.internet.defer import Deferred, fail
 from twisted.mail.smtp import SMTPSenderFactory

@@ -15,7 +15,7 @@
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 
 
-import unittest
+from twisted.trial import unittest
 from pixelated.support.markov import MarkovGenerator
 import random
 

@@ -1,0 +1,55 @@
+33a34,48
+> from datetime import datetime
+> 
+> class Clock():
+>     def __init__(self, label, callback_type, thread_id):
+>         self.start = datetime.now()
+>         self.label = label
+>         self.thread_id = thread_id
+>         self.callback_type = callback_type
+> 
+>     def stop(self):
+>         end = datetime.now()
+>         total = (end - self.start).total_seconds()
+>         if total > 0.1:
+>             print('{:.4f} {}: function {} in thread {}'.format(total, self.callback_type, self.label, self.thread_id))
+> 
+195c210,223
+< 
+---
+> import threading
+> import inspect
+> def identifyItem(i):
+>     if i is None:
+>         return "(None)"
+>     else:
+>         if inspect.isbuiltin(i):
+>             return str(i)
+>         else:
+>             if 'gotResult' == i.__name__:
+>                 return False
+>             f = inspect.getsourcefile(i)
+>             ln = inspect.getsourcelines(i)[1]
+>             return "%s (%s:%d)" % (i.__name__, f, ln)
+588c616,626
+<                         current.result = callback(current.result, *args, **kw)
+---
+>                         currentItem = identifyItem(callback)
+>                         currentThreadId = threading.current_thread().ident
+> 
+>                         if currentItem:
+>                             clock = Clock(currentItem, 'callback', currentThreadId)
+>                         try:
+>                             current.result = callback(current.result, *args, **kw)
+>                         finally:
+>                             if currentItem:
+>                                 clock.stop()
+>                             
+1127a1166,1168
+>                 currentThreadId = threading.current_thread().ident
+>                 label = "%s (%s:%d)" % (g.__name__, g.gi_code.co_filename, g.gi_code.co_firstlineno)
+>                 c = Clock(label, 'inlineCallback', currentThreadId)
+1128a1170
+>                 c.stop()
+1133a1176
+>             c.stop()

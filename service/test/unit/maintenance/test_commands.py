@@ -13,11 +13,11 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
-import unittest
+from twisted.trial import unittest
 import email
 
 from pixelated.maintenance import delete_all_mails, load_mails
-from pixelated.bitmask_libraries.session import LeapSession
+from pixelated.config.sessions import LeapSession
 from pixelated.adapter.mailstore import MailStore
 from leap.soledad.client import Soledad
 from leap.soledad.common.document import SoledadDocument

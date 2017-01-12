@@ -7,10 +7,10 @@ $tags-font-size: 0.6rem;
 
     &-tag {
         font-size: $tags-font-size;
-        font-weight: normal;
-        background-color: lighten($action_buttons, 12);
+        font-weight: 700;
+        background-color: $dark_blue;
         color: white;
-        padding: 2px 3px;
+        padding: 2px 4px;
         margin: 0 1px;
         border-radius: 2px;
     }
@@ -51,12 +51,7 @@ $tags-font-size: 0.6rem;
     }
 
     &-name-input {
-        opacity: 0.6;
         transition: background-color 150ms ease-out;
-
-        &:hover {
-            opacity: 1;
-        }
 
         // twitter typeahead classes. those are set via JS, with relatively high specificity,
         // hence box-model-related properties are repeated
@@ -67,10 +62,15 @@ $tags-font-size: 0.6rem;
         $input-field-margin: 2px;
 
         & * .tt-input {
+            opacity: 0.6;
             border-radius: $input-field-margin;
             padding: $input-field-padding;
-            margin-top: 2px;
+            margin: 2px 0;
             font-size: $tags-font-size;
+
+          &:hover {
+              opacity: 1;
+          }
         }
 
         & * .tt-hint {

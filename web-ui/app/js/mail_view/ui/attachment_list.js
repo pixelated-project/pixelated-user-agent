@@ -42,7 +42,7 @@ define(
             });
 
             var ONE_MEGABYTE = 1024*1024;
-            var ATTACHMENT_SIZE_LIMIT = ONE_MEGABYTE;
+            var ATTACHMENT_SIZE_LIMIT = 5*ONE_MEGABYTE;
 
             this.showAttachment = function (ev, data) {
                 this.trigger(document, events.mail.appendAttachment, data);

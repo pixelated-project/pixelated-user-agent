@@ -14,12 +14,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 import time
-import logging
 from functools import wraps
 from twisted.internet import defer
+from twisted.logger import Logger
 
 
-log = logging.getLogger(__name__)
+log = Logger()
 
 
 def _start_stopwatch():

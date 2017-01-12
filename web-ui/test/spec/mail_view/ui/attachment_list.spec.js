@@ -106,15 +106,15 @@ describeMixin('mail_view/ui/attachment_list', function () {
 
             describe('File size check', function (){
                 var ONE_MEGABYTE = 1024*1024;
-                var largeAttachment = {originalFiles: [{size: ONE_MEGABYTE+1}]};
+                var largeAttachment = {originalFiles: [{size: 5*ONE_MEGABYTE+1}]};
 
-                it('should reject files larger than 1MB', function () {
+                it('should reject files larger than 5MB', function () {
                     var uploadAccepted = this.component.performPreUploadCheck(null, largeAttachment);
                     expect(uploadAccepted).toBe(false);
                 });
 
-                it('should accept files less or equal 1MB', function () {
-                    var smallAttachment = {originalFiles: [{size: ONE_MEGABYTE}]};
+                it('should accept files less or equal 5MB', function () {
+                    var smallAttachment = {originalFiles: [{size: 5*ONE_MEGABYTE}]};
                     var uploadAccepted = this.component.performPreUploadCheck(null, smallAttachment);
 
                     expect(uploadAccepted).toBe(true);

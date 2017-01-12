@@ -14,11 +14,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 
-from email.parser import Parser
 import re
-import logging
+from email.parser import Parser
 
-logger = logging.getLogger(__name__)
+from twisted.logger import Logger
+
+logger = Logger()
 
 
 def _parse_charset_header(content_type_and_charset_header, default_charset='us-ascii'):
@@ -30,13 +31,14 @@ def _parse_charset_header(content_type_and_charset_header, default_charset='us-a
 
 class BodyParser(object):
 
-    def __init__(self, content, content_type='text/plain; charset="us-ascii"', content_transfer_encoding=None):
+    def __init__(self, content, content_type='text/plain; charset="us-ascii"', content_transfer_encoding=None, charset=None):
         self._content = content
         self._content_type = content_type
         self._content_transfer_encoding = content_transfer_encoding
+        self._charset = charset
 
     def parsed_content(self):
-        charset = _parse_charset_header(self._content_type)
+        charset = self._charset or _parse_charset_header(self._content_type)
         text = self._serialize_for_parser(charset)
 
         decoded_body = self._parse_and_decode(text)

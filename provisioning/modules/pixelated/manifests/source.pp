@@ -10,6 +10,7 @@ class pixelated::source {
     'libssl-dev',
     'g++',
     'libsqlite3-dev',
+    'libsqlcipher-dev',
     'libfontconfig1',
     'build-essential',
     'ruby-compass']:

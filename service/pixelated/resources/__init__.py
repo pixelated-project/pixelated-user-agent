@@ -15,16 +15,16 @@
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 
 import json
-import logging
 
 from twisted.web.http import UNAUTHORIZED
 from twisted.web.resource import Resource
+from twisted.logger import Logger
 
-# from pixelated.resources.login_resource import LoginResource
 from pixelated.resources.session import IPixelatedSession
 
 from twisted.web.http import INTERNAL_SERVER_ERROR, SERVICE_UNAVAILABLE
-log = logging.getLogger(__name__)
+
+log = Logger()
 
 
 class SetEncoder(json.JSONEncoder):

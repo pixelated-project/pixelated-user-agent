@@ -1,4 +1,4 @@
-import unittest
+from twisted.trial import unittest
 import re
 
 from pixelated.resources import respond_json, respond_json_deferred

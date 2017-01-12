@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 from mailbox import mbox
-import unittest
+from twisted.trial import unittest
 import pkg_resources
 import random
 from mock import patch

@@ -13,9 +13,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
-import base64
 import json
-from email import encoders
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -30,13 +28,13 @@ class RetrieveAttachmentTest(SoledadTestBase):
     @defer.inlineCallbacks
     def test_attachment_content_is_retrieved(self):
         attachment_id, input_mail = self._create_mail_with_attachment()
-        yield self.mail_store.add_mail('INBOX', input_mail.as_string())
+        yield self.app_test_client.mail_store.add_mail('INBOX', input_mail.as_string())
 
         requested_filename = "file name with space"
         expected_content_type = 'text/plain'
         expected_content_disposition = 'attachment; filename="file name with space"'
 
-        attachment, req = yield self.get_attachment(attachment_id, 'base64', filename=requested_filename, content_type=expected_content_type)
+        attachment, req = yield self.app_test_client.get_attachment(attachment_id, 'base64', filename=requested_filename, content_type=expected_content_type)
 
         self.assertEqual(200, req.code)
         self.assertEquals('pretend to be binary attachment data', attachment)
@@ -46,14 +44,16 @@ class RetrieveAttachmentTest(SoledadTestBase):
     @defer.inlineCallbacks
     def test_should_retrieve_attachment_even_if_xsrf_token_not_passed(self):
         attachment_id, input_mail = self._create_mail_with_attachment()
-        yield self.mail_store.add_mail('INBOX', input_mail.as_string())
+        yield self.app_test_client.mail_store.add_mail('INBOX', input_mail.as_string())
 
         requested_filename = "file name with space"
         expected_content_type = 'text/plain'
         expected_content_disposition = 'attachment; filename="file name with space"'
 
-        attachment, req = yield self.get_attachment(attachment_id, 'base64', filename=requested_filename,
-                                                    content_type=expected_content_type, ajax=False, csrf='mismatched token')
+        attachment, req = yield self.app_test_client.get_attachment(
+            attachment_id, 'base64', filename=requested_filename,
+            content_type=expected_content_type, ajax=False,
+            csrf='mismatched token')
 
         self.assertEqual(200, req.code)
         self.assertEquals('pretend to be binary attachment data', attachment)
@@ -72,7 +72,7 @@ class RetrieveAttachmentTest(SoledadTestBase):
 
     @defer.inlineCallbacks
     def test_attachment_error_returned_if_id_not_found(self):
-        attachment, req = yield self.get_attachment('invalid attachment id', 'base64')
+        attachment, req = yield self.app_test_client.get_attachment('invalid attachment id', 'base64')
 
         self.assertEqual(404, req.code)
         self.assertIsNone(attachment)
@@ -86,7 +86,7 @@ class RetrieveAttachmentTest(SoledadTestBase):
         datagen, headers = multipart_encode([file])
         post_data = "".join(datagen)
 
-        _, req = yield self.post_attachment(post_data, headers)
+        _, req = yield self.app_test_client.post_attachment(post_data, headers)
 
         self.assertEqual(201, req.code)
         self.assertEqual('/attachment/B5B4ED80AC3B894523D72E375DACAA2FC6606C18EDF680FE95903086C8B5E14A', req.responseHeaders.getRawHeaders('location')[0])

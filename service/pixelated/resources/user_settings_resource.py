@@ -36,7 +36,7 @@ class UserSettingsResource(BaseResource):
         def key_not_found(_):
             respond_json_deferred({'account_email': _account_email, 'fingerprint': FINGERPRINT_NOT_FOUND}, request)
 
-        d = self.keymanager(request).fetch_key(_account_email)
+        d = self.keymanager(request).get_key(_account_email)
         d.addCallback(finish_request)
         d.addErrback(key_not_found)
 

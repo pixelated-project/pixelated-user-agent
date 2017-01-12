@@ -15,11 +15,24 @@
     &.status-read {
         font-weight: normal;
         color: $attachment_text;
+
+        .mail-list-entry__checkbox::after {
+          display: none;
+        }
     }
 
+
     &.selected {
-        background: $white;
+        background: $light_blue;
         z-index: 10; // overlay the box-shadow of the right page (z-index: 2)
+
+        &:hover {
+            background: $light_blue;
+        }
+
+        a {
+          color: $white;
+        }
     }
 
     &:hover {
@@ -35,6 +48,20 @@
           left: 20px;
         }
 
+        &::after {
+          content: '';
+          display: inline-block;
+          width: 8px;
+          height: 8px;
+          -moz-border-radius: 15px;
+          -webkit-border-radius: 15px;
+          border-radius: 15px;
+          background-color: $bullet-blue;
+          position: absolute;
+          left: 48px;
+          top: 13px;
+        }
+
         & > input[type=checkbox] {
             @include check-box;
         }
@@ -43,7 +70,7 @@
     &__item {
         display: block;
         color: $dark_grey;
-        padding: 8px 10px 10px 34px;
+        padding: 8px 10px 10px 67px;
         height: 100%;
 
         &-from {
@@ -95,4 +122,3 @@
         }
     }
 }
-

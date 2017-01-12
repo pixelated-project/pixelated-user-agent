@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 
-import logging
 import os
 
 from OpenSSL import SSL
@@ -22,6 +21,8 @@ from OpenSSL import crypto
 from leap.common.events import (server as events_server,
                                 register, catalog as events)
 from leap.soledad.common.errors import InvalidAuthTokenError
+from twisted.logger import Logger
+from twisted.conch import manhole_tap
 from twisted.cred import portal
 from twisted.cred.checkers import AllowAnonymousAccess
 from twisted.internet import defer
@@ -35,11 +36,11 @@ from pixelated.config import services
 from pixelated.config.leap import initialize_leap_single_user, init_monkeypatches, initialize_leap_provider
 from pixelated.config.services import ServicesFactory, SingleUserServicesFactory
 from pixelated.config.site import PixelatedSite
-from pixelated.resources.auth import LeapPasswordChecker, PixelatedRealm, PixelatedAuthSessionWrapper, SessionChecker
+from pixelated.resources.auth import PixelatedRealm, PixelatedAuthSessionWrapper, SessionChecker
 from pixelated.resources.login_resource import LoginResource
 from pixelated.resources.root_resource import RootResource
 
-log = logging.getLogger(__name__)
+log = Logger()
 
 
 class UserAgentMode(object):
@@ -59,7 +60,7 @@ def start_user_agent_in_single_user_mode(root_resource, services_factory, leap_h
 
     services_factory.add_session(leap_session.user_auth.uuid, _services)
 
-    root_resource.initialize()
+    root_resource.initialize(provider=leap_session.provider)
 
     # soledad needs lots of threads
     reactor.getThreadPool().adjustPoolsize(5, 15)
@@ -144,26 +145,22 @@ def _start_in_multi_user_mode(args, root_resource, services_factory):
 def _setup_multi_user(args, root_resource, services_factory):
     if args.provider is None:
         raise ValueError('Multi-user mode: provider name is required')
-
     init_monkeypatches()
     events_server.ensure_server()
-    config, provider = initialize_leap_provider(args.provider, args.leap_provider_cert, args.leap_provider_cert_fingerprint, args.leap_home)
+    provider = initialize_leap_provider(args.provider, args.leap_provider_cert, args.leap_provider_cert_fingerprint, args.leap_home)
     protected_resource = set_up_protected_resources(root_resource, provider, services_factory, banner=args.banner)
     return protected_resource
 
 
-def set_up_protected_resources(root_resource, provider, services_factory, checker=None, banner=None):
-    if not checker:
-        checker = LeapPasswordChecker(provider)
+def set_up_protected_resources(root_resource, provider, services_factory, banner=None, authenticator=None):
     session_checker = SessionChecker(services_factory)
-    anonymous_resource = LoginResource(services_factory, disclaimer_banner=banner)
 
-    realm = PixelatedRealm(root_resource, anonymous_resource)
-    _portal = portal.Portal(realm, [checker, session_checker, AllowAnonymousAccess()])
+    realm = PixelatedRealm()
+    _portal = portal.Portal(realm, [session_checker, AllowAnonymousAccess()])
 
+    anonymous_resource = LoginResource(services_factory, provider, disclaimer_banner=banner, authenticator=authenticator)
     protected_resource = PixelatedAuthSessionWrapper(_portal, root_resource, anonymous_resource, [])
-    anonymous_resource.set_portal(_portal)
-    root_resource.initialize(_portal, disclaimer_banner=banner)
+    root_resource.initialize(provider, disclaimer_banner=banner, authenticator=authenticator)
     return protected_resource
 
 
@@ -192,8 +189,28 @@ def _start_in_single_user_mode(args, resource, services_factory):
 
 def start_site(config, resource):
     log.info('Starting the API on port %s' % config.port)
+
+    if config.manhole:
+        log.info('Starting the manhole on port 8008')
+
+        multiService = manhole_tap.makeService(dict(namespace=globals(),
+                                                    telnetPort='8008',
+                                                    sshPort='8009',
+                                                    sshKeyDir='sshKeyDir',
+                                                    sshKeyName='id_rsa',
+                                                    sshKeySize=4096,
+                                                    passwd='passwd'))
+        telnetService, sshService = multiService.services
+        telnetFactory = telnetService.factory
+        sshFactory = sshService.factory
+
+        reactor.listenTCP(8008, telnetFactory, interface='localhost')
+        reactor.listenTCP(8009, sshFactory, interface='localhost')
+
+    site = PixelatedSite(resource)
+    site.displayTracebacks = False
     if config.sslkey and config.sslcert:
-        reactor.listenSSL(config.port, PixelatedSite(resource), _ssl_options(config.sslkey, config.sslcert),
+        reactor.listenSSL(config.port, site, _ssl_options(config.sslkey, config.sslcert),
                           interface=config.host)
     else:
-        reactor.listenTCP(config.port, PixelatedSite(resource), interface=config.host)
+        reactor.listenTCP(config.port, site, interface=config.host)

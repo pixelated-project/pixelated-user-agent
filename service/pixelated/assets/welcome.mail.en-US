@@ -1,0 +1,94 @@
+From: Pixelated Team <pixelated-team@pixelated-project.org>
+Date: Sat, 21 Mar 2015 19:30:09 -0300
+Subject: Welcome to Pixelated Mail
+To: Replace <will.be@the.user>
+Content-Type: multipart/alternative; boundary=000boundary000
+
+--000boundary000
+Content-Type: text/plain; charset=UTF-8
+
+Welcome to Pixelated Mail, modern email with encryption.
+
+Pixelated Mail is an open source project that aims to provide secure email in the browser.
+
+
+
+How to use it
+
+Pixelated Mail works as any other email client. On the left, you will find a navigation bar where you can find your mailboxes and tags. Clicking them will load the corresponding messages in the middle area - the mail list. Clicking on a message will show it on the right side, but you already know that, right?
+
+To compose a message look for the big blue button on the top left. You can add tags by clicking on the "+" sign below the message subject. You can find the encryption status of a message just above the sender information.
+
+
+
+About this message and encryption status
+
+This message wasn't encrypted. Like any email, it could have been read by others before reaching your provider.
+
+There are two ways to send encrypted messages from Pixelated:
+
+• when you send an email to an account on your provider, the message is encrypted and signed by default;
+• when you send an email to another account, Pixelated will still try to encrypt the message, and if it succeeds you will see a closed padlock next to the email address; if the padlock is open, the message will be sent normally as any other e-mail client. Pixelated does all of this automatically. :D
+
+
+
+A bit more about Pixelated
+
+Pixelated is an open source project licensed under AGPL 3.0. It is composed of two main parts, the web client (that you are using now) and the provider (which will send and receive your emails, the server behind the "@" sign on your new mail address). You can learn more by visiting https://pixelated-project.org/.
+
+Enjoy your secure email!
+
+--000boundary000
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<h1>Welcome to Pixelated Mail, modern email with encryption.</h1>
+
+<p>Pixelated Mail is an open source project that aims to provide secure ema=
+il in the browser.</p>
+
+<h2>How to use it<h2>
+
+<p>
+Pixelated Mail works as any other email client. On the left, you will find =
+a navigation bar where you can find your mailboxes and tags. Clicking them =
+will load the corresponding messages in the middle area - the mail list. Cl=
+icking on a message will show it on the right side, but you already know th=
+at, right?
+</p>
+<p>
+To compose a message look for the big blue button on the top left. You can =
+add tags by clicking on the "+" sign below the message subject. You can fin=
+d the encryption status of a message just above the sender information.
+</p>
+
+<h2>About this message and encryption status</h2>
+
+<p>
+This message wasn't encrypted. Like any email, it could have been read by o=
+thers before reaching your provider.
+</p>
+<p>
+There are two ways to send encrypted messages from Pixelated:
+</p>
+
+<ul>
+<li>when you send an email to an account on your provider, the message is e=
+ncrypted and signed by default;</li>
+<li>when you send an email to another account, Pixelated will still try to =
+encrypt the message, and if it succeeds you will see a closed padlock next =
+to the email address; if the padlock is open, the message will be sent norm=
+ally as any other e-mail client. Pixelated does all of this automatically. =
+:D</li>
+</ul>
+
+<h2>A bit more about Pixelated</h2>
+
+<p>Pixelated is an open source project licensed under AGPL 3.0. It is compo=
+sed of two main parts, the web client (that you are using now) and the prov=
+ider (which will send and receive your emails, the server behind the @ sign=
+ on your new mail address). You can learn more by visiting https://pixelate=
+d-project.org/.</p>
+
+<p>Enjoy your secure email!</p>
+--000boundary000--

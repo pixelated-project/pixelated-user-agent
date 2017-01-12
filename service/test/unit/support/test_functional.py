@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU Affero General Public License
 
 
-import unittest
+from twisted.trial import unittest
 
 from pixelated.support.functional import to_unicode
 

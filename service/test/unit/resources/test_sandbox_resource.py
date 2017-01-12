@@ -1,5 +1,5 @@
 import os
-import unittest
+from twisted.trial import unittest
 
 from twisted.internet import defer
 from twisted.web.test.requesthelper import DummyRequest

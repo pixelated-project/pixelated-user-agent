@@ -1,17 +1,8 @@
-import os
-
-import test.support.mockito
-
-from leap.exceptions import SRPAuthenticationError
-from mock import patch
-from mockito import mock, when, any as ANY, verify, verifyZeroInteractions, verifyNoMoreInteractions
+from mockito import mock, when, verify
 from twisted.trial import unittest
-from twisted.web.resource import IResource
 from twisted.web.test.requesthelper import DummyRequest
 
-from pixelated.bitmask_libraries.session import LeapSession, LeapSessionFactory
 from pixelated.config.services import Services, ServicesFactory
-from pixelated.resources.login_resource import LoginResource
 from pixelated.resources.users import UsersResource
 from test.unit.resources import DummySite
 

@@ -25,19 +25,20 @@ from uuid import uuid4
 from email.parser import Parser
 import os
 from leap.soledad.common.document import SoledadDocument
-from leap.mail.adaptors.soledad_indexes import MAIL_INDEXES
+from leap.bitmask.mail.adaptors.soledad_indexes import MAIL_INDEXES
 from twisted.internet.defer import FirstError
 from twisted.trial.unittest import TestCase
-from leap.mail import constants
+from leap.bitmask.mail import constants
 from twisted.internet import defer
+from mock import patch
 from mockito import mock, when, verify, any as ANY
-import test.support.mockito
-from leap.mail.adaptors.soledad import SoledadMailAdaptor, MailboxWrapper, ContentDocWrapper
+from leap.bitmask.mail.adaptors.soledad import SoledadMailAdaptor, MailboxWrapper, ContentDocWrapper
 import pkg_resources
-from leap.mail.mail import Message
+from leap.bitmask.mail.mail import Message
 from pixelated.adapter.mailstore import underscore_uuid
 
 from pixelated.adapter.mailstore.leap_mailstore import LeapMailStore, LeapMail
+from test.support.mockito import AnswerSelector
 
 
 class TestLeapMailStore(TestCase):
@@ -48,12 +49,14 @@ class TestLeapMailStore(TestCase):
         self.mbox_uuid_by_name = {}
         self.mbox_soledad_docs = []
 
-        when(self.soledad).get_from_index('by-type', 'mbox').thenAnswer(lambda: defer.succeed(self.mbox_soledad_docs))
+        with patch('mockito.invocation.AnswerSelector', AnswerSelector):
+            when(self.soledad).get_from_index('by-type', 'mbox').thenAnswer(lambda: defer.succeed(self.mbox_soledad_docs))
         self._mock_get_mailbox('INBOX')
 
     @defer.inlineCallbacks
     def test_get_mail_not_exist(self):
-        when(self.soledad).get_doc(ANY()).thenAnswer(lambda: defer.succeed(None))
+        with patch('mockito.invocation.AnswerSelector', AnswerSelector):
+            when(self.soledad).get_doc(ANY()).thenAnswer(lambda: defer.succeed(None))
         store = LeapMailStore(self.soledad)
 
         mail = yield store.get_mail(_format_mdoc_id(uuid4(), 1))
@@ -171,8 +174,9 @@ class TestLeapMailStore(TestCase):
         when(self.soledad).list_indexes().thenReturn(defer.succeed(MAIL_INDEXES)).thenReturn(defer.succeed(MAIL_INDEXES))
         when(self.soledad).get_from_index('by-type-and-mbox', 'mbox', 'TEST').thenReturn(defer.succeed([]))
         self._mock_create_soledad_doc(self.mbox_uuid, MailboxWrapper(mbox='TEST'))
-        when(self.soledad).get_doc(self.mbox_uuid).thenAnswer(lambda: defer.succeed(self.doc_by_id[self.mbox_uuid]))
-        when(self.soledad).put_doc(ANY()).thenAnswer(lambda: defer.succeed(None))
+        with patch('mockito.invocation.AnswerSelector', AnswerSelector):
+            when(self.soledad).get_doc(self.mbox_uuid).thenAnswer(lambda: defer.succeed(self.doc_by_id[self.mbox_uuid]))
+            when(self.soledad).put_doc(ANY()).thenAnswer(lambda: defer.succeed(None))
         store = LeapMailStore(self.soledad)
 
         mbox = yield store.add_mailbox('TEST')
@@ -238,7 +242,7 @@ class TestLeapMailStore(TestCase):
 
         message = yield store.add_mail('INBOX', input_mail.as_string())
 
-        expected = [{'ident': self._cdoc_phash_from_message(mocked_message, 2), 'name': 'filename.txt', 'encoding': 'base64', 'size': 197, 'content-type': 'application/octet-stream'}]
+        expected = [{'ident': self._cdoc_phash_from_message(mocked_message, 2), 'name': 'filename.txt', 'encoding': 'base64', 'size': 48, 'content-type': 'application/octet-stream'}]
         self.assertEqual(expected, message.as_dict()['attachments'])
 
     @defer.inlineCallbacks
@@ -253,7 +257,7 @@ class TestLeapMailStore(TestCase):
 
         message = yield store.add_mail('INBOX', input_mail.as_string())
 
-        expected = [{'ident': self._cdoc_phash_from_message(mocked_message, 2), 'name': 'super_nice_photo.jpg', 'encoding': 'base64', 'size': 202, 'content-type': 'application/octet-stream'}]
+        expected = [{'ident': self._cdoc_phash_from_message(mocked_message, 2), 'name': 'super_nice_photo.jpg', 'encoding': 'base64', 'size': 48, 'content-type': 'application/octet-stream'}]
         self.assertEqual(expected, message.as_dict()['attachments'])
 
     @defer.inlineCallbacks
@@ -270,7 +274,7 @@ class TestLeapMailStore(TestCase):
 
         message = yield store.add_mail('INBOX', input_mail.as_string())
 
-        expected = [{'ident': self._cdoc_phash_from_message(mocked_message, 2), 'name': 'filename.txt', 'encoding': 'base64', 'size': 197, 'content-type': 'application/octet-stream'}]
+        expected = [{'ident': self._cdoc_phash_from_message(mocked_message, 2), 'name': 'filename.txt', 'encoding': 'base64', 'size': 48, 'content-type': 'application/octet-stream'}]
         self.assertEqual(expected, message.as_dict()['attachments'])
 
     def test_extract_attachment_filename_with_or_without_quotes(self):
@@ -388,7 +392,8 @@ class TestLeapMailStore(TestCase):
     def test_all_mail_graceful_error_handling(self):
         mail_id, fdoc_id = self._add_mail_fixture_to_soledad_from_file('mbox00000000')
         when(self.soledad).get_from_index('by-type', 'meta').thenReturn(defer.succeed([self.doc_by_id[mail_id]]))
-        when(self.soledad).get_doc(self.doc_by_id[mail_id].content['cdocs'][0]).thenAnswer(lambda: defer.fail(Exception('fail loading attachment')))
+        with patch('mockito.invocation.AnswerSelector', AnswerSelector):
+            when(self.soledad).get_doc(self.doc_by_id[mail_id].content['cdocs'][0]).thenAnswer(lambda: defer.fail(Exception('fail loading attachment')))
         store = LeapMailStore(self.soledad)
 
         mails = yield store.all_mails(gracefully_ignore_errors=True)
@@ -476,8 +481,8 @@ class TestLeapMailStore(TestCase):
     def _mock_get_soledad_doc(self, doc_id, doc):
         soledad_doc = SoledadDocument(doc_id, json=json.dumps(doc.serialize()))
 
-        # when(self.soledad).get_doc(doc_id).thenReturn(defer.succeed(soledad_doc))
-        when(self.soledad).get_doc(doc_id).thenAnswer(lambda: defer.succeed(soledad_doc))
+        with patch('mockito.invocation.AnswerSelector', AnswerSelector):
+            when(self.soledad).get_doc(doc_id).thenAnswer(lambda: defer.succeed(soledad_doc))
 
         self.doc_by_id[doc_id] = soledad_doc
 

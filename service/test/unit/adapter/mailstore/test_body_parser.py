@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
-import unittest
+from twisted.trial import unittest
 from mock import patch
 from pixelated.adapter.mailstore.body_parser import BodyParser
 
@@ -55,3 +55,9 @@ class BodyParserTest(unittest.TestCase):
 
         self.assertEqual(u'unkown char: ', parser.parsed_content())
         logger_mock.warn.assert_called_with(u'Failed to encode content for charset iso-8859-1. Ignoring invalid chars: \'latin-1\' codec can\'t encode character u\'\\ufffd\' in position 13: ordinal not in range(256)')
+
+    def test_charset_can_be_explicitely_set_and_take_precedence_over_content_type_if_set(self):
+        parser = BodyParser('YmzDoQ==\n', content_type='text/plain; us-ascii', content_transfer_encoding='base64',
+                            charset="utf-8")
+
+        self.assertEqual(u'bl\xe1', parser.parsed_content())

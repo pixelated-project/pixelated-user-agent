@@ -30,6 +30,7 @@ def parse_user_agent_args():
     parser.add_argument('--multi-user', help='Run user agent in multi user mode', action='store_false', default=True, dest='single_user')
     parser.add_argument('-p', '--provider', help='specify a provider for mutli-user mode', metavar='<provider host>', default=None, dest='provider')
     parser.add_argument('--banner', help='banner file to show on login screen')
+    parser.add_argument('--manhole', help='Run an interactive Python shell on port 8008', action='store_true', default=False, dest='manhole')
 
     args = parser.parse_args()
 
@@ -65,6 +66,7 @@ def parse_register_args():
     parser.add_argument('-lc', '--leap-provider-cert', metavar='<leap-provider.crt>', default=None, help='use specified file for LEAP provider cert authority certificate (url https://<LEAP-provider-domain>/ca.crt)')
     parser.add_argument('-lf', '--leap-provider-cert-fingerprint', metavar='<leap provider certificate fingerprint>', default=None, help='use specified fingerprint to validate connection with LEAP provider', dest='leap_provider_cert_fingerprint')
     parser.add_argument('--leap-home', help='The folder where the user agent stores its data. Defaults to ~/.leap', dest='leap_home', default=os.path.join(os.path.expanduser("~"), '.leap'))
+    parser.add_argument('--invite-code', help='invite code to register a user, if required', dest='invite_code', default=None)
     return parser.parse_args()
 
 

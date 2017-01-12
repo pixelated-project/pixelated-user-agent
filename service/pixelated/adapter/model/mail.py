@@ -13,23 +13,23 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
-import os
 import re
-import logging
-from email import message_from_file
+import binascii
 from email.mime.text import MIMEText
 from email.header import Header
 from hashlib import sha256
-
-import binascii
 from email.MIMEMultipart import MIMEMultipart
 from email.mime.nonmultipart import MIMENonMultipart
-import leap.mail.walk as walk
+
+from twisted.logger import Logger
+
+from leap.bitmask.mail import walk
+
 from pixelated.adapter.model.status import Status
 from pixelated.support import date
 
 
-logger = logging.getLogger(__name__)
+logger = Logger()
 
 
 class Mail(object):
@@ -214,13 +214,11 @@ class InputMail(Mail):
         for payload in mail.get_payload():
             input_mail._mime_multipart.attach(payload)
             if payload.get_content_type() == 'text/plain':
-                input_mail.body = unicode(payload.as_string())
+                content_charset = payload.get_content_charset()
+                try:
+                    input_mail.body = unicode(
+                        payload.get_payload(decode=True), content_charset)
+                except TypeError:
+                    input_mail.body = unicode(payload.get_payload(decode=True))
         input_mail._mime = input_mail.to_mime_multipart()
         return input_mail
-
-
-def welcome_mail():
-    current_path = os.path.dirname(os.path.abspath(__file__))
-    with open(os.path.join(current_path, '..', '..', 'assets', 'welcome.mail')) as mail_template_file:
-        mail_template = message_from_file(mail_template_file)
-    return InputMail.from_python_mail(mail_template)

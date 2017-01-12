@@ -13,7 +13,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
-from mockito.invocation import AnswerSelector, CompositeAnswer
+from mockito.invocation import AnswerSelector as OriginalAnswerSelector, CompositeAnswer
 
 
 class FunctionReturn(object):
@@ -27,14 +27,14 @@ class FunctionReturn(object):
         return self.function_answer()
 
 
-def thenAnswer(self, answer_function):
-    """mockito does not support the thenAnswer style. This method monkey patches it into the library"""
-    if not self.answer:
-        self.answer = CompositeAnswer(FunctionReturn(answer_function))
-        self.invocation.stub_with(self.answer)
-    else:
-        self.answer.add(FunctionReturn(answer_function))
+class AnswerSelector(OriginalAnswerSelector):
 
-    return self
+    def thenAnswer(self, answer_function):
+        """mockito does not support the thenAnswer style. This method monkey patches it into the library"""
+        if not self.answer:
+            self.answer = CompositeAnswer(FunctionReturn(answer_function))
+            self.invocation.stub_with(self.answer)
+        else:
+            self.answer.add(FunctionReturn(answer_function))
 
-AnswerSelector.thenAnswer = thenAnswer
+        return self

@@ -18,7 +18,19 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from test.support.integration import SoledadTestBase, load_mail_from_file
 from twisted.internet import defer
-from pixelated.adapter.model.mail import InputMail
+import time
+from contextlib import contextmanager
+
+
+@contextmanager
+def measure():
+    start_time = time.time()
+    start_clock = time.clock()
+    yield
+    end_time = time.time()
+    end_clock = time.clock()
+    # print 'time:  %10d - %10d = %10d' % (start_time, end_time, start_time - end_time)
+    # print 'clock: %10d - %10d = %10d' % (start_clock, end_clock, start_clock - end_clock)
 
 
 class LeapMailStoreTest(SoledadTestBase):
@@ -28,13 +40,25 @@ class LeapMailStoreTest(SoledadTestBase):
         yield super(LeapMailStoreTest, self).setUp()
 
     @defer.inlineCallbacks
+    def test_get_mail_for_measuring(self):
+        self.maxDiff = None
+        mail = load_mail_from_file('mbox00000000')
+        mail_id = yield self._create_mail_in_soledad(mail)
+        expected_mail_dict = {'body': u'Dignissimos ducimus veritatis. Est tenetur consequatur quia occaecati. Vel sit sit voluptas.\n\nEarum distinctio eos. Accusantium qui sint ut quia assumenda. Facere dignissimos inventore autem sit amet. Pariatur voluptatem sint est.\n\nUt recusandae praesentium aspernatur. Exercitationem amet placeat deserunt quae consequatur eum. Unde doloremque suscipit quia.\n\n', 'header': {u'date': u'Tue, 21 Apr 2015 08:43:27 +0000 (UTC)', u'to': [u'carmel@murazikortiz.name'], u'x-tw-pixelated-tags': u'nite, macro, trash', u'from': u'darby.senger@zemlak.biz', u'subject': u'Itaque consequatur repellendus provident sunt quia.'}, 'ident': mail_id, 'status': [], 'tags': set([]), 'textPlainBody': u'Dignissimos ducimus veritatis. Est tenetur consequatur quia occaecati. Vel sit sit voluptas.\n\nEarum distinctio eos. Accusantium qui sint ut quia assumenda. Facere dignissimos inventore autem sit amet. Pariatur voluptatem sint est.\n\nUt recusandae praesentium aspernatur. Exercitationem amet placeat deserunt quae consequatur eum. Unde doloremque suscipit quia.\n\n', 'mailbox': u'inbox', 'attachments': [], 'security_casing': {'imprints': [{'state': 'no_signature_information'}], 'locks': []}}
+
+        with measure():
+            result = yield self.app_test_client.mail_store.get_mail(mail_id, include_body=True)
+        self.assertIsNotNone(result)
+        self.assertEqual(expected_mail_dict, result.as_dict())
+
+    @defer.inlineCallbacks
     def test_get_mail_with_body(self):
         self.maxDiff = None
         mail = load_mail_from_file('mbox00000000')
         mail_id = yield self._create_mail_in_soledad(mail)
         expected_mail_dict = {'body': u'Dignissimos ducimus veritatis. Est tenetur consequatur quia occaecati. Vel sit sit voluptas.\n\nEarum distinctio eos. Accusantium qui sint ut quia assumenda. Facere dignissimos inventore autem sit amet. Pariatur voluptatem sint est.\n\nUt recusandae praesentium aspernatur. Exercitationem amet placeat deserunt quae consequatur eum. Unde doloremque suscipit quia.\n\n', 'header': {u'date': u'Tue, 21 Apr 2015 08:43:27 +0000 (UTC)', u'to': [u'carmel@murazikortiz.name'], u'x-tw-pixelated-tags': u'nite, macro, trash', u'from': u'darby.senger@zemlak.biz', u'subject': u'Itaque consequatur repellendus provident sunt quia.'}, 'ident': mail_id, 'status': [], 'tags': set([]), 'textPlainBody': u'Dignissimos ducimus veritatis. Est tenetur consequatur quia occaecati. Vel sit sit voluptas.\n\nEarum distinctio eos. Accusantium qui sint ut quia assumenda. Facere dignissimos inventore autem sit amet. Pariatur voluptatem sint est.\n\nUt recusandae praesentium aspernatur. Exercitationem amet placeat deserunt quae consequatur eum. Unde doloremque suscipit quia.\n\n', 'mailbox': u'inbox', 'attachments': [], 'security_casing': {'imprints': [{'state': 'no_signature_information'}], 'locks': []}}
 
-        result = yield self.mail_store.get_mail(mail_id, include_body=True)
+        result = yield self.app_test_client.mail_store.get_mail(mail_id, include_body=True)
         self.assertIsNotNone(result)
         self.assertEqual(expected_mail_dict, result.as_dict())
 
@@ -46,8 +70,8 @@ class LeapMailStoreTest(SoledadTestBase):
         attachment.add_header('Content-Disposition', 'attachment', filename='filename.txt')
         input_mail.attach(attachment)
 
-        mail = yield self.mail_store.add_mail('INBOX', input_mail.as_string())
-        fetched_mail = yield self.mail_store.get_mail(mail.ident, include_body=True)
+        mail = yield self.app_test_client.mail_store.add_mail('INBOX', input_mail.as_string())
+        fetched_mail = yield self.app_test_client.mail_store.get_mail(mail.ident, include_body=True)
         self.assertTrue(fetched_mail.as_dict()['attachments'])
 
     @defer.inlineCallbacks
@@ -58,8 +82,8 @@ class LeapMailStoreTest(SoledadTestBase):
         attachment.add_header('Content-Disposition', 'attachment', filename='filename.txt')
         input_mail.attach(attachment)
 
-        mail = yield self.mail_store.add_mail('INBOX', input_mail.as_string())
-        fetched_mail = yield self.mail_store.get_mail(mail.ident, include_body=True)
+        mail = yield self.app_test_client.mail_store.add_mail('INBOX', input_mail.as_string())
+        fetched_mail = yield self.app_test_client.mail_store.get_mail(mail.ident, include_body=True)
         fetched_attachment_name = fetched_mail.as_dict()['attachments'][0]['name']
         self.assertEqual(fetched_attachment_name, 'filename.txt')
 
@@ -71,8 +95,8 @@ class LeapMailStoreTest(SoledadTestBase):
         attachment.add_header('content-disposition', 'attachment', filename='filename.txt')
         input_mail.attach(attachment)
 
-        mail = yield self.mail_store.add_mail('INBOX', input_mail.as_string())
-        fetched_mail = yield self.mail_store.get_mail(mail.ident, include_body=True)
+        mail = yield self.app_test_client.mail_store.add_mail('INBOX', input_mail.as_string())
+        fetched_mail = yield self.app_test_client.mail_store.get_mail(mail.ident, include_body=True)
         fetched_attachment_name = fetched_mail.as_dict()['attachments'][0]['name']
         self.assertEqual(fetched_attachment_name, 'filename.txt')
 
@@ -82,8 +106,8 @@ class LeapMailStoreTest(SoledadTestBase):
         mail_id = yield self._create_mail_in_soledad(mail)
         expected_mail_dict = {'body': u'Dignissimos ducimus veritatis. Est tenetur consequatur quia occaecati. Vel sit sit voluptas.\n\nEarum distinctio eos. Accusantium qui sint ut quia assumenda. Facere dignissimos inventore autem sit amet. Pariatur voluptatem sint est.\n\nUt recusandae praesentium aspernatur. Exercitationem amet placeat deserunt quae consequatur eum. Unde doloremque suscipit quia.\n\n', 'header': {u'date': u'Tue, 21 Apr 2015 08:43:27 +0000 (UTC)', u'to': [u'carmel@murazikortiz.name'], u'x-tw-pixelated-tags': u'nite, macro, trash', u'from': u'darby.senger@zemlak.biz', u'subject': u'Itaque consequatur repellendus provident sunt quia.'}, 'ident': mail_id, 'status': [], 'tags': set([])}
 
-        mail = yield self.mail_store.add_mail('INBOX', mail.as_string())
-        fetched_mail = yield self.mail_store.get_mail(mail_id, include_body=True)
+        mail = yield self.app_test_client.mail_store.add_mail('INBOX', mail.as_string())
+        fetched_mail = yield self.app_test_client.mail_store.get_mail(mail_id, include_body=True)
         self.assertEqual(expected_mail_dict['header'], mail.as_dict()['header'])
         self.assertEqual(expected_mail_dict['header'], fetched_mail.as_dict()['header'])
 
@@ -95,8 +119,8 @@ class LeapMailStoreTest(SoledadTestBase):
         attachment.add_header('Content-Disposition', 'attachment', filename='filename.txt')
         input_mail.attach(attachment)
 
-        mail = yield self.mail_store.add_mail('INBOX', input_mail.as_string())
-        fetched_mail = yield self.mail_store.get_mail(mail.ident, include_body=True)
+        mail = yield self.app_test_client.mail_store.add_mail('INBOX', input_mail.as_string())
+        fetched_mail = yield self.app_test_client.mail_store.get_mail(mail.ident, include_body=True)
         self.assertDictEqual(mail.as_dict(), fetched_mail.as_dict())
 
     @defer.inlineCallbacks
@@ -104,34 +128,34 @@ class LeapMailStoreTest(SoledadTestBase):
         mail = load_mail_from_file('mbox00000000')
         yield self._create_mail_in_soledad(mail)
 
-        mails = yield self.mail_store.all_mails()
+        mails = yield self.app_test_client.mail_store.all_mails()
 
         self.assertEqual(1, len(mails))
         self.assertEqual('Itaque consequatur repellendus provident sunt quia.', mails[0].subject)
 
     @defer.inlineCallbacks
     def test_add_and_remove_mail(self):
-        yield self.adaptor.initialize_store(self.soledad)
+        yield self.adaptor.initialize_store(self.app_test_client.soledad)
         mail = load_mail_from_file('mbox00000000')
-        yield self.mail_store.add_mailbox('INBOX')
+        yield self.app_test_client.mail_store.add_mailbox('INBOX')
 
-        msg = yield self.mail_store.add_mail('INBOX', mail.as_string())
+        msg = yield self.app_test_client.mail_store.add_mail('INBOX', mail.as_string())
 
-        yield self.mail_store.delete_mail(msg.mail_id)
+        yield self.app_test_client.mail_store.delete_mail(msg.mail_id)
 
-        deleted_msg = yield self.mail_store.get_mail(msg.mail_id)
+        deleted_msg = yield self.app_test_client.mail_store.get_mail(msg.mail_id)
 
         self.assertIsNone(deleted_msg)
 
     @defer.inlineCallbacks
     def test_add_add_mail_twice(self):
-        yield self.adaptor.initialize_store(self.soledad)
+        yield self.adaptor.initialize_store(self.app_test_client.soledad)
         mail = load_mail_from_file('mbox00000000', enforceUniqueMessageId=True)
         mail2 = load_mail_from_file('mbox00000000', enforceUniqueMessageId=True)
-        yield self.mail_store.add_mailbox('INBOX')
+        yield self.app_test_client.mail_store.add_mailbox('INBOX')
 
-        msg1 = yield self.mail_store.add_mail('INBOX', mail.as_string())
-        msg2 = yield self.mail_store.add_mail('INBOX', mail2.as_string())
+        msg1 = yield self.app_test_client.mail_store.add_mail('INBOX', mail.as_string())
+        msg2 = yield self.app_test_client.mail_store.add_mail('INBOX', mail2.as_string())
 
         self.assertIsNotNone(msg1.ident)
         self.assertIsNotNone(msg2.ident)
@@ -139,10 +163,10 @@ class LeapMailStoreTest(SoledadTestBase):
     @defer.inlineCallbacks
     def test_get_mailbox_mail_ids(self):
         mail = load_mail_from_file('mbox00000000')
-        yield self.mail_store.add_mailbox('INBOX')
-        mail = yield self.mail_store.add_mail('INBOX', mail.as_string())
+        yield self.app_test_client.mail_store.add_mailbox('INBOX')
+        mail = yield self.app_test_client.mail_store.add_mail('INBOX', mail.as_string())
 
-        mails = yield self.mail_store.get_mailbox_mail_ids('INBOX')
+        mails = yield self.app_test_client.mail_store.get_mailbox_mail_ids('INBOX')
 
         self.assertEqual(1, len(mails))
         self.assertEqual(mail.mail_id, mails[0])
@@ -150,12 +174,12 @@ class LeapMailStoreTest(SoledadTestBase):
     @defer.inlineCallbacks
     def test_deleting_a_deleted_mail_doesnt_raise_errors(self):
         mail = load_mail_from_file('mbox00000000')
-        yield self.mail_store.add_mailbox('INBOX')
-        mail = yield self.mail_store.add_mail('INBOX', mail.as_string())
+        yield self.app_test_client.mail_store.add_mailbox('INBOX')
+        mail = yield self.app_test_client.mail_store.add_mail('INBOX', mail.as_string())
 
-        yield self.mail_store.delete_mail(mail.ident)
+        yield self.app_test_client.mail_store.delete_mail(mail.ident)
         try:
-            yield self.mail_store.delete_mail(mail.ident)
+            yield self.app_test_client.mail_store.delete_mail(mail.ident)
         except Exception as e:
             self.fail("Deleting a deleted mail should be ok, but raised an error")
             raise e

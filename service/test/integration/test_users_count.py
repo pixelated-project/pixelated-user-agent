@@ -19,29 +19,31 @@ from mockito import verify
 from mockito import when
 from twisted.internet import defer
 
-from test.support.integration.multi_user_client import MultiUserClient
-from test.support.integration.soledad_test_base import SoledadTestBase
+from test.support.integration.soledad_test_base import MultiUserSoledadTestBase
 
 
-class UsersResourceTest(MultiUserClient, SoledadTestBase):
+class UsersResourceTest(MultiUserSoledadTestBase):
 
     @defer.inlineCallbacks
     def wait_for_session_user_id_to_finish(self):
-        yield self.adaptor.initialize_store(self.soledad)
+        yield self.adaptor.initialize_store(self.app_test_client.soledad)
 
     @defer.inlineCallbacks
     def test_online_users_count_uses_leap_auth_privileges(self):
 
-        response, login_request = yield self.login()
+        response, login_request = yield self.app_test_client.login()
         yield response
 
         yield self.wait_for_session_user_id_to_finish()
 
-        when(self.user_auth).is_admin().thenReturn(True)
-        response, request = self.get("/users", json.dumps({'csrftoken': [login_request.getCookie('XSRF-TOKEN')]}),
-                                     from_request=login_request, as_json=False)
+        when(self.app_test_client.user_auth).is_admin().thenReturn(True)
+        response, request = self.app_test_client.get(
+            "/users",
+            json.dumps({'csrftoken': [login_request.getCookie('XSRF-TOKEN')]}),
+            from_request=login_request,
+            as_json=False)
         yield response
 
         self.assertEqual(200, request.code)     # redirected
         self.assertEqual('{"count": 1}', request.getWrittenData())     # redirected
-        verify(self.user_auth).is_admin()
+        verify(self.app_test_client.user_auth).is_admin()

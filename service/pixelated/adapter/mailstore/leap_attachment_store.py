@@ -2,11 +2,11 @@
 import quopri
 import base64
 from email import encoders
-from leap.mail.adaptors.soledad import SoledadMailAdaptor, ContentDocWrapper
+from leap.bitmask.mail.adaptors.soledad import SoledadMailAdaptor, ContentDocWrapper
 from twisted.internet import defer
 from email.mime.nonmultipart import MIMENonMultipart
 from email.mime.multipart import MIMEMultipart
-from leap.mail.mail import Message
+from leap.bitmask.mail.mail import Message
 
 
 class LeapAttachmentStore(object):

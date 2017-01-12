@@ -13,7 +13,14 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
-from common import *
+from behave import when
+from selenium.common.exceptions import TimeoutException
+
+from common import (
+    find_element_by_class_name,
+    find_element_by_id,
+    find_element_by_css_selector,
+    wait_for_user_alert_to_disapear)
 
 
 def click_first_element_with_class(context, classname):
@@ -44,12 +51,12 @@ def impl(context, tag):
     success = False
     while (not success) and (try_again > 0):
         try:
-            wait_until_element_is_visible_by_locator(context, (By.ID, 'tag-%s' % tag), timeout=20)
+            find_element_by_css_selector(context, '#tag-%s' % tag)
 
             e = find_element_by_id(context, 'tag-%s' % tag)
             e.click()
 
-            wait_until_element_is_visible_by_locator(context, (By.CSS_SELECTOR, ".mail-list-entry__item[href*='%s']" % tag), timeout=20)
+            find_element_by_css_selector(context, ".mail-list-entry__item[href*='%s']" % tag)
             success = True
         except TimeoutException:
             pass
@@ -63,6 +70,6 @@ def impl(context, tag):
 def impl(context, tag):
     expand_side_nav(context)
 
-    wait_until_element_is_visible_by_locator(context, (By.ID, 'tag-%s' % tag), 20)
+    find_element_by_css_selector(context, '#tag-%s' % tag)
     e = find_element_by_id(context, 'tag-%s' % tag)
     assert "selected" in e.get_attribute("class")

@@ -1,4 +1,4 @@
-import unittest
+from twisted.trial import unittest
 from twisted.internet import defer
 from pixelated.adapter.mailstore.leap_mailstore import LeapMail
 

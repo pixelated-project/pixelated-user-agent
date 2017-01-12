@@ -13,22 +13,22 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
-from leap.exceptions import SRPAuthenticationError
+from leap.bitmask.bonafide._srp import SRPAuthError
+from mock import patch
 from mockito import mock, when, any as ANY
+from pixelated.authentication import Authenticator, Authentication
 from twisted.internet import defer
-
-from leap.auth import SRPAuth
 
 from pixelated.application import UserAgentMode, set_up_protected_resources
 from pixelated.config.services import ServicesFactory
 
-from pixelated.bitmask_libraries.session import LeapSession, LeapSessionFactory
+from pixelated.config.sessions import LeapSessionFactory
 import pixelated.config.services
 from pixelated.resources.root_resource import RootResource
 from test.support.integration import AppTestClient
-from test.support.integration.app_test_client import AppTestAccount
-import test.support.mockito
+from test.support.integration.app_test_client import AppTestAccount, StubSRPChecker
 from test.support.test_helper import request_mock
+from test.support.mockito import AnswerSelector
 
 
 class MultiUserClient(AppTestClient):
@@ -47,35 +47,37 @@ class MultiUserClient(AppTestClient):
 
         root_resource = RootResource(self.service_factory)
         leap_provider = mock()
+        self.credentials_checker = StubSRPChecker(leap_provider)
         self.resource = set_up_protected_resources(root_resource, leap_provider, self.service_factory)
 
+    def _mock_bonafide_auth(self, username, password):
+        if username == 'username' and password == 'password':
+            self.credentials_checker.add_user(username, password)
+            when(Authenticator)._bonafide_auth(username, password).thenReturn(self.user_auth)
+        else:
+            when(Authenticator)._bonafide_auth(username, password).thenRaise(SRPAuthError)
+
     def login(self, username='username', password='password'):
+        session = Authentication(username, 'some_user_token', 'some_user_uuid', 'session_id', {'is_admin': False})
         leap_session = self._test_account.leap_session
-        user_auth = mock()
-        user_auth.uuid = 'some_user_uuid'
-        leap_session.user_auth = user_auth
+        leap_session.user_auth = session
         config = mock()
         config.leap_home = 'some_folder'
         leap_session.config = config
         leap_session.fresh_account = False
         self.leap_session = leap_session
         self.services = self._test_account.services
-        self.user_auth = user_auth
+        self.user_auth = session
 
-        self._set_leap_srp_auth(username, password, user_auth)
-        when(LeapSessionFactory).create(username, password, user_auth).thenReturn(leap_session)
-        when(leap_session).initial_sync().thenAnswer(lambda: defer.succeed(None))
+        self._mock_bonafide_auth(username, password)
+
+        when(LeapSessionFactory).create(username, password, session).thenReturn(leap_session)
+        with patch('mockito.invocation.AnswerSelector', AnswerSelector):
+            when(leap_session).initial_sync().thenAnswer(lambda: defer.succeed(None))
         when(pixelated.config.services).Services(ANY()).thenReturn(self.services)
 
         request = request_mock(path='/login', method="POST", body={'username': username, 'password': password})
         return self._render(request, as_json=False)
-
-    def _set_leap_srp_auth(self, username, password, mock_srp_auth):
-        auth_dict = {'username': 'password'}
-        if auth_dict[username] == password:
-            when(SRPAuth).authenticate(username, password).thenReturn(mock_srp_auth)
-        else:
-            when(SRPAuth).authenticate(username, password).thenRaise(SRPAuthenticationError())
 
     def get(self, path, get_args='', as_json=True, from_request=None):
         request = request_mock(path)

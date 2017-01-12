@@ -5,7 +5,7 @@ Here's the brief:
 * We welcome contributions of all kinds, including but not limited to features, bug fixes, quality assurance, documentation, security review or asking questions
 * Pull requests are based off, integrated into & rebased against master
 * Write automated tests, ideally using TDD. CI needs to be green in order to merge.
-* Tablero board for ready to play work
+* [Waffle](https://waffle.io/pixelated/pixelated-user-agent) board for ready to play work
 * Contact us for questions & suggestions:
   * IRC: #pixelated @ chat.freenode.org ([join via webchat](https://webchat.freenode.net/))
   * Email: [team@pixelated-project.org](mailto:team@pixelated-project.org)
@@ -28,7 +28,7 @@ We follow a simplified fork + pull request workflow:
 
 ### What to work on
 
-Our [Kanban board "Tablero"](https://pixboard.herokuapp.com) provides an overview of issues that are ready to play or awaiting QA. If you're just getting familiar with Pixelated, see the [issues labeled 'Volunteer Task'](https://github.com/pixelated/pixelated-user-agent/labels/Volunteer%20task).
+Our [Kanban board "Waffle"](https://waffle.io/pixelated/pixelated-user-agent) provides an overview of issues that are ready to play or awaiting QA. If you're just getting familiar with Pixelated, see the [issues labeled 'Volunteer Task'](https://github.com/pixelated/pixelated-user-agent/labels/Volunteer%20task).
 
 Generally, all issues that have no user assigned are awaiting work and free to play. If you want to make sure, or you think it will take more than a couple of days to complete your work, please reach out to us using the contact info above.
 

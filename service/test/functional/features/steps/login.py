@@ -13,43 +13,41 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
-from behave import when, then
-from common import *
+
+from behave import given, when, then
+
+from common import (
+    fill_by_css_selector,
+    find_element_by_css_selector)
 
 
+@given(u'a user is accessing the login page')
 @when(u'I open the login page')
 def login_page(context):
-    context.browser.get(MULTI_USER_URL + '/login')
+    context.browser.get(context.login_url)
 
 
 @when(u'I enter {username} and {password} as credentials')
 def enter_credentials(context, username, password):
-    fill_by_css_selector(context, 'input#email', username)
+    fill_by_css_selector(context, 'input#email', context.username)
     fill_by_css_selector(context, 'input#password', password)
 
 
 @when(u'I click on the login button')
 def click_login(context):
-    login_button = wait_until_element_is_visible_by_locator(context, (By.CSS_SELECTOR, 'input[name="login"]'))
-    login_button.click()
+    find_element_by_css_selector(context, 'input[name="login"]').click()
 
 
 @then(u'I should see the fancy interstitial')
 def step_impl(context):
-    assert find_element_by_css_selector(context, 'section#hive-section')
-    _wait_for_interstitial_to_reload()
-
-
-def _wait_for_interstitial_to_reload():
-    time.sleep(6)
+    find_element_by_css_selector(context, 'section#hive-section')
 
 
 @when(u'I logout')
 def click_logout(context):
-    logout_button = wait_until_element_is_visible_by_locator(context, (By.CSS_SELECTOR, 'ul#logout'))
-    logout_button.click()
+    find_element_by_css_selector(context, '#logout-form div').click()
 
 
 @then(u'I should see the login page')
 def see_login_page(context):
-    assert find_element_by_css_selector(context, 'form#login_form')
+    find_element_by_css_selector(context, 'form#login_form')

@@ -16,14 +16,14 @@
 from email import encoders
 from email.mime.nonmultipart import MIMENonMultipart
 from email.mime.multipart import MIMEMultipart
-from leap.mail.mail import Message
+from leap.bitmask.mail.mail import Message
 
 from twisted.internet import defer
 
 from pixelated.adapter.model.mail import InputMail
 from pixelated.adapter.model.status import Status
 from pixelated.adapter.services.tag_service import extract_reserved_tags
-from leap.mail.adaptors.soledad import SoledadMailAdaptor
+from leap.bitmask.mail.adaptors.soledad import SoledadMailAdaptor
 
 
 class MailService(object):

@@ -29,4 +29,9 @@ class pixelated::source::install_useragent {
     user    => 'vagrant',
     require => [Exec['install-pixelated'], File['/home/vagrant/activate_custom_node_modules.sh']]
   }
+  exec { 'add_custom_node_path_to_bashrc':
+    command => "/bin/bash -c 'echo NODE_PATH=/home/vagrant/boxed_node_modules/node_modules/ >> /home/vagrant/.bashrc'",
+    unless  => "/bin/grep NODE_PATH /home/vagrant/.bashrc",
+    user    => 'vagrant',
+  }
 }

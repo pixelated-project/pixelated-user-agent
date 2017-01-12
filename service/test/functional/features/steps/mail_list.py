@@ -13,12 +13,23 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
-from common import *
-from selenium.common.exceptions import NoSuchElementException
+
+from behave import when, then, given
+from selenium.common.exceptions import TimeoutException
+
+from common import (
+    ImplicitWait,
+    execute_ignoring_staleness,
+    find_element_by_id,
+    find_element_by_css_selector,
+    find_elements_by_css_selector,
+    mail_list_with_subject_exists,
+    wait_for_condition,
+    wait_for_loading_to_finish)
 
 
 def find_current_mail(context):
-    print 'searching for mail [%s]' % context.current_mail_id
+    print('searching for mail [%s]' % context.current_mail_id)
     return find_element_by_id(context, '%s' % context.current_mail_id)
 
 
@@ -32,7 +43,7 @@ def open_current_mail(context):
 
 
 def get_first_email(context):
-    return wait_until_elements_are_visible_by_locator(context, (By.CSS_SELECTOR, '.mail-list-entry__item'))[0]
+    return find_element_by_css_selector(context, '.mail-list-entry__item')
 
 
 @then('I see that mail under the \'{tag}\' tag')
@@ -78,31 +89,28 @@ def impl(context):
 @given('I have mails')
 @then(u'I have mails')
 def impl(context):
-    emails = wait_until_elements_are_visible_by_locator(context, (By.CSS_SELECTOR, '.mail-list-entry__item'))
+    emails = find_elements_by_css_selector(context, '.mail-list-entry', timeout=40)
     assert len(emails) > 0
 
 
 @when('I mark the first unread email as read')
 def impl(context):
-    emails = wait_until_elements_are_visible_by_locator(context, (By.CSS_SELECTOR, '.mail-list-entry'))
+    mail_id = find_element_by_css_selector(
+        context, '.mail-list-entry:not(.status-read)').get_attribute('id')
 
-    for email in emails:
-        if 'status-read' not in email.get_attribute('class'):
-            context.current_mail_id = email.get_attribute('id')  # we need to get the mail id before manipulating the page
-            email.find_element_by_tag_name('input').click()
-            find_element_by_id(context, 'mark-selected-as-read').click()
-            break
-    wait_until_elements_are_visible_by_locator(context, (By.CSS_SELECTOR, '#%s.status-read' % context.current_mail_id))
+    find_element_by_css_selector(context, '#%s input' % mail_id).click()
+    find_element_by_id(context, 'mark-selected-as-read').click()
+
+    find_element_by_css_selector(context, '#%s.status-read' % mail_id)
 
 
 @when('I delete the email')
 def impl(context):
-    def last_email():
-        return wait_until_element_is_visible_by_locator(context, (By.CSS_SELECTOR, '.mail-list-entry'))
-    mail = last_email()
-    context.current_mail_id = mail.get_attribute('id')
-    mail.find_element_by_tag_name('input').click()
+    mail_id = find_element_by_css_selector(context, '.mail-list-entry').get_attribute('id')
+
+    find_element_by_css_selector(context, '#%s input' % mail_id).click()
     find_element_by_id(context, 'delete-selected').click()
+
     _wait_for_mail_list_to_be_empty(context)
 
 

@@ -1,4 +1,4 @@
-import unittest
+from twisted.trial import unittest
 
 from leap.common.events import catalog as events
 from mock import patch, MagicMock, ANY
@@ -8,12 +8,13 @@ import pixelated
 class ApplicationTest(unittest.TestCase):
 
     class MockConfig:
-        def __init__(self, port, host, sslkey=None, sslcert=None):
+        def __init__(self, port, host, sslkey=None, sslcert=None, manhole=False):
             self.port = port
             self.host = host
             self.sslkey = sslkey
             self.sslcert = sslcert
             self.home = 'leap_home'
+            self.manhole = manhole
 
     @patch('leap.common.events.client')
     @patch('pixelated.application.reactor')
@@ -45,6 +46,7 @@ class ApplicationTest(unittest.TestCase):
         app_mock = MagicMock()
         services_factory_mock = MagicMock()
         leap_session = MagicMock()
+        leap_session.fresh_account = False
         config = ApplicationTest.MockConfig(12345, '127.0.0.1', leap_session)
 
         d = pixelated.application.start_user_agent_in_single_user_mode(app_mock, services_factory_mock, config.home, leap_session)
@@ -63,6 +65,7 @@ class ApplicationTest(unittest.TestCase):
         app_mock = MagicMock()
         services_factory_mock = MagicMock()
         leap_session = MagicMock()
+        leap_session.fresh_account = False
         pixelated.application._ssl_options = lambda x, y: 'options'
 
         config = ApplicationTest.MockConfig(12345, '127.0.0.1', sslkey="sslkey", sslcert="sslcert")
@@ -86,6 +89,7 @@ class ApplicationTest(unittest.TestCase):
         services_factory_mock.destroy_session = mock_service_log_user_out
 
         leap_session = MagicMock()
+        leap_session.fresh_account = False
         register_mock = events_mock.register
         register_mock.register.return_value = None
 

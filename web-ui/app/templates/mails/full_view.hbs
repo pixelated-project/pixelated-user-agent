@@ -45,7 +45,7 @@
 
         <ul class="mail-read-view__header-tags">
             <li class="mail-read-view__header-tags-label">
-                <i class="fa fa-tags"></i>
+                <button id="new-tag-button" class="no-style"><i class="fa fa-tags"></i></button>
             </li>
 
             {{#each tags }}
@@ -55,10 +55,6 @@
             <li class="mail-read-view__header-tags-name-input">
                 <input type="text" id="new-tag-input" placeholder="{{t 'add-tag-placeholder'}}"
                 />
-            </li>
-
-            <li class="mail-read-view__header-tags-new-button">
-                <button id="new-tag-button" class="no-style"><i class="fa fa-plus"></i></button>
             </li>
         </ul>
     </header>

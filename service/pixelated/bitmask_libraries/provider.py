@@ -15,20 +15,32 @@
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 import json
 import os
+import fileinput
+import tempfile
+import requests
 
 from leap.common.certs import get_digest
-import requests
+from leap.common import ca_bundle
 from .certs import LeapCertificate
+from pixelated.config import leap_config
 from pixelated.support.tls_adapter import EnforceTLSv1Adapter
-from pixelated.bitmask_libraries.soledad import SoledadDiscoverException
+
+REQUESTS_TIMEOUT = 15
 
 
 class LeapProvider(object):
-    def __init__(self, server_name, config):
+    def __init__(self, server_name):
         self.server_name = server_name
-        self.config = config
-        self.local_ca_crt = '%s/ca.crt' % self.config.leap_home
+        self.local_ca_crt = '%s/ca.crt' % leap_config.leap_home
         self.provider_json = self.fetch_provider_json()
+
+    @property
+    def provider_api_cert(self):
+        return str(os.path.join(leap_config.leap_home, 'providers', self.server_name, 'keys', 'client', 'api.pem'))
+
+    @property
+    def combined_cerfificates_path(self):
+        return str(os.path.join(leap_config.leap_home, 'providers', self.server_name, 'keys', 'client', 'ca_bundle'))
 
     @property
     def api_uri(self):
@@ -63,6 +75,12 @@ class LeapProvider(object):
     def ensure_supports_mx(self):
         if 'mx' not in self.services:
             raise Exception
+
+    def download_soledad_json(self):
+        self.soledad_json = self.fetch_soledad_json()
+
+    def download_smtp_json(self):
+        self.smtp_json = self.fetch_smtp_json()
 
     def download_certificate(self, filename=None):
         """
@@ -109,8 +127,7 @@ class LeapProvider(object):
             raise Exception('Certificate fingerprints don\'t match! Expected [%s] but got [%s]' % (fingerprint.strip(), digest))
 
     def smtp_info(self):
-        json_data = self.fetch_smtp_json()
-        hosts = json_data['hosts']
+        hosts = self.smtp_json['hosts']
         hostname = hosts.keys()[0]
         host = hosts[hostname]
         return host['hostname'], host['port']
@@ -119,7 +136,7 @@ class LeapProvider(object):
         session = requests.session()
         try:
             session.mount('https://', EnforceTLSv1Adapter(assert_fingerprint=LeapCertificate.LEAP_FINGERPRINT))
-            response = session.get(url, verify=LeapCertificate(self).provider_web_cert, timeout=self.config.timeout_in_s)
+            response = session.get(url, verify=LeapCertificate(self).provider_web_cert, timeout=REQUESTS_TIMEOUT)
             response.raise_for_status()
             return response
         finally:
@@ -134,14 +151,14 @@ class LeapProvider(object):
     def fetch_soledad_json(self):
         service_url = "%s/%s/config/soledad-service.json" % (
             self.api_uri, self.api_version)
-        response = requests.get(service_url, verify=LeapCertificate(self).provider_api_cert, timeout=self.config.timeout_in_s)
+        response = requests.get(service_url, verify=self.provider_api_cert, timeout=REQUESTS_TIMEOUT)
         response.raise_for_status()
         return json.loads(response.content)
 
     def fetch_smtp_json(self):
         service_url = '%s/%s/config/smtp-service.json' % (
             self.api_uri, self.api_version)
-        response = requests.get(service_url, verify=LeapCertificate(self).provider_api_cert, timeout=self.config.timeout_in_s)
+        response = requests.get(service_url, verify=self.provider_api_cert, timeout=REQUESTS_TIMEOUT)
         response.raise_for_status()
         return json.loads(response.content)
 
@@ -152,14 +169,45 @@ class LeapProvider(object):
         return '%s@%s' % (username, self.domain)
 
     def discover_soledad_server(self, user_uuid):
-        try:
-            json_data = self.fetch_soledad_json()
+        hosts = self.soledad_json['hosts']
+        host = hosts.keys()[0]
+        server_url = 'https://%s:%d/user-%s' % \
+                     (hosts[host]['hostname'], hosts[host]['port'], user_uuid)
+        return server_url
 
-            hosts = json_data['hosts']
-            host = hosts.keys()[0]
-            server_url = 'https://%s:%d/user-%s' % \
-                         (hosts[host]['hostname'], hosts[host]['port'],
-                          user_uuid)
-            return server_url
-        except Exception, e:
-            raise SoledadDiscoverException(e)
+    def _discover_nicknym_server(self):
+        return 'https://nicknym.%s:6425/' % self.domain
+
+    def create_combined_bundle_file(self):
+        leap_ca_bundle = ca_bundle.where()
+
+        if self.provider_api_cert == leap_ca_bundle:
+            return self.provider_api_cert
+        elif not self.provider_api_cert:
+            return leap_ca_bundle
+
+        with open(self.combined_cerfificates_path, 'w') as fout:
+            fin = fileinput.input(files=(leap_ca_bundle, self.provider_api_cert))
+            for line in fin:
+                fout.write(line)
+            fin.close()
+
+    def setup_ca_bundle(self):
+        path = os.path.join(leap_config.leap_home, 'providers', self.server_name, 'keys', 'client')
+        if not os.path.isdir(path):
+            os.makedirs(path, 0700)
+        self._download_cert(self.provider_api_cert)
+
+    def _download_cert(self, cert_file_name):
+        cert = self.fetch_valid_certificate()
+        with open(cert_file_name, 'w') as file:
+            file.write(cert)
+
+    def setup_ca(self):
+        self.download_certificate()
+        self.setup_ca_bundle()
+        self.create_combined_bundle_file()
+
+    def download_settings(self):
+        self.download_soledad_json()
+        self.download_smtp_json()

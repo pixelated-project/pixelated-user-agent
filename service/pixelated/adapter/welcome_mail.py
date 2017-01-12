@@ -18,8 +18,10 @@ from email import message_from_file
 from pixelated.adapter.model.mail import InputMail
 
 
-def add_welcome_mail(mail_store):
-    welcome_mail = pkg_resources.resource_filename('pixelated.assets', 'welcome.mail')
+def add_welcome_mail(mail_store, language='en-US'):
+    welcome_mail = pkg_resources.resource_filename(
+        'pixelated.assets',
+        'welcome.mail.%s' % (language))
 
     with open(welcome_mail) as mail_template_file:
         mail_template = message_from_file(mail_template_file)

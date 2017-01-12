@@ -14,26 +14,27 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 
+import random
 from os.path import isfile
 from mailbox import Maildir, mbox, MaildirMessage
-import random
 
-from leap.mail.adaptors.soledad import MetaMsgDocWrapper
 from twisted.internet import reactor, defer
 from twisted.internet.threads import deferToThread
+from twisted.logger import Logger
+
+from leap.bitmask.mail.adaptors.soledad import MetaMsgDocWrapper
+from leap.bitmask.mail.constants import MessageFlags
+
 from pixelated.adapter.mailstore.maintenance import SoledadMaintenance
 from pixelated.config.leap import initialize_leap_single_user
 from pixelated.config import logger, arguments
-import logging
-
-from leap.mail.constants import MessageFlags
 from pixelated.support.mail_generator import MailGenerator
 
 REPAIR_COMMAND = 'repair'
 INTEGRITY_CHECK_COMMAND = 'integrity-check'
 
 
-log = logging.getLogger(__name__)
+log = Logger()
 
 
 def initialize():
@@ -47,17 +48,12 @@ def initialize():
             args.leap_provider_cert,
             args.leap_provider_cert_fingerprint,
             args.credentials_file,
-            leap_home=args.leap_home,
-            initial_sync=_do_initial_sync(args))
+            leap_home=args.leap_home)
 
         execute_command(args, leap_session)
 
     reactor.callWhenRunning(_run)
     reactor.run()
-
-
-def _do_initial_sync(args):
-    return (not _is_repair_command(args)) and (not _is_integrity_check_command(args))
 
 
 def _is_repair_command(args):
@@ -109,7 +105,8 @@ def add_command_callback(args, prepareDeferred, finalizeDeferred):
         prepareDeferred.addCallback(load_mails, args.file)
         prepareDeferred.addCallback(flush_to_soledad, finalizeDeferred)
     elif args.command == 'markov-generate':
-        prepareDeferred.addCallback(markov_generate, args.file, int(args.limit), args.seed)
+        prepareDeferred.addCallback(
+            markov_generate, args.file, int(args.limit), args.seed)
         prepareDeferred.addCallback(flush_to_soledad, finalizeDeferred)
     elif args.command == 'dump-soledad':
         prepareDeferred.addCallback(dump_soledad)

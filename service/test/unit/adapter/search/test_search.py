@@ -16,7 +16,7 @@
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 
 
-import unittest
+from twisted.trial import unittest
 from pixelated.adapter.mailstore.leap_mailstore import LeapMail
 from pixelated.adapter.search import SearchEngine
 from tempdir import TempDir

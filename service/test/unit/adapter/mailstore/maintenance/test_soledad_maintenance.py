@@ -19,10 +19,7 @@ from twisted.internet import defer
 from twisted.trial import unittest
 from mockito import mock, when, verify, never
 from pixelated.adapter.mailstore.maintenance import SoledadMaintenance
-from leap.keymanager.openpgp import OpenPGPKey
-import logging
-
-logging.getLogger('pixelated.adapter.mailstore.maintenance').addHandler(logging.NullHandler())
+from leap.bitmask.keymanager.openpgp import OpenPGPKey
 
 
 SOME_EMAIL_ADDRESS = 'foo@example.tld'

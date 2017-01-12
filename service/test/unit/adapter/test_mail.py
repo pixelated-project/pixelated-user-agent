@@ -14,6 +14,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
+from email import message_from_file
 from email.mime.nonmultipart import MIMENonMultipart
 from email.mime.multipart import MIMEMultipart
 
@@ -22,6 +23,7 @@ from twisted.trial import unittest
 import pixelated.support.date
 from pixelated.adapter.model.mail import InputMail
 import base64
+import pkg_resources
 
 
 def simple_mail_dict():
@@ -152,3 +154,19 @@ class InputMailTest(unittest.TestCase):
 
         self.assertRegexpMatches(input_mail.raw, part_one)
         self.assertRegexpMatches(input_mail.raw, part_two)
+
+    def test_charset_utf8(self):
+        mail_file = pkg_resources.resource_filename('test.unit.fixtures', 'mail.utf8')
+        with open(mail_file) as utf8_mail:
+            mail = message_from_file(utf8_mail)
+            input_mail = InputMail.from_python_mail(mail)
+            body = u'utf8 é çñ\n'
+            self.assertEqual(body, input_mail.body)
+
+    def test_charset_latin1(self):
+        mail_file = pkg_resources.resource_filename('test.unit.fixtures', 'mail.latin1')
+        with open(mail_file) as latin1_mail:
+            mail = message_from_file(latin1_mail)
+            input_mail = InputMail.from_python_mail(mail)
+            body = u'latin1 é çñ\n'
+            self.assertEqual(body, input_mail.body)

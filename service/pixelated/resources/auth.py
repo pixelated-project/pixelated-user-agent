@@ -14,53 +14,23 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 
-import logging
 import re
 
-from leap.auth import SRPAuth
-from leap.exceptions import SRPAuthenticationError
+from pixelated.resources import IPixelatedSession
+from twisted.cred import error
+from twisted.cred import portal, checkers
 from twisted.cred.checkers import ANONYMOUS
 from twisted.cred.credentials import ICredentials
-from twisted.cred.error import UnauthorizedLogin
-from twisted.internet import defer, threads
+from twisted.internet import defer
+from twisted.logger import Logger
+from twisted.web import util
 from twisted.web._auth.wrapper import UnauthorizedResource
 from twisted.web.error import UnsupportedMethod
-from zope.interface import implements, implementer, Attribute
-from twisted.cred import portal, checkers, credentials
-from twisted.web import util
-from twisted.cred import error
 from twisted.web.resource import IResource, ErrorPage
-
-from pixelated.config.leap import authenticate_user
-from pixelated.resources import IPixelatedSession
+from zope.interface import implements, implementer, Attribute
 
 
-log = logging.getLogger(__name__)
-
-
-@implementer(checkers.ICredentialsChecker)
-class LeapPasswordChecker(object):
-    credentialInterfaces = (
-        credentials.IUsernamePassword,
-    )
-
-    def __init__(self, leap_provider):
-        self._leap_provider = leap_provider
-
-    def requestAvatarId(self, credentials):
-        def _validate_credentials():
-            try:
-                srp_auth = SRPAuth(self._leap_provider.api_uri, self._leap_provider.local_ca_crt)
-                return srp_auth.authenticate(credentials.username, credentials.password)
-            except SRPAuthenticationError:
-                raise UnauthorizedLogin()
-
-        def _get_leap_session(srp_auth):
-            return authenticate_user(self._leap_provider, credentials.username, credentials.password, auth=srp_auth)
-
-        d = threads.deferToThread(_validate_credentials)
-        d.addCallback(_get_leap_session)
-        return d
+log = Logger()
 
 
 class ISessionCredential(ICredentials):
@@ -93,10 +63,6 @@ class SessionChecker(object):
 
 class PixelatedRealm(object):
     implements(portal.IRealm)
-
-    def __init__(self, root_resource, anonymous_resource):
-        self._root_resource = root_resource
-        self._anonymous_resource = anonymous_resource
 
     def requestAvatar(self, avatarId, mind, *interfaces):
         if IResource in interfaces:

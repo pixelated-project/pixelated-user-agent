@@ -1,12 +1,8 @@
-import logging
-
 from mock import MagicMock
 from twisted.trial import unittest
 from twisted.web.test.requesthelper import DummyRequest
 from pixelated.resources.tags_resource import TagsResource
 from test.unit.resources import DummySite
-
-logging.getLogger('pixelated.resources').addHandler(logging.NullHandler())
 
 
 class TestTagsResource(unittest.TestCase):

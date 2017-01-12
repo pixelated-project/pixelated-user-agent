@@ -16,17 +16,18 @@
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 import json
 from uuid import uuid4
-import u1db
 
-from leap.mail.adaptors.soledad_indexes import MAIL_INDEXES
+from leap.soledad.common import l2db
+from leap.bitmask.mail.adaptors.soledad_indexes import MAIL_INDEXES
 from leap.soledad.common.document import SoledadDocument
+from mock import patch
 from mockito import mock, when, verify
-import test.support.mockito
 from twisted.internet import defer
 from twisted.trial.unittest import TestCase
-from leap.mail.adaptors.soledad import SoledadMailAdaptor, MailboxWrapper, ContentDocWrapper
+from leap.bitmask.mail.adaptors.soledad import SoledadMailAdaptor, MailboxWrapper, ContentDocWrapper
 
 from pixelated.adapter.mailstore.leap_attachment_store import LeapAttachmentStore
+from test.support.mockito import AnswerSelector
 
 
 class TestLeapAttachmentStore(TestCase):
@@ -37,7 +38,8 @@ class TestLeapAttachmentStore(TestCase):
         self.mbox_uuid_by_name = {}
         self.mbox_soledad_docs = []
 
-        when(self.soledad).get_from_index('by-type', 'mbox').thenAnswer(lambda: defer.succeed(self.mbox_soledad_docs))
+        with patch('mockito.invocation.AnswerSelector', AnswerSelector):
+            when(self.soledad).get_from_index('by-type', 'mbox').thenAnswer(lambda: defer.succeed(self.mbox_soledad_docs))
         self._mock_get_mailbox('INBOX')
 
     @defer.inlineCallbacks
@@ -58,7 +60,7 @@ class TestLeapAttachmentStore(TestCase):
         cdoc_serialized = {'content_transfer_encoding': 'base64', 'lkf': [], 'content_disposition': 'attachment',
                            'ctype': '', 'raw': 'dGhpcyBpcyBzb21lIGF0dGFjaG1lbnQgY29udGVudA==',
                            'phash': '9863729729D2E2EE8E52F0A7115CE33AD18DDA4B58E49AE08DD092D1C8E699B0',
-                           'content_type': 'text/plain', 'type': 'cnt'}
+                           'content_type': 'text/plain', 'type': 'cnt', 'charset': None}
 
         store = LeapAttachmentStore(self.soledad)
 
@@ -82,7 +84,7 @@ class TestLeapAttachmentStore(TestCase):
 
         store = LeapAttachmentStore(self.soledad)
 
-        when(self.soledad).create_doc(cdoc_serialized, doc_id=attachment_id).thenRaise(u1db.errors.RevisionConflict())
+        when(self.soledad).create_doc(cdoc_serialized, doc_id=attachment_id).thenRaise(l2db.errors.RevisionConflict())
 
         actual_attachment_id = yield store.add_attachment(content, content_type)
 
@@ -134,7 +136,7 @@ class TestLeapAttachmentStore(TestCase):
     def _mock_get_soledad_doc(self, doc_id, doc):
         soledad_doc = SoledadDocument(doc_id, json=json.dumps(doc.serialize()))
 
-        # when(self.soledad).get_doc(doc_id).thenReturn(defer.succeed(soledad_doc))
-        when(self.soledad).get_doc(doc_id).thenAnswer(lambda: defer.succeed(soledad_doc))
+        with patch('mockito.invocation.AnswerSelector', AnswerSelector):
+            when(self.soledad).get_doc(doc_id).thenAnswer(lambda: defer.succeed(soledad_doc))
 
         self.doc_by_id[doc_id] = soledad_doc

@@ -13,10 +13,12 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
-from selenium.webdriver import ActionChains
 
+from behave import when, then
+from selenium.webdriver import ActionChains
 from selenium.webdriver.common.keys import Keys
-from common import *
+
+from common import find_element_by_css_selector, find_elements_by_css_selector
 
 
 @when('I search for a mail with the words "{search_term}"')

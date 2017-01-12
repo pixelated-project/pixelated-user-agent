@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 import unittest
-import logging
 
 from funkload.FunkLoadTestCase import FunkLoadTestCase
 from test.support.integration import AppTestClient
@@ -33,7 +32,6 @@ def start_app_test_client(client):
 class Contacts(FunkLoadTestCase):
 
     def setUpBench(self):
-        logging.disable('INFO')
         client = AppTestClient()
         start_app_test_client(client)
         client.listenTCP()

@@ -15,36 +15,36 @@
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 import json
 import multiprocessing
-from leap.mail.adaptors.soledad import SoledadMailAdaptor
-from leap.srp_session import SRPSession
-from mockito import mock
 import os
 import shutil
 import time
 import uuid
 import random
 
+from pixelated.authentication import Authentication
+from tempdir import TempDir
 
-from leap.mail.mail import Account
-from leap.soledad.client import Soledad
 from mock import Mock
+from mockito import mock
+
+from twisted.cred import checkers, credentials
 from twisted.internet import reactor, defer
 from twisted.internet.defer import succeed
 from twisted.web.resource import getChildForRequest
-# from twisted.web.server import Site as PixelatedSite
 from zope.interface import implementer
-from twisted.cred import checkers, credentials
+
+from leap.bitmask.mail.mail import Account
+from leap.soledad.client import Soledad
+from leap.bitmask.mail.adaptors.soledad import SoledadMailAdaptor
 from pixelated.adapter.mailstore.leap_attachment_store import LeapAttachmentStore
 from pixelated.adapter.services.feedback_service import FeedbackService
-from pixelated.application import ServicesFactory, UserAgentMode, SingleUserServicesFactory, set_up_protected_resources
-from pixelated.bitmask_libraries.config import LeapConfig
-from pixelated.bitmask_libraries.session import LeapSession
+from pixelated.application import UserAgentMode, set_up_protected_resources
+from pixelated.config.sessions import LeapSession
 from pixelated.config.services import Services, ServicesFactory, SingleUserServicesFactory
 from pixelated.config.site import PixelatedSite
 
 from pixelated.adapter.mailstore import LeapMailStore
 from pixelated.adapter.mailstore.searchable_mailstore import SearchableMailStore
-
 from pixelated.adapter.search import SearchEngine
 from pixelated.adapter.services.draft_service import DraftService
 from pixelated.adapter.services.mail_service import MailService
@@ -52,7 +52,7 @@ from pixelated.resources.root_resource import RootResource
 from test.support.integration.model import MailBuilder
 from test.support.test_helper import request_mock
 from test.support.integration.model import ResponseMail
-from tempdir import TempDir
+from pixelated.config.sessions import SessionCache
 
 
 class AppTestAccount(object):
@@ -62,16 +62,17 @@ class AppTestAccount(object):
     def __init__(self, user_id, leap_home):
         self._user_id = user_id
         self._leap_home = leap_home
+        self._pixelated_home = os.path.join(self._leap_home, 'pixelated')
         self._uuid = str(uuid.uuid4())
         self._mail_address = '%s@pixelated.org' % user_id
         self._soledad = None
         self._services = None
+        self.soledad_test_folder = os.path.join(self._pixelated_home, self._uuid)
 
     @defer.inlineCallbacks
     def start(self):
-        soledad_test_folder = os.path.join(self._leap_home, self._uuid)
-        self.soledad = yield initialize_soledad(tempdir=soledad_test_folder, uuid=self._uuid)
-        self.search_engine = SearchEngine(self.INDEX_KEY, user_home=soledad_test_folder)
+        self.soledad = yield initialize_soledad(tempdir=self.soledad_test_folder, uuid=self._uuid)
+        self.search_engine = SearchEngine(self.INDEX_KEY, user_home=self.soledad_test_folder)
         self.keymanager = mock()
         self.mail_sender = self._create_mail_sender()
         self.mail_store = SearchableMailStore(LeapMailStore(self.soledad), self.search_engine)
@@ -107,8 +108,7 @@ class AppTestAccount(object):
         return self._services
 
     def cleanup(self):
-        soledad_test_folder = os.path.join(self._leap_home, self._uuid)
-        shutil.rmtree(soledad_test_folder)
+        shutil.rmtree(self.soledad_test_folder)
 
     def _initialize_account(self):
         self.account = Account(self.soledad, self._user_id)
@@ -137,8 +137,32 @@ class StubSRPChecker(object):
         self._credentials[username] = password
 
     def requestAvatarId(self, credentials):
-        leap_auth = SRPSession(credentials.username, uuid.uuid4(), uuid.uuid4(), uuid.uuid4(), {})
-        return defer.succeed(LeapSession(self._leap_provider, leap_auth, None, None, None, None))
+        if(self._credentials[credentials.username] == credentials.password):
+            leap_auth = Authentication(credentials.username, uuid.uuid4(), uuid.uuid4(), uuid.uuid4(), {})
+            return defer.succeed(LeapSession(self._leap_provider, leap_auth, None, None, None, None))
+        else:
+            return defer.fail()
+
+
+class StubAuthenticator(object):
+    def __init__(self, provider, credentials={}):
+        self._leap_provider = provider
+        self._credentials = credentials.copy()
+
+    def add_user(self, username, password):
+        self._credentials[username] = password
+
+    def _set_leap_session_cache(self, auth):
+        key = SessionCache.session_key(self._leap_provider, 'username')
+        SessionCache.remember_session(key, LeapSession(self._leap_provider, auth, None, None, None, None))
+
+    def authenticate(self, username, password):
+        if self._credentials[username] == password:
+            leap_auth = Authentication(username, uuid.uuid4(), uuid.uuid4(), uuid.uuid4(), {})
+            self._set_leap_session_cache(leap_auth)
+            return defer.succeed(leap_auth)
+        else:
+            return defer.fail()
 
 
 class StubServicesFactory(ServicesFactory):
@@ -154,6 +178,7 @@ class StubServicesFactory(ServicesFactory):
         yield defer.succeed(None)
 
 
+# TODO: some methods are used by 1 test class only, maybe push them down there
 class AppTestClient(object):
     INDEX_KEY = '\xde3?\x87\xff\xd9\xd3\x14\xf0\xa7>\x1f%C{\x16.\\\xae\x8c\x13\xa7\xfb\x04\xd4]+\x8d_\xed\xd1\x8d\x0bI' \
                 '\x8a\x0e\xa4tm\xab\xbf\xb4\xa5\x99\x00d\xd5w\x9f\x18\xbc\x1d\xd4_W\xd2\xb6\xe8H\x83\x1b\xd8\x9d\xad'
@@ -193,13 +218,15 @@ class AppTestClient(object):
             self.service_factory.add_session('someuserid', services)
 
             self.resource = RootResource(self.service_factory)
-            self.resource.initialize()
+            provider = mock()
+            self.resource.initialize(provider)
         else:
             self.service_factory = StubServicesFactory(self.accounts, mode)
             provider = mock()
-            provider.config = LeapConfig(self._tmp_dir.name)
+            bonafide_checker = StubAuthenticator(provider)
+            bonafide_checker.add_user('username', 'password')
 
-            self.resource = set_up_protected_resources(RootResource(self.service_factory), provider, self.service_factory, checker=StubSRPChecker(provider))
+            self.resource = set_up_protected_resources(RootResource(self.service_factory), provider, self.service_factory, authenticator=bonafide_checker)
 
     @defer.inlineCallbacks
     def create_user(self, account_name):
@@ -272,6 +299,7 @@ class AppTestClient(object):
     def account_for(self, username):
         return self.accounts[username]
 
+    # TODO: remove
     def add_mail_to_user_inbox(self, input_mail, username):
         return self.account_for(username).mail_store.add_mail('INBOX', input_mail.raw)
 
@@ -300,6 +328,7 @@ class AppTestClient(object):
         mail_sender.sendmail.side_effect = lambda mail: succeed(mail)
         return mail_sender
 
+    # TODO: remove
     def _generate_soledad_test_folder_name(self, soledad_test_folder='/tmp/soledad-test/test'):
         return os.path.join(soledad_test_folder, str(uuid.uuid4()))
 
@@ -317,6 +346,7 @@ class AppTestClient(object):
         res = yield res
         defer.returnValue([ResponseMail(m) for m in res['mails']])
 
+    # TODO: remove
     @defer.inlineCallbacks
     def get_mails_by_mailbox_name(self, mbox_name):
         mail_ids = yield self.mail_store.get_mailbox_mail_ids(mbox_name)
@@ -356,6 +386,7 @@ class AppTestClient(object):
         res, req = self.get('/mail/%s' % mail_ident)
         return res
 
+    # TODO: remove
     def delete_mail(self, mail_ident):
         res, req = self.delete("/mail/%s" % mail_ident)
         return res

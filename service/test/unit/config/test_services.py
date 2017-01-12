@@ -13,8 +13,9 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
-import unittest
+from twisted.trial import unittest
 
+from mock import Mock, ANY, patch
 from mockito import mock, verify
 
 from pixelated.config.services import Services, ServicesFactory
@@ -36,9 +37,58 @@ class ServicesTest(unittest.TestCase):
 
 class ServicesFactoryTest(unittest.TestCase):
 
-    def test_online_sessions_counts_logged_in_users(self):
-        service_factory = ServicesFactory(mock())
-        service_factory.add_session('some_id1', mock())
-        service_factory.add_session('some_id2', mock())
+    def setUp(self):
+        self.service_factory = ServicesFactory(Mock())
 
-        self.assertEqual(2, service_factory.online_sessions())
+    def test_users_has_no_default_sessions(self):
+        user_id = ANY
+        self.assertFalse(self.service_factory.has_session(user_id))
+
+    def test_add_user_sessions(self):
+        user_id = 'irrelevant'
+        some_service = Mock()
+
+        self.service_factory.add_session(user_id, some_service)
+
+        self.assertTrue(self.service_factory.has_session(user_id))
+        self.assertEqual(some_service, self.service_factory.services(user_id))
+
+    def test_online_sessions_counts_logged_in_users(self):
+        self.service_factory.add_session('some_id1', mock())
+        self.service_factory.add_session('some_id2', mock())
+
+        self.assertEqual(2, self.service_factory.online_sessions())
+
+    @patch('pixelated.config.services.Services.setup')
+    def test_create_services_from_leap_session_sets_up_services_and_add_a_user_session(self, mock_setup_services):
+        leap_session = Mock()
+        user_id = 'irrelevant'
+        leap_session.user_auth.uuid = user_id
+
+        self.service_factory.create_services_from(leap_session)
+
+        self.assertTrue(mock_setup_services.called)
+        self.assertTrue(self.service_factory.has_session(user_id))
+
+    def test_destroy_session_using_close_user_services_and_deletes_sessions(self):
+        user_id = 'irrelevant'
+        some_service = Mock()
+        self.service_factory.add_session(user_id, some_service)
+
+        self.service_factory.destroy_session(user_id)
+
+        self.assertFalse(self.service_factory.has_session(user_id))
+        self.assertTrue(some_service.close.called)
+
+    def test_sessions_can_be_destroyed_using_email_rather_than_uuid(self):
+        user_id = 'irrelevant'
+        username = 'haha'
+        email = '%s@ha.ha' % username
+        some_service = Mock()
+        self.service_factory.add_session(user_id, some_service)
+        self.service_factory.map_email(username, user_id)
+
+        self.service_factory.destroy_session(email, using_email=True)
+
+        self.assertFalse(self.service_factory.has_session(user_id))
+        self.assertTrue(some_service.close.called)

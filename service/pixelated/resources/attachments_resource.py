@@ -16,7 +16,6 @@
 import cgi
 import io
 import re
-import logging
 
 from twisted.internet import defer
 from twisted.protocols.basic import FileSender
@@ -24,10 +23,12 @@ from twisted.python.log import msg
 from twisted.web import server
 from twisted.web.resource import Resource
 from twisted.web.server import NOT_DONE_YET
+from twisted.logger import Logger
 
 from pixelated.resources import respond_json_deferred, BaseResource
 
-logger = logging.getLogger(__name__)
+
+logger = Logger()
 
 
 class AttachmentResource(Resource):

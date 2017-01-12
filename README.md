@@ -3,6 +3,7 @@ Pixelated User Agent
 
 [![Build Status](https://snap-ci.com/pixelated/pixelated-user-agent/branch/master/build_image)](https://snap-ci.com/pixelated/pixelated-user-agent/branch/master) [
 ![Coverage Status](https://coveralls.io/repos/pixelated/pixelated-user-agent/badge.svg?branch=master)](https://coveralls.io/r/pixelated/pixelated-user-agent?branch=master)
+[![Stories in Dev](https://badge.waffle.io/pixelated/pixelated-user-agent.svg?label=2%20-%20Development&title=Developing)](http://waffle.io/pixelated/pixelated-user-agent)
 
 The Pixelated User Agent is the mail client of the Pixelated ecosystem. It is composed of two parts, a web interface written in JavaScript ([FlightJS](https://flightjs.github.io/)) and a Python API that interacts with a LEAP Provider, the e-mail platform that Pixelated is built on.
 
@@ -25,7 +26,7 @@ You are most welcome to contribute to the pixelated user agent code base. Please
 You like the idea and you want to run it locally, then before you have to install the following packages:
 
 * [Vagrant](https://www.vagrantup.com/downloads.html), Vagrant is a tool that automates the setup of a virtual machine with the development environment
-* A vagrant [compatible provider](https://www.vagrantup.com/docs/providers/), e.g. [Virtual   Box](https://www.virtualbox.org/wiki/Downloads).
+* A vagrant [compatible provider](https://www.vagrantup.com/docs/providers/), e.g. [Virtual Box](https://www.virtualbox.org/wiki/Downloads).
 
 ### Option 1: Pixelated User Agent without LEAP provider
 
@@ -43,11 +44,11 @@ $ vagrant up
 $ vagrant ssh
 ```
 
-3) Register with a LEAP provider. You can create a developer account at our [Dev Provider](https://dev.pixelated-project.org/). Please contact us at team@pixelated-project.org for an invite code.
+3) Register with a LEAP provider. You can create a developer account at our [Dev Provider](https://dev.pixelated-project.org/) (Please contact us at team@pixelated-project.org for an invite code) or you can use sample configurations.
 
-4) Run the user agent:
+4) If you created a developer account follow the step 4a to run the user agent, otherwise go to step 4b:
 
-Please note: If you don't have an account on any provider, go directly to step 5b).
+4a) Connect to the provider using your credentials. If the user agent starts up successfully, you will not see any other output.
 
 ```
 $ pixelated-user-agent --host 0.0.0.0
@@ -62,11 +63,9 @@ Type your password:
 ******** (the one you created in previous step)
 ```
 
-5a) Connect to the provider using your credentials, as shown in step 4 above. If the user agent starts up successfully, you will not see any other output.
+**Note**: For more convenience during development, you can also create a config file with your credentials (see [**Further Notes**](https://github.com/pixelated/pixelated-user-agent/blob/master/README.md#further-notes)).
 
-**Note**: For more convenience during development, you can also create a config file with your credentials (see **Further Notes**).
-
-5b) If you don't have a `dev.pixelated-project.org` account or just want to connect to our `try.pixelated-project.org` environment, we have some sample configurations for you.
+4b) If you don't have a `dev.pixelated-project.org` account or just want to connect to our `try.pixelated-project.org` environment, we have some sample configurations for you.
 
 Please navigate to the project root in your vagrant box with: `$ cd /vagrant`
 
@@ -75,39 +74,35 @@ Then you can connect to `try.pixelated-project.org` ...
 * as Alice via: `$ pixelated-user-agent --host 0.0.0.0 -c try.alice.ini`
 * as Bob via: `$ pixelated-user-agent --host 0.0.0.0 -c try.bob.ini`
 
-6) Go to [localhost:3333](http://localhost:3333/). You should see a loading screen for a few seconds, then your inbox. If it sticks on the loading screen, check your terminal for errors, then [get help](https://pixelated-project.org/faq/#contact-the-project).
+5) Go to [localhost:3333](http://localhost:3333/). You should see a loading screen for a few seconds, then your inbox. If it sticks on the loading screen, check your terminal for errors, then [get help](https://pixelated-project.org/faq/#contact-the-project).
 
-7) If you like console output, you can also run the tests to see if everything went according to plan.
+6) If you like console output, you can also run the tests to see if everything went according to plan.
 
 ```bash
-(user-agent-venv)vagrant@jessie:~$ cd /vagrant
+  vagrant@jessie:~ $ cd /vagrant
 ```
 
-To run the backend tests:
+To run the tests:
 
 ```bash
- (user-agent-venv)vagrant@jessie:/vagrant$ cd service
- (user-agent-venv)vagrant@jessie:/vagrant/service$ ./go test
- (user-agent-venv)vagrant@jessie:/vagrant/service$ cd ..
-```
-
-To run the frontend tests:
-
-```bash
- (user-agent-venv)vagrant@jessie:/vagrant$ cd web-ui
- (user-agent-venv)vagrant@jessie:/vagrant/web-ui$ ./go test
- (user-agent-venv)vagrant@jessie:/vagrant/web-ui$ cd ..
+  vagrant@jessie:/vagrant $ make test
 ```
 
 To run the functional tests:
 
 ```bash
- (user-agent-venv)vagrant@jessie:/vagrant$ cd service
- (user-agent-venv)vagrant@jessie:/vagrant/service$ ./go functional
- (user-agent-venv)vagrant@jessie:/vagrant/service$ cd ..
+  vagrant@jessie:/vagrant $ make functional_tests
 ```
 
 7) You're all set! We've prepared [a couple of issues labeled "Volunteer Task"](https://github.com/pixelated/pixelated-user-agent/labels/Volunteer%20task) that are a good place to dive into the project. Happy Hacking!
+
+## How do I see the result of my changes?
+
+For all **Python changes**, you will need to kill (Ctrl-C) the server and run `$ pixelated-user-agent --host 0.0.0.0` again.
+
+For most **JavaScript** or **HTML changes**, you will just need to reload the browser.
+
+For most **CSS or Handlebars templates changes**, you will also need to run: `$ cd /vagrant/web-ui && ./go build`
 
 ## Option 2: Pixelated User Agent + Leap Platform
 
@@ -121,30 +116,20 @@ You can install the Pixelated User Agent and the Leap Platform at once, just by 
 
  NOTE: Be aware that you will not be able to send mails outside, but you can test sending mails internally from one user to another.
 
-## Running tests inside your local IDE
+## Running tests on your local machine
 
-If you want to run the tests in your IDE on your host machine outside of vagrant, set up your python virtualenv
+If you want to run the tests in your host machine outside of vagrant:
 
 ```
-$ pip install virtualenv setuptools
-$ cd ~
-$ virtualenv pixelated
-$ virtualenv -p [PATH/TO/YOUR/PYTHON/EXECUTABLE] pixelated
-$ source ~/.virtualenv/pixelated/bin/activate
+$ pip install virtualenv
+$ cd <root/of/pixelated-user-agent>
+$ make test
 ```
 
 If you want to run the tests in your IDE on your host machine outside of vagrant, there's a bug in a LEAP library that can't handle symlinks to your local GPG installation.
 To fix it, add the path to your GPG binary to your $PATH so that it is found before the symlink in `/usr/local/bin` (or similar).
 See also, installations on native OS [below](#developer-setup-on-native-os).
 
-
-## How do I see the result of my changes?
-
-For all **Python changes**, you will need to kill (Ctrl-C) the server and run `$ pixelated-user-agent --host 0.0.0.0` again.
-
-For most **JavaScript** or **HTML changes**, you will just need to reload the browser.
-
-For most **CSS or Handlebars templates changes**, you will also need to run: `$ cd /vagrant/web-ui && ./go build`
 
 ## I think I might be able to hack together a quick-and-dirty lo-fi solution for the issue I’m working with… what do I do?
 
@@ -156,7 +141,7 @@ Do it the easy way first, and submit a pull request as a “work in progress” 
 
 To run the pixelated user agent multi user mode, please run the following:
 ```bash
- (user-agent-venv)vagrant@jessie:/vagrant$ pixelated-user-agent --host 0.0.0.0 --multi-user --provider=dev.pixelated-project.org
+ vagrant@jessie:/vagrant$ pixelated-user-agent --host 0.0.0.0 --multi-user --provider=dev.pixelated-project.org
 ```
 
 You will need to change `dev.pixelated-project.org` to the hostname of the leap provider that you will be using.
@@ -198,13 +183,12 @@ All commits to the pixelated user agent code trigger all tests to be run in [sna
 * For all backend changes, you will need to stop and restart the server again (Step 5 above).
 * For most frontend changes, you will just need to reload the browser. Some changes (in particular, those involving css or handlebars) you will need to run:
 ```bash
- (user-agent-venv)vagrant@jessie:/vagrant$ cd web-ui
- (user-agent-venv)vagrant@jessie:/vagrant/web-ui$ ./go build
+  vagrant@jessie:/vagrant$ make install_js
 ```
 
 ## Developer Setup On Native OS
 
-Please ensure that you have an email user from your preferred leap provider ([How to](#registering-with-a-leap-provider)).
+Please ensure that you have an email user from your preferred leap provider (Step 3).
 Details for developer installations [on OSX](#on-osx) and [Debian distributions](#on-debian-distributions) are explained below.
 In case of any issues, please ping us on IRC ([#pixelated on irc.freenode.net](irc://irc.freenode.net/pixelated)), we will be available to help you from there.
 
@@ -219,7 +203,7 @@ $ cd pixelated-user-agent && source ~/.virtualenv/user-agent-venv/bin/activate
 
 Please note that you will have to activate the virtualenv anytime you work on a different terminal. This is done by simply running `$ source ~/.virtualenv/user-agent-venv/bin/activate` first.
 
-Running the user agent and the various tests are the same as in the vagrant setup in step 5) and 8) above.
+Running the user agent and the various tests are the same as in the vagrant setup in step 4) and 6) above.
 
 ### On Debian distributions
 
@@ -232,7 +216,7 @@ $ cd pixelated-user-agent && source ~/.virtualenv/user-agent-venv/bin/activate
 
 Please note that you will have to activate the virtualenv anytime you work on a different terminal. This is done by simply running `$ source ~/.virtualenv/user-agent-venv/bin/activate` first.
 
-Running the user agent and the various tests are the same as in the vagrant setup in step 5) and 8) above.
+Running the user agent and the various tests are the same as in the vagrant setup in step 4) and 6) above.
 
 ## Debian package
 
@@ -261,3 +245,5 @@ For people who want to run the user agent on docker container can use the Docker
 ## How to translate the user interface
 
 See: [Contributor's Guide](https://github.com/pixelated/pixelated-user-agent/blob/master/CONTRIBUTING.md#translating-ui)
+
+

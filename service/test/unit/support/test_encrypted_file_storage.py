@@ -15,7 +15,7 @@
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 import os
 import shutil
-import unittest
+from twisted.trial import unittest
 from pixelated.support.encrypted_file_storage import EncryptedFileStorage
 
 

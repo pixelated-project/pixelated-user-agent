@@ -4,12 +4,20 @@
     &__buttons {
         &-attachment {
             cursor: pointer;
-            outline: 0;
             margin-left: 18px;
             padding-top: 0px;
-            -ms-transform: rotate(224deg);
-            -webkit-transform: rotate(224deg);
-            transform: rotate(224deg);
+            display: inline;
+            border: 1px $contrast solid;
+            background: $background_light_grey;
+            padding: 7px 4px;
+            font-size: 0.8em;
+
+            span {
+              -ms-transform: rotate(224deg);
+              -webkit-transform: rotate(224deg);
+              transform: rotate(224deg);
+              outline: 0;
+            }
 
             i.fa-paperclip {
                 font-size: 1.7em;
@@ -36,7 +44,7 @@
                 padding: 5px;
                 border: 1px solid $border_light_grey;
                 border-radius: 2px;
-                background-color: $background_light_grey;
+                background-color: $contrast;
 
                 &-label {
                     color: $attachment_text;
@@ -120,7 +128,6 @@
     label, span {
         color: $recipients_font_color;
         padding: 0.5rem;
-        cursor: text;
         display: inline-block;
     }
 
@@ -144,12 +151,14 @@
         transition: all 0.1s linear;
         opacity: 0;
         font-weight: bold;
+        display: none;
     }
 
     label.showfloatlabel {
         color: $light_blue !important;
         top: -0.3rem;
         opacity: 1;
+        display: block;
     }
 
     input, textarea {
@@ -258,6 +267,18 @@
 
         .twitter-typeahead {
             flex: 1 1 50px;
+
+            .tt-dropdown-menu {
+              background: $dark_white;
+
+              div div {
+                padding: 8px;
+
+                &:hover {
+                  background: $background_dropdown_grey;
+                }
+              }
+            }
         }
 
         .invalid-format {
@@ -285,7 +306,8 @@
 
                 &:before {
                     font-family: FontAwesome;
-                    padding-right: 4px;
+                    padding-right: 6px;
+                    font-size: 1.4em;
                 }
 
                 &.encrypted {
@@ -312,7 +334,8 @@
 
                 & span {
                     margin: 0px;
-                    padding: 0px;
+                    padding: 0px 0px 0px 0px;
+                    vertical-align: top;
                     cursor: pointer;
                 }
 

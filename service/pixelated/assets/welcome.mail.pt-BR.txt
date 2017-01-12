@@ -1,0 +1,30 @@
+Bem vindo ao Pixelated Mail, um email moderno com criptografia.
+
+Pixelated Mail é um projeto de código-aberto que desenvolve um email seguro para o seu navegador.
+
+
+
+Como usar
+
+O Pixelated Mail funciona como qualquer outro cliente de email. À esquerda, você vai encontrar a barra de navegação com acesso a todas as suas pastas e marcadores. Clicando nelas você carregará as mensagens correspondentes no painel do meio - a lista de emails. Clicando em um email ele será aberto neste painel aqui, mas você já sabe disso, né?
+
+Para criar uma nova mensagem procure por um grande botão azul no canto superior esquerdo. Você pode adicionar marcadores clicando no sinal de "+" abaixo do assunto da mensagem. Você visualiza o estado de criptografia das mensagens logo abaixo das informações do remetente.
+
+
+
+Sobre esta mensagem e seu estado de criptografia
+
+Esta mensagem não foi criptografada. Em outras palavras, ela poderia ter sido lida por outras pessoas em algum ponto durante a transmissão, como em qualquer outro cliente de email.
+
+Para enviar mensagens criptografadas no Pixelated, existem 2 possibilidades:
+
+• enviar um email para outra conta do Pixelated: a mensagem é enviada criptografada e assinada por padrão;
+• enviar um email para outras contas: ao criar uma mensagem, digite o endereço de email do destinatário. Se junto ao endereço aparecer um cadeado fechado, o email estará criptografado; se estiver aberto, a mensagem vai normalmente como qualquer outro email. O Pixelated faz tudo automaticamente. :D
+
+
+
+Um pouco mais sobre o Pixelated
+
+Pixelated é um projeto de código-aberto licenciado sob AGPL 3.0. É composto de duas partes principais, o cliente web (que você está usando agora) e a plataforma (o servidor por trás do sinal de "@", que provê o serviço de email que você usará para mandar e receber mensagens). Você pode aprender mais visitando https://pixelated-project.org/.
+
+Aproveite seu email seguro!

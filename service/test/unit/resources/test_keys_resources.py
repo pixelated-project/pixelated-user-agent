@@ -1,8 +1,8 @@
 import json
 import ast
 from mockito import mock, when, any as ANY
-from leap.keymanager import KeyNotFound
-from leap.keymanager.keys import OpenPGPKey
+from leap.bitmask.keymanager import KeyNotFound
+from leap.bitmask.keymanager.keys import OpenPGPKey
 
 from pixelated.application import UserAgentMode
 from pixelated.config.services import ServicesFactory
@@ -28,7 +28,7 @@ class TestKeysResource(unittest.TestCase):
     def test_returns_404_if_key_not_found(self):
         request = DummyRequest(['/keys'])
         request.addArg('search', 'some@inexistent.key')
-        when(self.keymanager).fetch_key('some@inexistent.key').thenReturn(defer.fail(KeyNotFound()))
+        when(self.keymanager).get_key('some@inexistent.key').thenReturn(defer.fail(KeyNotFound()))
 
         d = self.web.get(request)
 
@@ -41,7 +41,7 @@ class TestKeysResource(unittest.TestCase):
     def test_returns_the_key_as_json_if_found(self):
         request = DummyRequest(['/keys'])
         request.addArg('search', 'some@key')
-        when(self.keymanager).fetch_key('some@key').thenReturn(defer.succeed(OpenPGPKey('some@key')))
+        when(self.keymanager).get_key('some@key').thenReturn(defer.succeed(OpenPGPKey('some@key')))
 
         d = self.web.get(request)
 
@@ -68,7 +68,7 @@ class TestKeysResource(unittest.TestCase):
     def test_returns_unauthorized_if_key_is_private(self):
         request = DummyRequest(['/keys'])
         request.addArg('search', 'some@key')
-        when(self.keymanager).fetch_key('some@key').thenReturn(defer.succeed(OpenPGPKey('some@key', private=True)))
+        when(self.keymanager).get_key('some@key').thenReturn(defer.succeed(OpenPGPKey('some@key', private=True)))
 
         d = self.web.get(request)
 

@@ -24,9 +24,9 @@ class ContactsTest(SoledadTestBase):
     @defer.inlineCallbacks
     def test_TO_CC_and_BCC_fields_are_being_searched(self):
         input_mail = MailBuilder().with_tags(['important']).build_input_mail()
-        yield self.add_mail_to_inbox(input_mail)
+        yield self.app_test_client.add_mail_to_inbox(input_mail)
 
-        contacts = yield self.get_contacts(query='recipient')
+        contacts = yield self.app_test_client.get_contacts(query='recipient')
 
         self.assertTrue('recipient@to.com' in contacts)
         self.assertTrue('recipient@cc.com' in contacts)
@@ -35,20 +35,20 @@ class ContactsTest(SoledadTestBase):
     @defer.inlineCallbacks
     def test_FROM_address_is_being_searched(self):
         input_mail = MailBuilder().with_tags(['important']).with_from('Formatted Sender <sender@from.com>').build_input_mail()
-        yield self.add_mail_to_inbox(input_mail)
+        yield self.app_test_client.add_mail_to_inbox(input_mail)
 
-        contacts = yield self.get_contacts(query='Sender')
+        contacts = yield self.app_test_client.get_contacts(query='Sender')
 
         self.assertIn('Formatted Sender <sender@from.com>', contacts)
 
     @defer.inlineCallbacks
     def test_trash_and_drafts_mailboxes_are_being_ignored(self):
-        yield self.add_multiple_to_mailbox(1, mailbox='INBOX', to='recipient@inbox.com')
-        yield self.add_multiple_to_mailbox(1, mailbox='DRAFTS', to='recipient@drafts.com')
-        yield self.add_multiple_to_mailbox(1, mailbox='SENT', to='recipient@sent.com')
-        yield self.add_multiple_to_mailbox(1, mailbox='TRASH', to='recipient@trash.com')
+        yield self.app_test_client.add_multiple_to_mailbox(1, mailbox='INBOX', to='recipient@inbox.com')
+        yield self.app_test_client.add_multiple_to_mailbox(1, mailbox='DRAFTS', to='recipient@drafts.com')
+        yield self.app_test_client.add_multiple_to_mailbox(1, mailbox='SENT', to='recipient@sent.com')
+        yield self.app_test_client.add_multiple_to_mailbox(1, mailbox='TRASH', to='recipient@trash.com')
 
-        contacts = yield self.get_contacts(query='recipient')
+        contacts = yield self.app_test_client.get_contacts(query='recipient')
 
         self.assertTrue('recipient@inbox.com' in contacts)
         self.assertTrue('recipient@sent.com' in contacts)
@@ -65,10 +65,10 @@ class ContactsTest(SoledadTestBase):
         formatted_input_mail.with_bcc('Recipient Carbon <recipient@bcc.com>')
         formatted_input_mail = formatted_input_mail.build_input_mail()
 
-        yield self.add_mail_to_inbox(input_mail)
-        yield self.add_mail_to_inbox(formatted_input_mail)
+        yield self.app_test_client.add_mail_to_inbox(input_mail)
+        yield self.app_test_client.add_mail_to_inbox(formatted_input_mail)
 
-        contacts = yield self.get_contacts(query='Recipient')
+        contacts = yield self.app_test_client.get_contacts(query='Recipient')
 
         self.assertEquals(4, len(contacts))
         self.assertTrue('Recipient Copied <recipient@cc.com>' in contacts)

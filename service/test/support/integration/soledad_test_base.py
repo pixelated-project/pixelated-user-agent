@@ -14,16 +14,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 from uuid import uuid4
-from leap.mail.adaptors.soledad import SoledadMailAdaptor
-from leap.mail.mail import Message
+from leap.bitmask.mail.adaptors.soledad import SoledadMailAdaptor
+from leap.bitmask.mail.mail import Message
 from twisted.internet import defer
 from twisted.trial import unittest
-from pixelated.adapter.mailstore import LeapMailStore
 from test.support.integration.app_test_client import AppTestClient
+from test.support.integration.multi_user_client import MultiUserClient
 from leap.common.events.flags import set_events_enabled
 
 
-class SoledadTestBase(unittest.TestCase, AppTestClient):
+class SoledadTestBase(unittest.TestCase):
+    Client = AppTestClient
     # these are so long because our CI is so slow at the moment.
     DEFERRED_TIMEOUT = 120
     DEFERRED_TIMEOUT_LONG = 300
@@ -34,18 +35,24 @@ class SoledadTestBase(unittest.TestCase, AppTestClient):
         super(SoledadTestBase, self).setUp()
         self.adaptor = SoledadMailAdaptor()
         self.mbox_uuid = str(uuid4())
-        yield self.start_client()
+        yield self.app_test_client.start_client()
 
     def tearDown(self):
         set_events_enabled(True)
-        self.cleanup()
+        self.app_test_client.cleanup()
+
+    @property
+    def app_test_client(self):
+        if not hasattr(self, '_app_test_client'):
+            self._app_test_client = self.Client()
+        return self._app_test_client
 
     @defer.inlineCallbacks
     def _create_mail_in_soledad(self, mail):
-        yield self.adaptor.initialize_store(self.soledad)
-        mbox = yield self.adaptor.get_or_create_mbox(self.soledad, 'INBOX')
+        yield self.adaptor.initialize_store(self.app_test_client.soledad)
+        mbox = yield self.adaptor.get_or_create_mbox(self.app_test_client.soledad, 'INBOX')
         message = self._convert_mail_to_leap_message(mail, mbox.uuid)
-        yield self.adaptor.create_msg(self.soledad, message)
+        yield self.adaptor.create_msg(self.app_test_client.soledad, message)
 
         defer.returnValue(message.get_wrapper().mdoc.doc_id)
 
@@ -53,3 +60,7 @@ class SoledadTestBase(unittest.TestCase, AppTestClient):
         message = self.adaptor.get_msg_from_string(Message, mail.as_string())
         message.get_wrapper().set_mbox_uuid(mbox_uuid)
         return message
+
+
+class MultiUserSoledadTestBase(SoledadTestBase):
+    Client = MultiUserClient

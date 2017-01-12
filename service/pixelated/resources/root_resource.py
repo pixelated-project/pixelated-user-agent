@@ -17,8 +17,10 @@ import hashlib
 import json
 import os
 from string import Template
+from pixelated.resources.users import UsersResource
 
 from pixelated.resources import BaseResource, UnAuthorizedResource, UnavailableResource
+from pixelated.resources import IPixelatedSession
 from pixelated.resources.attachments_resource import AttachmentsResource
 from pixelated.resources.sandbox_resource import SandboxResource
 from pixelated.resources.contacts_resource import ContactsResource
@@ -31,9 +33,13 @@ from pixelated.resources.mail_resource import MailResource
 from pixelated.resources.mails_resource import MailsResource
 from pixelated.resources.tags_resource import TagsResource
 from pixelated.resources.keys_resource import KeysResource
+from twisted.web.resource import NoResource
 from twisted.web.static import File
 
-from pixelated.resources.users import UsersResource
+from twisted.logger import Logger
+
+log = Logger()
+
 
 CSRF_TOKEN_LENGTH = 32
 
@@ -49,6 +55,8 @@ class RootResource(BaseResource):
         self._html_template = open(os.path.join(self._static_folder, 'index.html')).read()
         self._services_factory = services_factory
         self._child_resources = ChildResourcesMap()
+        with open(os.path.join(self._startup_assets_folder, 'Interstitial.html')) as f:
+            self.interstitial = f.read()
         self._startup_mode()
 
     def _startup_mode(self):
@@ -58,11 +66,10 @@ class RootResource(BaseResource):
     def getChild(self, path, request):
         if path == '':
             return self
+        if self._mode == MODE_STARTUP:
+            return UnavailableResource()
         if self._is_xsrf_valid(request):
-            if self._mode == MODE_RUNNING:
-                return self._child_resources.get(path)
-            else:
-                return UnavailableResource()
+            return self._child_resources.get(path)
         return UnAuthorizedResource()
 
     def _is_xsrf_valid(self, request):
@@ -80,13 +87,13 @@ class RootResource(BaseResource):
         csrf_input = request.args.get('csrftoken', [None])[0] or json.loads(request.content.read()).get('csrftoken', [None])[0]
         return csrf_input and csrf_input == xsrf_token
 
-    def initialize(self, portal=None, disclaimer_banner=None):
+    def initialize(self, provider=None, disclaimer_banner=None, authenticator=None):
         self._child_resources.add('sandbox', SandboxResource(self._static_folder))
         self._child_resources.add('assets', File(self._static_folder))
         self._child_resources.add('keys', KeysResource(self._services_factory))
         self._child_resources.add(AttachmentsResource.BASE_URL, AttachmentsResource(self._services_factory))
         self._child_resources.add('contacts', ContactsResource(self._services_factory))
-        self._child_resources.add('features', FeaturesResource(portal))
+        self._child_resources.add('features', FeaturesResource(provider))
         self._child_resources.add('tags', TagsResource(self._services_factory))
         self._child_resources.add('mails', MailsResource(self._services_factory))
         self._child_resources.add('mail', MailResource(self._services_factory))
@@ -94,7 +101,7 @@ class RootResource(BaseResource):
         self._child_resources.add('user-settings', UserSettingsResource(self._services_factory))
         self._child_resources.add('users', UsersResource(self._services_factory))
         self._child_resources.add(LoginResource.BASE_URL,
-                                  LoginResource(self._services_factory, portal, disclaimer_banner=disclaimer_banner))
+                                  LoginResource(self._services_factory, provider, disclaimer_banner=disclaimer_banner, authenticator=authenticator))
         self._child_resources.add(LogoutResource.BASE_URL, LogoutResource(self._services_factory))
 
         self._mode = MODE_RUNNING
@@ -104,11 +111,7 @@ class RootResource(BaseResource):
         return os.path.join(path, '..', 'assets')
 
     def _get_static_folder(self):
-        static_folder = os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "..", "..", "web-ui", "app"))
-        # this is a workaround for packaging
-        if not os.path.exists(static_folder):
-            static_folder = os.path.abspath(
-                os.path.join(os.path.abspath(__file__), "..", "..", "..", "..", "web-ui", "app"))
+        static_folder = os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "..", "..", "..", "web-ui", "dist"))
         if not os.path.exists(static_folder):
             static_folder = os.path.join('/', 'usr', 'share', 'pixelated-user-agent')
         return static_folder
@@ -123,7 +126,7 @@ class RootResource(BaseResource):
     def render_GET(self, request):
         self._add_csrf_cookie(request)
         if self._is_starting():
-            return open(os.path.join(self._startup_assets_folder, 'Interstitial.html')).read()
+            return self.interstitial
         else:
             account_email = self.mail_service(request).account_email
             response = Template(self._html_template).safe_substitute(account_email=account_email)
@@ -138,4 +141,4 @@ class ChildResourcesMap(object):
         self._registry[path] = resource
 
     def get(self, path):
-        return self._registry.get(path)
+        return self._registry.get(path) or NoResource()

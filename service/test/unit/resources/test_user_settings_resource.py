@@ -1,4 +1,4 @@
-import unittest
+from twisted.trial import unittest
 import json
 import ast
 
@@ -7,7 +7,7 @@ from pixelated.resources.user_settings_resource import UserSettingsResource, FIN
 from mockito import mock, when, any
 from test.unit.resources import DummySite
 from twisted.web.test.requesthelper import DummyRequest
-from leap.keymanager.keys import OpenPGPKey
+from leap.bitmask.keymanager.keys import OpenPGPKey
 from twisted.internet import defer
 from twisted.python.failure import Failure
 
@@ -35,7 +35,7 @@ class TestUserSettingsResource(unittest.TestCase):
         key = OpenPGPKey(MAIL_ADDRESS)
         key.fingerprint = FINGERPRINT
         request = DummyRequest(['/user-settings'])
-        when(self.keymanager).fetch_key(MAIL_ADDRESS).thenReturn(defer.succeed(key))
+        when(self.keymanager).get_key(MAIL_ADDRESS).thenReturn(defer.succeed(key))
 
         d = self.web.get(request)
 
@@ -51,7 +51,7 @@ class TestUserSettingsResource(unittest.TestCase):
         key = OpenPGPKey(MAIL_ADDRESS)
         key.fingerprint = FINGERPRINT
         request = DummyRequest(['/user-settings'])
-        when(self.keymanager).fetch_key(MAIL_ADDRESS).thenReturn(defer.fail(Failure))
+        when(self.keymanager).get_key(MAIL_ADDRESS).thenReturn(defer.fail(Failure))
 
         d = self.web.get(request)
 

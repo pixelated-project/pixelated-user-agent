@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
-import unittest
+from twisted.trial import unittest
 
 from mock import patch
 from mockito import mock, when, verify, any as ANY
@@ -39,17 +39,16 @@ class TestMailsResource(unittest.TestCase):
 
     @patch('leap.common.events.register')
     def test_render_GET_should_unicode_mails_search_query(self, mock_register):
-        request = DummyRequest(['/mails'])
+        request = DummyRequest([])
         non_unicode_search_term = 'coração'
         request.addArg('q', non_unicode_search_term)
         request.addArg('w', 25)
         request.addArg('p', 1)
 
         unicodified_search_term = u'coração'
-        when(self.mail_service).mails(unicodified_search_term, 25, 1).thenReturn(defer.Deferred())
+        when(self.mail_service).mails(unicodified_search_term, 25, 1).thenReturn(defer.succeed(([], 0)))
 
         mails_resource = MailsResource(self.services_factory)
-        mails_resource.isLeaf = True
         web = DummySite(mails_resource)
         d = web.get(request)
 
@@ -61,15 +60,13 @@ class TestMailsResource(unittest.TestCase):
 
     @patch('leap.common.events.register')
     def test_render_PUT_should_store_draft_with_attachments(self, mock_register):
-        request = DummyRequest(['/mails'])
+        request = DummyRequest([])
         request.method = 'PUT'
-        content = mock()
-        when(content).read().thenReturn('{"attachments": [{"ident": "some fake attachment id"}]}')
-        when(self.mail_service).attachment('some fake attachment id').thenReturn(defer.Deferred())
-        request.content = content
+        request.content = mock()
+        when(request.content).read().thenReturn('{"attachments": [{"ident": "some fake attachment id"}]}')
+        when(self.mail_service).attachment('some fake attachment id').thenReturn(defer.succeed({'content': mock()}))
 
         mails_resource = MailsResource(self.services_factory)
-        mails_resource.isLeaf = True
         web = DummySite(mails_resource)
         d = web.get(request)
 
@@ -81,19 +78,17 @@ class TestMailsResource(unittest.TestCase):
 
     @patch('leap.common.events.register')
     def test_render_POST_should_send_email_with_attachments(self, mock_register):
-        request = DummyRequest(['/mails'])
+        request = DummyRequest([])
         request.method = 'POST'
-        content = mock()
-        when(content).read().thenReturn('{"attachments": [{"ident": "some fake attachment id"}]}')
+        request.content = mock()
+        when(request.content).read().thenReturn('{"attachments": [{"ident": "some fake attachment id"}]}')
         when(self.mail_service).attachment('some fake attachment id').thenReturn(defer.succeed({"content": "some content"}))
         as_dictable = mock()
         when(as_dictable).as_dict().thenReturn({})
         when(self.mail_service).send_mail({"attachments": [{"ident": "some fake attachment id", "raw": "some content"}]})\
             .thenReturn(defer.succeed(as_dictable))
-        request.content = content
 
         mails_resource = MailsResource(self.services_factory)
-        mails_resource.isLeaf = True
         web = DummySite(mails_resource)
         d = web.get(request)
 

@@ -1,5 +1,3 @@
-import logging
-
 from mock import patch, MagicMock
 from twisted.internet import defer
 from twisted.trial import unittest
@@ -8,8 +6,6 @@ from twisted.web.test.requesthelper import DummyRequest
 
 from pixelated.resources.logout_resource import LogoutResource
 from test.unit.resources import DummySite
-
-logging.getLogger('pixelated.resources').addHandler(logging.NullHandler())
 
 
 class TestLogoutResource(unittest.TestCase):

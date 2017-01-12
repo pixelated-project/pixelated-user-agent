@@ -27,12 +27,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.vm.provider "libvirt" do |v, override|
-    v.memory = 1024
+    v.memory = 2048
     override.vm.network :forwarded_port, guest: 3333, guest_ip: '127.0.0.1', host: 3333
   end
 
   config.vm.provider "virtualbox" do |v, override|
-    v.memory = 1024
+    v.memory = 2048
     override.vm.network :forwarded_port, guest: 3333, host: 3333 # do NOT add host_ip in this line. It is not necessary
     override.vm.network :forwarded_port, guest: 8089, host: 8089
   end

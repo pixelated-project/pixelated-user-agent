@@ -79,37 +79,32 @@ describeComponent('mail_view/ui/mail_view', function () {
   });
 
   it('verifies if new tag input is hidden when rendering mail view', function() {
-
     this.component.displayMail({}, testData);
 
     var newTagInputComponent = this.component.select('newTagInput');
     expect(newTagInputComponent.attr('style').trim()).toEqual('display: none;');
   });
 
-  it('verifies if new tag input is shown when clicking on new tag button ', function() {
-   this.component.displayMail({}, testData);
+  it('verifies if new tag input is shown when clicking on new tag button', function() {
+    this.component.displayMail({}, testData);
 
     var newTagInputComponent = this.component.select('newTagInput');
-    var addNewComponent = this.component.select('addNew');
 
     this.component.select('newTagButton').click();
 
     expect(newTagInputComponent.attr('style').trim()).not.toEqual('display: none;');
-    expect(addNewComponent.attr('style').trim()).toEqual('display: none;');
   });
 
-  it('hides new tag button when pressing esc key', function(){
+  it('hides new tag input when pressing esc key', function(){
     this.component.displayMail({}, testData);
     this.component.select('newTagButton').click();
 
     var e = creatingEvent('keydown', 27);
     var newTagInputComponent = this.component.select('newTagInput');
-    var addNewComponent = this.component.select('addNew');
 
     newTagInputComponent.trigger(e);
 
     expect(newTagInputComponent.attr('style').trim()).toEqual('display: none;');
-    expect(addNewComponent.attr('style').trim()).not.toEqual('display: none;');
   });
 
   it('assumes that the mail is encrypted and valid if at least one of the locks are valid', function() {
