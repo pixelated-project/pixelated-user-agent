@@ -3,7 +3,8 @@ from mock import MagicMock, patch, Mock
 from twisted.trial import unittest
 from twisted.internet import defer
 from pixelated.config.leap import create_leap_session, BootstrapUserServices, initialize_leap_single_user
-from pixelated.config.sessions import LeapSessionFactory, SessionCache
+from pixelated.config.sessions import LeapSessionFactory, SessionCache, SoledadWrongPassphraseException
+from leap.soledad.common.crypto import UnknownMacMethodError
 
 
 class TestLeapInit(unittest.TestCase):
@@ -126,4 +127,53 @@ class TestUserBootstrap(unittest.TestCase):
 
         self._user_bootstrap.setup(self.user_auth, self.password, '')
 
+        # TODO: this is incorrect
         mock_add_welcome_email.called_once_with(mail_store, some_language)
+
+    @patch('pixelated.config.leap.create_leap_session')
+    @patch('pixelated.config.leap.log.warn')
+    @defer.inlineCallbacks
+    def test__setup__should_log_an_error_raised_from_create_leap_session(self, mock_logger_warn, mock_create_leap_session):
+        mock_create_leap_session.side_effect = SoledadWrongPassphraseException(UnknownMacMethodError("oh no"))
+        with self.assertRaises(SoledadWrongPassphraseException):
+            yield self._user_bootstrap.setup(self.user_auth, self.password, '')
+        mock_logger_warn.assert_called_once_with("SoledadWrongPassphraseException: oh no. Closing session for user: ayoyo")
+
+    @patch('pixelated.config.leap.BootstrapUserServices._setup_user_services')
+    @patch('pixelated.config.leap.create_leap_session')
+    @patch('pixelated.config.leap.log.warn')
+    @defer.inlineCallbacks
+    def test__setup__should_log_an_error_raised_from__setup_user_services(self, mock_logger_warn, mock_create_leap_session, mock_setup_user_services):
+        leap_session = Mock()
+        mock_create_leap_session.return_value = leap_session
+        mock_setup_user_services.side_effect = UnknownMacMethodError("oh no")
+        with self.assertRaises(UnknownMacMethodError):
+            yield self._user_bootstrap.setup(self.user_auth, self.password, '')
+        mock_logger_warn.assert_called_once_with("UnknownMacMethodError: oh no. Closing session for user: ayoyo")
+
+    @patch('pixelated.config.leap.BootstrapUserServices._setup_user_services')
+    @patch('pixelated.config.leap.create_leap_session')
+    @patch('pixelated.config.leap.log.warn')
+    @defer.inlineCallbacks
+    def test__setup__should_close_leap_sesson_on_error_from__setup_user_services(self, mock_logger_warn, mock_create_leap_session, mock_setup_user_services):
+        leap_session = Mock()
+        leap_session.close = Mock()
+        mock_create_leap_session.return_value = leap_session
+        mock_setup_user_services.side_effect = UnknownMacMethodError("oh no")
+        with self.assertRaises(UnknownMacMethodError):
+            yield self._user_bootstrap.setup(self.user_auth, self.password, '')
+        leap_session.close.assert_called_once_with()
+
+    @patch('pixelated.config.leap.BootstrapUserServices._add_welcome_email')
+    @patch('pixelated.config.leap.BootstrapUserServices._setup_user_services')
+    @patch('pixelated.config.leap.create_leap_session')
+    @patch('pixelated.config.leap.log.warn')
+    @defer.inlineCallbacks
+    def test__setup__should_close_leap_sesson_on_error_from__add_welcome_email(self, mock_logger_warn, mock_create_leap_session, _, mock_add_welcome_email):
+        leap_session = Mock()
+        leap_session.close = Mock()
+        mock_create_leap_session.return_value = leap_session
+        mock_add_welcome_email.side_effect = UnknownMacMethodError("oh no")
+        with self.assertRaises(UnknownMacMethodError):
+            yield self._user_bootstrap.setup(self.user_auth, self.password, '')
+        leap_session.close.assert_called_once_with()

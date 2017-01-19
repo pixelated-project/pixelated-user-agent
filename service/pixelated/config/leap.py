@@ -74,9 +74,16 @@ class BootstrapUserServices(object):
 
     @defer.inlineCallbacks
     def setup(self, user_auth, password, language='pt-BR'):
-        leap_session = yield create_leap_session(self._provider, user_auth.username, password, user_auth)
-        yield self._setup_user_services(leap_session)
-        yield self._add_welcome_email(leap_session, language)
+        leap_session = None
+        try:
+            leap_session = yield create_leap_session(self._provider, user_auth.username, password, user_auth)
+            yield self._setup_user_services(leap_session)
+            yield self._add_welcome_email(leap_session, language)
+        except Exception as e:
+            log.warn('{0}: {1}. Closing session for user: {2}'.format(e.__class__.__name__, e, user_auth.username))
+            if leap_session:
+                leap_session.close()
+            raise e
 
     @defer.inlineCallbacks
     def _setup_user_services(self, leap_session):

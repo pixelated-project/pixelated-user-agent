@@ -19,10 +19,11 @@ from mock import patch
 from mock import MagicMock
 from mockito import when
 from twisted.internet import defer
-from pixelated.config.sessions import LeapSession, SessionCache, LeapSessionFactory
+from pixelated.config.sessions import LeapSession, SessionCache, LeapSessionFactory, SoledadWrongPassphraseException
 from pixelated.bitmask_libraries.keymanager import UploadKeyError
 from test.unit.bitmask_libraries.test_abstract_leap import AbstractLeapTest
 from leap.common.events.catalog import KEYMANAGER_FINISHED_KEY_GENERATION
+from leap.soledad.common.crypto import WrongMacError, UnknownMacMethodError
 
 
 class SessionTest(AbstractLeapTest):
@@ -178,6 +179,18 @@ class SessionTest(AbstractLeapTest):
             pass_arg = kwargs['passphrase']
             self.assertIs(type(uuid_arg), str, "expected uuid argument to be a string")
             self.assertIs(type(pass_arg), unicode, "expected passphrase argument to be unicode")
+
+    @defer.inlineCallbacks
+    def test_sessions__setup_soledad__will_raise_wrong_passphrase_exception_on_errors(self):
+        leap_session_factory = LeapSessionFactory(self.provider)
+
+        with patch('pixelated.config.sessions.Soledad', side_effect=WrongMacError("oh no")):
+            with self.assertRaises(SoledadWrongPassphraseException):
+                yield leap_session_factory.setup_soledad('token', u'uuid', 'passphrase', None)
+
+        with patch('pixelated.config.sessions.Soledad', side_effect=UnknownMacMethodError("oh no")):
+            with self.assertRaises(SoledadWrongPassphraseException):
+                yield leap_session_factory.setup_soledad('token', u'uuid', 'passphrase', None)
 
     def _create_session(self):
         return LeapSession(self.provider, self.auth, self.mail_store, self.soledad_session, self.keymanager, self.smtp_mock)

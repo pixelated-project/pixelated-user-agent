@@ -102,15 +102,6 @@ class LeapSessionFactory(object):
         cert = SmtpClientCertificate(self._provider, auth, self._user_path(auth.uuid))
         return cert.cert_path()
 
-    def _create_dir(self, path):
-        try:
-            os.makedirs(path)
-        except OSError as exc:
-            if exc.errno == errno.EEXIST and os.path.isdir(path):
-                pass
-            else:
-                raise
-
     def _user_path(self, user_uuid):
         return os.path.join(leap_config.leap_home, user_uuid)
 
@@ -156,13 +147,7 @@ class LeapSession(object):
 
     @defer.inlineCallbacks
     def finish_bootstrap(self):
-        try:
-            yield self.keymanager.generate_openpgp_key()
-        except UploadKeyError as e:
-            logger.warn('{0}: {1}. Closing session for user: {2}'.format(e.__class__.__name__, e, self.account_email()))
-            self.close()
-            raise
-
+        yield self.keymanager.generate_openpgp_key()
         yield self._create_account(self.soledad, self.user_auth.uuid)
         self.incoming_mail_fetcher = yield self._create_incoming_mail_fetcher(
             self.keymanager,
@@ -220,8 +205,8 @@ class LeapSession(object):
     def sync(self):
         try:
             return self.soledad.sync()
-        except:
-            traceback.print_exc(file=sys.stderr)
+        except Exception as e:
+            logger.error(e)
             raise
 
 
