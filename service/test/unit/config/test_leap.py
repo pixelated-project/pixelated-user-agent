@@ -127,7 +127,6 @@ class TestUserBootstrap(unittest.TestCase):
 
         self._user_bootstrap.setup(self.user_auth, self.password, '')
 
-        # TODO: this is incorrect
         mock_add_welcome_email.called_once_with(mail_store, some_language)
 
     @patch('pixelated.config.leap.create_leap_session')
