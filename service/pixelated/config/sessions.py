@@ -154,7 +154,7 @@ class LeapSession(object):
         self.account = None
         self._has_been_initially_synced = False
         self._is_closed = False
-        register(events.KEYMANAGER_FINISHED_KEY_GENERATION, self._set_fresh_account, uid=self.account_email())
+        register(events.KEYMANAGER_FINISHED_KEY_GENERATION, self._set_fresh_account, uid=self.account_email(), replace=True)
 
     @defer.inlineCallbacks
     def first_required_sync(self):

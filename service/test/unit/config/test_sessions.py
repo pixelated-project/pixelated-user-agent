@@ -74,13 +74,12 @@ class SessionTest(AbstractLeapTest):
         yield session.sync()
         self.soledad_session.sync.assert_called_once()
 
-    def test_session_registers_to_generated_keys(self):
+    @patch('pixelated.config.sessions.register')
+    def test_session_registers_to_generated_keys(self, register_mock):
         email = 'someone@somedomain.tld'
         self.provider.address_for.return_value = email
-        with patch('pixelated.config.sessions.register') as register_mock:
-            session = self._create_session()
-
-            register_mock.assert_called_once_with(KEYMANAGER_FINISHED_KEY_GENERATION, session._set_fresh_account, uid=email)
+        session = self._create_session()
+        register_mock.assert_called_once_with(KEYMANAGER_FINISHED_KEY_GENERATION, session._set_fresh_account, uid=email, replace=True)
 
     @patch('pixelated.config.sessions.register')
     def test_close_unregisters_from_generate_keys_events(self, _):
