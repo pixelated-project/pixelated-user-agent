@@ -30,6 +30,7 @@ INDEX_KEY = '\xde3?\x87\xff\xd9\xd3\x14\xf0\xa7>\x1f%C{\x16.\\\xae\x8c\x13\xa7\x
 
 
 class LockStub(object):
+
     def __init__(self):
         self.called = False
 
@@ -42,6 +43,7 @@ class LockStub(object):
 
 
 class SearchEngineTest(unittest.TestCase):
+
     def setUp(self):
         self.tempdir = TempDir()
         self.user_home = self.tempdir.name
@@ -58,11 +60,12 @@ class SearchEngineTest(unittest.TestCase):
             'To': '=?utf-8?b?IsOEw7zDtiDDlsO8w6QiIDxmb2xrZXJAcGl4ZWxhdGVkLXByb2plY3Qub3Jn?=\n =?utf-8?b?PiwgRsO2bGtlciA8Zm9sa2VyQHBpeGVsYXRlZC1wcm9qZWN0Lm9yZz4=?=',
             'Cc': '=?utf-8?b?IsOEw7zDtiDDlsO8w6QiIDxmb2xrZXJAcGl4ZWxhdGVkLXByb2plY3Qub3Jn?=\n =?utf-8?b?PiwgRsO2bGtlciA8Zm9sa2VyQHBpeGVsYXRlZC1wcm9qZWN0Lm9yZz4=?=',
             'Subject': 'Some test mail',
-            'Date': str(datetime.now())
-        }
+            'Date': str(
+                datetime.now())}
 
         # when
-        se.index_mail(LeapMail('mailid', 'INBOX', headers=headers))   # test_helper.pixelated_mail(extra_headers=headers, chash='mailid'))
+        # test_helper.pixelated_mail(extra_headers=headers, chash='mailid'))
+        se.index_mail(LeapMail('mailid', 'INBOX', headers=headers))
 
         result = se.search('folker')
 
@@ -77,13 +80,14 @@ class SearchEngineTest(unittest.TestCase):
             'To': '=?utf-8?b?IsOEw7zDtiDDlsO8w6QiIDxmb2xrZXJAcGl4ZWxhdGVkLXByb2plY3Qub3Jn?=\n =?utf-8?b?PiwgRsO2bGtlciA8Zm9sa2VyQHBpeGVsYXRlZC1wcm9qZWN0Lm9yZz4=?=',
             'Cc': '=?utf-8?b?IsOEw7zDtiDDlsO8w6QiIDxmb2xrZXJAcGl4ZWxhdGVkLXByb2plY3Qub3Jn?=\n =?utf-8?b?PiwgRsO2bGtlciA8Zm9sa2VyQHBpeGVsYXRlZC1wcm9qZWN0Lm9yZz4=?=',
             'Subject': 'Some test mail',
-            'Date': str(datetime.now())
-        }
+            'Date': str(
+                datetime.now())}
 
         body = "When doing the search, it's not possible to find words with graphical accents, e.g.: 'coração', 'é',  'Fièvre', La Pluie d'été, 'não'."
 
         # when
-        se.index_mail(LeapMail('mailid', 'INBOX', headers=headers, body=body))   # test_helper.pixelated_mail(extra_headers=headers, chash='mailid'))
+        # test_helper.pixelated_mail(extra_headers=headers, chash='mailid'))
+        se.index_mail(LeapMail('mailid', 'INBOX', headers=headers, body=body))
 
         result = se.search(u"'coração', 'é',")
         self.assertEqual((['mailid'], 1), result)
@@ -103,13 +107,14 @@ class SearchEngineTest(unittest.TestCase):
             'To': '=?utf-8?b?IsOEw7zDtiDDlsO8w6QiIDxmb2xrZXJAcGl4ZWxhdGVkLXByb2plY3Qub3Jn?=\n =?utf-8?b?PiwgRsO2bGtlciA8Zm9sa2VyQHBpeGVsYXRlZC1wcm9qZWN0Lm9yZz4=?=',
             'Cc': '=?utf-8?b?IsOEw7zDtiDDlsO8w6QiIDxmb2xrZXJAcGl4ZWxhdGVkLXByb2plY3Qub3Jn?=\n =?utf-8?b?PiwgRsO2bGtlciA8Zm9sa2VyQHBpeGVsYXRlZC1wcm9qZWN0Lm9yZz4=?=',
             'Subject': 'Some test mail',
-            'Date': str(datetime.now())
-        }
+            'Date': str(
+                datetime.now())}
 
         body = "When doing the search, 您好  أهلا"
 
         # when
-        se.index_mail(LeapMail('mailid', 'INBOX', headers=headers, body=body))   # test_helper.pixelated_mail(extra_headers=headers, chash='mailid'))
+        # test_helper.pixelated_mail(extra_headers=headers, chash='mailid'))
+        se.index_mail(LeapMail('mailid', 'INBOX', headers=headers, body=body))
 
         result = se.search(u"您好")
         self.assertEqual((['mailid'], 1), result)

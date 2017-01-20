@@ -47,9 +47,11 @@ class AttachmentResource(Resource):
 
         encoding = request.args.get('encoding', [None])[0]
         filename = request.args.get('filename', [self.attachment_id])[0]
-        content_type = request.args.get('content_type', ['application/octet-stream'])[0]
+        content_type = request.args.get(
+            'content_type', ['application/octet-stream'])[0]
         request.setHeader(b'Content-Type', content_type)
-        request.setHeader(b'Content-Disposition', bytes('attachment; filename="' + filename + '"'))
+        request.setHeader(b'Content-Disposition',
+                          bytes('attachment; filename="' + filename + '"'))
 
         d = self._send_attachment(encoding, filename, request)
         d.addErrback(error_handler)
@@ -86,13 +88,16 @@ class AttachmentsResource(BaseResource):
 
     def render_POST(self, request):
         _mail_service = self.mail_service(request)
-        fields = cgi.FieldStorage(fp=request.content, headers=(request.getAllHeaders()),
-                                  environ={'REQUEST_METHOD': 'POST'})
+        fields = cgi.FieldStorage(
+            fp=request.content, headers=(
+                request.getAllHeaders()), environ={
+                'REQUEST_METHOD': 'POST'})
         _file = fields['attachment']
         deferred = _mail_service.save_attachment(_file.value, _file.type)
 
         def send_location(attachment_id):
-            request.setHeader('Location', '/%s/%s' % (self.BASE_URL, attachment_id))
+            request.setHeader('Location', '/%s/%s' %
+                              (self.BASE_URL, attachment_id))
             response_json = {"ident": attachment_id,
                              "content-type": _file.type,
                              "encoding": "base64",  # hard coded for now -- not really used
@@ -102,7 +107,8 @@ class AttachmentsResource(BaseResource):
 
         def error_handler(error):
             logger.error(error)
-            respond_json_deferred({"message": "Something went wrong. Attachment not saved."}, request, status_code=500)
+            respond_json_deferred(
+                {"message": "Something went wrong. Attachment not saved."}, request, status_code=500)
 
         deferred.addCallback(send_location)
         deferred.addErrback(error_handler)

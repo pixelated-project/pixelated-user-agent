@@ -31,10 +31,12 @@ class UserSettingsResource(BaseResource):
 
         def finish_request(key):
             _fingerprint = key.fingerprint
-            respond_json_deferred({'account_email': _account_email, 'fingerprint': _fingerprint}, request)
+            respond_json_deferred(
+                {'account_email': _account_email, 'fingerprint': _fingerprint}, request)
 
         def key_not_found(_):
-            respond_json_deferred({'account_email': _account_email, 'fingerprint': FINGERPRINT_NOT_FOUND}, request)
+            respond_json_deferred(
+                {'account_email': _account_email, 'fingerprint': FINGERPRINT_NOT_FOUND}, request)
 
         d = self.keymanager(request).get_key(_account_email)
         d.addCallback(finish_request)

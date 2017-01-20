@@ -33,6 +33,7 @@ logger = Logger()
 
 
 class Mail(object):
+
     @property
     def from_sender(self):
         return self.headers['From']
@@ -71,7 +72,8 @@ class Mail(object):
         return self.fdoc.content.get('mbox', 'INBOX')
 
     def _encode_header_value_list(self, header_value_list):
-        encoded_header_list = [self._encode_header_value(v) for v in header_value_list]
+        encoded_header_list = [self._encode_header_value(
+            v) for v in header_value_list]
         return ', '.join(encoded_header_list)
 
     def _encode_header_value(self, header_value):
@@ -83,12 +85,15 @@ class Mail(object):
         body_to_use = body_to_use or self.body
         if isinstance(body_to_use, list):
             for part in body_to_use:
-                mime_multipart.attach(MIMEText(part['raw'], part['content-type']))
+                mime_multipart.attach(
+                    MIMEText(part['raw'], part['content-type']))
         else:
-            mime_multipart.attach(MIMEText(body_to_use, 'plain', self._charset()))
+            mime_multipart.attach(
+                MIMEText(body_to_use, 'plain', self._charset()))
 
     def _add_body(self, mime):
-        body_to_use = getattr(self, 'body', None) or getattr(self, 'text_plain_body', None)
+        body_to_use = getattr(self, 'body', None) or getattr(
+            self, 'text_plain_body', None)
         self._add_message_content(mime, body_to_use)
         self._add_attachments(mime)
 
@@ -116,7 +121,8 @@ class Mail(object):
             attachment_mime = MIMENonMultipart(major, sub)
             base64_attachment_file = binascii.b2a_base64(attachment['raw'])
             attachment_mime.set_payload(base64_attachment_file)
-            attachment_mime['Content-Disposition'] = 'attachment; filename="%s"' % attachment['name']
+            attachment_mime[
+                'Content-Disposition'] = 'attachment; filename="%s"' % attachment['name']
             attachment_mime['Content-Transfer-Encoding'] = 'base64'
             mime.attach(attachment_mime)
 
@@ -128,7 +134,9 @@ class Mail(object):
 
     def _parse_charset_header(self, charset_header, default_charset='utf-8'):
         try:
-            return re.compile('.*charset=([a-zA-Z0-9-]+)', re.MULTILINE | re.DOTALL).match(charset_header).group(1)
+            return re.compile(
+                '.*charset=([a-zA-Z0-9-]+)',
+                re.MULTILINE | re.DOTALL).match(charset_header).group(1)
         except:
             return default_charset
 
@@ -141,6 +149,7 @@ class Mail(object):
 
 
 class InputMail(Mail):
+
     def __init__(self):
         self._raw_message = None
         self._fd = None
@@ -193,7 +202,11 @@ class InputMail(Mail):
     @staticmethod
     def from_dict(mail_dict, from_address):
         input_mail = InputMail()
-        input_mail.headers = {key.capitalize(): value for key, value in mail_dict.get('header', {}).items()}
+        input_mail.headers = {
+            key.capitalize(): value for key,
+            value in mail_dict.get(
+                'header',
+                {}).items()}
 
         input_mail.headers['Date'] = date.mail_date_now()
         input_mail.headers['From'] = from_address
@@ -207,7 +220,8 @@ class InputMail(Mail):
     @staticmethod
     def from_python_mail(mail):
         input_mail = InputMail()
-        input_mail.headers = {unicode(key.capitalize()): unicode(value) for key, value in mail.items()}
+        input_mail.headers = {unicode(key.capitalize()): unicode(
+            value) for key, value in mail.items()}
         input_mail.headers[u'Date'] = unicode(date.mail_date_now())
         input_mail.headers[u'To'] = [u'']
 

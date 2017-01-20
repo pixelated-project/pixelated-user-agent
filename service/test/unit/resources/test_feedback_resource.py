@@ -25,13 +25,15 @@ from test.unit.resources import DummySite
 
 
 class TestFeedbackResource(unittest.TestCase):
+
     def setUp(self):
         self.feedback_service = mock()
         self.services_factory = mock()
         self.services_factory.mode = UserAgentMode(is_single_user=True)
         self.services = mock()
         self.services.feedback_service = self.feedback_service
-        self.services_factory._services_by_user = {'someuserid': self.feedback_service}
+        self.services_factory._services_by_user = {
+            'someuserid': self.feedback_service}
         when(self.services_factory).services(ANY()).thenReturn(self.services)
 
         self.web = DummySite(FeedbackResource(self.services_factory))
@@ -40,7 +42,8 @@ class TestFeedbackResource(unittest.TestCase):
         request = DummyRequest(['/feedback'])
         request.method = 'POST'
         content = mock()
-        when(content).read().thenReturn(json.dumps({'feedback': 'Pixelated is awesome!'}))
+        when(content).read().thenReturn(json.dumps(
+            {'feedback': 'Pixelated is awesome!'}))
         request.content = content
 
         d = self.web.get(request)

@@ -49,9 +49,12 @@ if requests.__version__ == '2.0.0':
         def patched_connect(self):
             # Add certificate verification
             try:
-                sock = socket.create_connection(address=(self.host, self.port), timeout=self.timeout)
+                sock = socket.create_connection(
+                    address=(self.host, self.port), timeout=self.timeout)
             except SocketTimeout:
-                raise ConnectTimeoutError(self, "Connection to %s timed out. (connect timeout=%s)" % (self.host, self.timeout))
+                raise ConnectTimeoutError(
+                    self, "Connection to %s timed out. (connect timeout=%s)" %
+                    (self.host, self.timeout))
 
             resolved_cert_reqs = resolve_cert_reqs(self.cert_reqs)
             resolved_ssl_version = resolve_ssl_version(self.ssl_version)

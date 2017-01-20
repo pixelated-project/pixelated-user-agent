@@ -25,7 +25,8 @@ class MailboxIndexerListener(object):
     @classmethod
     @defer.inlineCallbacks
     def listen(cls, account, mailbox_name, mail_store, search_engine):
-        listener = MailboxIndexerListener(mailbox_name, mail_store, search_engine)
+        listener = MailboxIndexerListener(
+            mailbox_name, mail_store, search_engine)
         mail_collection = yield account.get_collection_by_mailbox(mailbox_name)
         mail_collection.addListener(listener)
 
@@ -39,14 +40,15 @@ class MailboxIndexerListener(object):
     @defer.inlineCallbacks
     def notify_new(self):
         try:
-            indexed_idents = set(self.search_engine.search('tag:' + self.mailbox_name.lower(), all_mails=True))
+            indexed_idents = set(self.search_engine.search(
+                'tag:' + self.mailbox_name.lower(), all_mails=True))
             soledad_idents = yield self.mail_store.get_mailbox_mail_ids(self.mailbox_name)
             soledad_idents = set(soledad_idents)
 
             missing_idents = soledad_idents.difference(indexed_idents)
 
             self.search_engine.index_mails((yield self.mail_store.get_mails(missing_idents, include_body=True)))
-        except Exception, e:  # this is a event handler, don't let exceptions escape
+        except Exception as e:  # this is a event handler, don't let exceptions escape
             logger.error(e)
 
     def __eq__(self, other):

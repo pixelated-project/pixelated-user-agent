@@ -23,7 +23,8 @@ from common import find_element_by_css_selector, find_elements_by_css_selector
 
 @when('I search for a mail with the words "{search_term}"')
 def impl(context, search_term):
-    search_field = find_element_by_css_selector(context, '#search-trigger input[type="search"]')
+    search_field = find_element_by_css_selector(
+        context, '#search-trigger input[type="search"]')
     ActionChains(context.browser)\
         .send_keys_to_element(search_field, search_term)\
         .send_keys_to_element(search_field, Keys.ENTER)\

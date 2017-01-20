@@ -33,15 +33,18 @@ def _is_key_doc(doc):
 
 
 def _is_private_key_doc(doc):
-    return _is_key_doc(doc) and doc.content.get(leap_doc.KEY_PRIVATE_KEY, False)
+    return _is_key_doc(doc) and doc.content.get(
+        leap_doc.KEY_PRIVATE_KEY, False)
 
 
 def _is_active_key_doc(doc):
-    return _is_key_doc(doc) and doc.content.get(leap_doc.KEY_TYPE_KEY, None) == TYPE_OPENPGP_ACTIVE
+    return _is_key_doc(doc) and doc.content.get(
+        leap_doc.KEY_TYPE_KEY, None) == TYPE_OPENPGP_ACTIVE
 
 
 def _is_public_key(doc):
-    return _is_key_doc(doc) and not doc.content.get(leap_doc.KEY_PRIVATE_KEY, False)
+    return _is_key_doc(doc) and not doc.content.get(
+        leap_doc.KEY_PRIVATE_KEY, False)
 
 
 def _key_fingerprint(doc):
@@ -53,6 +56,7 @@ def _address(doc):
 
 
 class SoledadMaintenance(object):
+
     def __init__(self, soledad):
         self._soledad = soledad
 
@@ -60,11 +64,14 @@ class SoledadMaintenance(object):
     def repair(self):
         _, docs = yield self._soledad.get_all_docs()
 
-        private_key_fingerprints = self._key_fingerprints_with_private_key(docs)
+        private_key_fingerprints = self._key_fingerprints_with_private_key(
+            docs)
 
         for doc in docs:
-            if _is_key_doc(doc) and _key_fingerprint(doc) not in private_key_fingerprints:
-                logger.warn('Deleting doc %s for key %s of <%s>' % (doc.doc_id, _key_fingerprint(doc), _address(doc)))
+            if _is_key_doc(doc) and _key_fingerprint(
+                    doc) not in private_key_fingerprints:
+                logger.warn('Deleting doc %s for key %s of <%s>' %
+                            (doc.doc_id, _key_fingerprint(doc), _address(doc)))
                 yield self._soledad.delete_doc(doc)
 
         yield self._repair_missing_active_docs(docs, private_key_fingerprints)
@@ -75,11 +82,13 @@ class SoledadMaintenance(object):
         for fingerprint in missing:
             emails = self._emails_for_key_fingerprint(docs, fingerprint)
             for email in emails:
-                logger.warn('Re-creating active doc for key %s, email %s' % (fingerprint, email))
+                logger.warn('Re-creating active doc for key %s, email %s' %
+                            (fingerprint, email))
                 yield self._soledad.create_doc_from_json(OpenPGPKey(email, fingerprint=fingerprint, private=False).get_active_json())
 
     def _key_fingerprints_with_private_key(self, docs):
-        return [doc.content[leap_doc.KEY_FINGERPRINT_KEY] for doc in docs if _is_private_key_doc(doc)]
+        return [doc.content[leap_doc.KEY_FINGERPRINT_KEY]
+                for doc in docs if _is_private_key_doc(doc)]
 
     def _missing_active_docs(self, docs, private_key_fingerprints):
         active_doc_ids = self._active_docs_for_key_fingerprint(docs)
@@ -88,7 +97,8 @@ class SoledadMaintenance(object):
 
     def _emails_for_key_fingerprint(self, docs, fingerprint):
         for doc in docs:
-            if _is_private_key_doc(doc) and _key_fingerprint(doc) == fingerprint:
+            if _is_private_key_doc(doc) and _key_fingerprint(
+                    doc) == fingerprint:
                 email = _address(doc)
                 if email is None:
                     return []
@@ -97,4 +107,5 @@ class SoledadMaintenance(object):
                 return [email]
 
     def _active_docs_for_key_fingerprint(self, docs):
-        return [doc.content[leap_doc.KEY_FINGERPRINT_KEY] for doc in docs if _is_active_key_doc(doc) and _is_public_key(doc)]
+        return [doc.content[leap_doc.KEY_FINGERPRINT_KEY]
+                for doc in docs if _is_active_key_doc(doc) and _is_public_key(doc)]

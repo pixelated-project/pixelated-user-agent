@@ -50,7 +50,7 @@ define(function () {
         uncheckAll: 'ui:mails:uncheckAll',
         hasMailsChecked: 'ui:mails:hasMailsChecked'
       },
-      mail: {
+       mail: {
         open: 'ui:mail:open',
         updateSelected: 'ui:mail:updateSelected',
         delete: 'ui:mail:delete',
@@ -64,7 +64,8 @@ define(function () {
         unchecked: 'ui:mail:unchecked',
         changedSinceLastSave: 'ui:mail:changedSinceLastSave',
         send: 'ui:mail:send',
-        recipientsUpdated: 'ui:mail:recipientsUpdated'
+        recipientsUpdated: 'ui:mail:recipientsUpdated',
+        downloadRaw: 'ui:mail:downloadRaw',
       },
       page: {
         previous: 'ui:page:previous',
@@ -82,7 +83,7 @@ define(function () {
       replyBox: {
         showReply: 'ui:replyBox:showReply',
         showReplyAll: 'ui:replyBox:showReplyAll',
-        showReplyContainer: 'ui:replyBox:showReplyContainer',
+        showReplyContainer: 'ui:replyBox:showReplyContainer'
       },
       recipients: {
         entered: 'ui:recipients:entered',

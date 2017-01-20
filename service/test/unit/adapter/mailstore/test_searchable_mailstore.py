@@ -34,13 +34,15 @@ class TestSearchableMailStore(TestCase):
         super(TestSearchableMailStore, self).setUp()
         self.search_index = mock(mocked_obj=SearchEngine)
         self.delegate_mail_store = mock(mocked_obj=MailStore)
-        self.store = SearchableMailStore(self.delegate_mail_store, self.search_index)
+        self.store = SearchableMailStore(
+            self.delegate_mail_store, self.search_index)
 
     @defer.inlineCallbacks
     def test_add_mail_delegates_to_mail_store_and_updates_index(self):
         mail = self._load_mail_from_file('mbox00000000')
         leap_mail = LeapMail('id', ANY_MAILBOX)
-        when(self.delegate_mail_store).add_mail(ANY_MAILBOX, mail).thenReturn(defer.succeed(leap_mail))
+        when(self.delegate_mail_store).add_mail(
+            ANY_MAILBOX, mail).thenReturn(defer.succeed(leap_mail))
 
         result = yield self.store.add_mail(ANY_MAILBOX, mail)
 
@@ -50,8 +52,10 @@ class TestSearchableMailStore(TestCase):
 
     @defer.inlineCallbacks
     def test_delete_mail_delegates_to_mail_store_and_updates_index(self):
-        when(self.delegate_mail_store).delete_mail('mail id').thenReturn(defer.succeed(None))
-        when(self.search_index).remove_from_index('mail id').thenReturn(defer.succeed(None))
+        when(self.delegate_mail_store).delete_mail(
+            'mail id').thenReturn(defer.succeed(None))
+        when(self.search_index).remove_from_index(
+            'mail id').thenReturn(defer.succeed(None))
 
         yield self.store.delete_mail('mail id')
 
@@ -70,7 +74,8 @@ class TestSearchableMailStore(TestCase):
     @defer.inlineCallbacks
     def test_copy_mail_delegates_to_mail_store_and_updates_index(self):
         copied_mail = LeapMail('new id', ANY_MAILBOX)
-        when(self.delegate_mail_store).copy_mail_to_mailbox('mail id', ANY_MAILBOX).thenReturn(defer.succeed(copied_mail))
+        when(self.delegate_mail_store).copy_mail_to_mailbox(
+            'mail id', ANY_MAILBOX).thenReturn(defer.succeed(copied_mail))
 
         result = yield self.store.copy_mail_to_mailbox('mail id', ANY_MAILBOX)
 
@@ -80,7 +85,8 @@ class TestSearchableMailStore(TestCase):
     @defer.inlineCallbacks
     def test_move_mail_delegates_to_mail_store_and_updates_index(self):
         moved_mail = LeapMail('new id', ANY_MAILBOX)
-        when(self.delegate_mail_store).move_mail_to_mailbox('mail id', ANY_MAILBOX).thenReturn(defer.succeed(moved_mail))
+        when(self.delegate_mail_store).move_mail_to_mailbox(
+            'mail id', ANY_MAILBOX).thenReturn(defer.succeed(moved_mail))
 
         result = yield self.store.move_mail_to_mailbox('mail id', ANY_MAILBOX)
 
@@ -91,7 +97,8 @@ class TestSearchableMailStore(TestCase):
     @defer.inlineCallbacks
     def test_other_methods_are_delegated(self):
         mail = LeapMail('mail id', ANY_MAILBOX)
-        when(self.delegate_mail_store).get_mail('mail id').thenReturn(defer.succeed(mail), defer.succeed(mail))
+        when(self.delegate_mail_store).get_mail('mail id').thenReturn(
+            defer.succeed(mail), defer.succeed(mail))
         result = yield self.store.get_mail('mail id')
 
         self.assertEqual(mail, result)
@@ -105,7 +112,8 @@ class TestSearchableMailStore(TestCase):
             pass
 
     def _load_mail_from_file(self, mail_file):
-        mailset_dir = pkg_resources.resource_filename('test.unit.fixtures', 'mailset')
+        mailset_dir = pkg_resources.resource_filename(
+            'test.unit.fixtures', 'mailset')
         mail_file = os.path.join(mailset_dir, 'new', mail_file)
         with open(mail_file) as f:
             mail = Parser().parse(f)

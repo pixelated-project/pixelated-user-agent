@@ -16,13 +16,21 @@
 
 
 class MailStore(object):
+
     def get_mail(self, mail_id):
+        pass
+
+    def get_raw_mail(self, mail_id):
         pass
 
     def get_mail_attachment(self, attachment_id):
         pass
 
-    def get_mails(self, mail_ids, gracefully_ignore_errors=False, include_body=False):
+    def get_mails(
+            self,
+            mail_ids,
+            gracefully_ignore_errors=False,
+            include_body=False):
         pass
 
     def all_mails(self):

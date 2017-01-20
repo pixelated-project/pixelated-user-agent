@@ -33,6 +33,7 @@ define(
         replyButtonTop: '#reply-button-top',
         viewMoreActions: '#view-more-actions',
         replyAllButtonTop: '#reply-all-button-top',
+        getRawMail: '#get-raw-mail',
         deleteButtonTop: '#delete-button-top',
         moreActions: '#more-actions'
       });
@@ -53,6 +54,11 @@ define(
           this.select('moreActions').hide();
         }.bind(this));
 
+        this.on(this.select('getRawMail'), 'click', function () {
+          this.trigger(document, events.ui.mail.downloadRaw, {mail: this.attr.mail});
+          this.select('moreActions').hide();
+        }.bind(this));
+
         this.on(this.select('deleteButtonTop'), 'click', function () {
           this.trigger(document, events.ui.mail.delete, {mail: this.attr.mail});
           this.select('moreActions').hide();
@@ -64,9 +70,10 @@ define(
 
         this.on(this.select('viewMoreActions'), 'blur', function (event) {
           var replyButtonTopHover = this.select('replyAllButtonTop').is(':hover');
+          var downloadRaw = this.select('getRawMail').is(':hover');
           var deleteButtonTopHover = this.select('deleteButtonTop').is(':hover');
 
-          if (replyButtonTopHover || deleteButtonTopHover) {
+          if (replyButtonTopHover || deleteButtonTopHover || downloadRaw) {
             event.preventDefault();
           } else {
             this.select('moreActions').hide();

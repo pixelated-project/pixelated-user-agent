@@ -30,7 +30,8 @@ class Tags(FunkLoadTestCase):
         client.add_multiple_to_mailbox(10, 'INBOX', tags=['tag3'])
         client.add_multiple_to_mailbox(10, 'INBOX', tags=['tag4'])
 
-        self.call_to_terminate = client.run_on_a_thread(logfile='results/app.log')
+        self.call_to_terminate = client.run_on_a_thread(
+            logfile='results/app.log')
 
     def tearDownBench(self):
         self.call_to_terminate()

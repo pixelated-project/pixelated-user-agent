@@ -1,4 +1,4 @@
-Pixelated User Agent Service
+ixelated User Agent Service
 ============================
 
 This is the service for the Pixelated User Agent. The primary purpose of this is to provide an interface for the user agent to communicate with the Pixelated Provider.

@@ -33,7 +33,9 @@ class TestFeedbackService(unittest.TestCase, AppTestClient):
         with HTTMock(google_mock):
             yield self.start_client()
             self.feedback_service.FEEDBACK_URL = "https://some.leap-provider.tld/tickets"
-            when(self.leap_session).account_email().thenReturn("text@pixelated-project.org")
-            response = self.feedback_service.open_ticket("Pixelated is awesome!")
+            when(self.leap_session).account_email().thenReturn(
+                "text@pixelated-project.org")
+            response = self.feedback_service.open_ticket(
+                "Pixelated is awesome!")
 
             self.assertEquals(response.status_code, 200)

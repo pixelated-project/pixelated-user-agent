@@ -36,7 +36,8 @@ class TestRootResource(unittest.TestCase):
         self.services_factory.mode = UserAgentMode(is_single_user=True)
         self.services = mock()
         self.services.mail_service = self.mail_service
-        self.services_factory._services_by_user = {'someuserid': self.mail_service}
+        self.services_factory._services_by_user = {
+            'someuserid': self.mail_service}
         when(self.services_factory).services(ANY()).thenReturn(self.services)
         self.mail_service.account_email = self.MAIL_ADDRESS
 
@@ -71,7 +72,8 @@ class TestRootResource(unittest.TestCase):
             d = self.web.get(request)
 
         def assert_csrf_cookie(_):
-            request.addCookie.assert_called_once_with('XSRF-TOKEN', generated_csrf_token)
+            request.addCookie.assert_called_once_with(
+                'XSRF-TOKEN', generated_csrf_token)
 
         d.addCallback(assert_csrf_cookie)
         return d
@@ -100,10 +102,12 @@ class TestRootResource(unittest.TestCase):
         return d
 
     def _mock_ajax_csrf(self, request, csrf_token):
-        request.requestHeaders.setRawHeaders('x-requested-with', ['XMLHttpRequest'])
+        request.requestHeaders.setRawHeaders(
+            'x-requested-with', ['XMLHttpRequest'])
         request.requestHeaders.setRawHeaders('x-xsrf-token', [csrf_token])
 
-    def test_should_unauthorize_child_resource_ajax_requests_when_csrf_mismatch(self):
+    def test_should_unauthorize_child_resource_ajax_requests_when_csrf_mismatch(
+            self):
         request = DummyRequest(['/child'])
         request.method = 'POST'
         self._mock_ajax_csrf(request, 'stubbed csrf token')
@@ -150,7 +154,8 @@ class TestRootResource(unittest.TestCase):
         d.addCallback(assert_unauthorized)
         return d
 
-    def test_should_unauthorize_child_resource_non_ajax_POST_requests_when_csrf_input_mismatch(self):
+    def test_should_unauthorize_child_resource_non_ajax_POST_requests_when_csrf_input_mismatch(
+            self):
         request = DummyRequest(['mails'])
         request.method = 'POST'
         request.addArg('csrftoken', 'some csrf token')

@@ -40,6 +40,7 @@ class ISessionCredential(ICredentials):
 
 @implementer(ISessionCredential)
 class SessionCredential(object):
+
     def __init__(self, request):
         self.request = request
 
@@ -75,7 +76,12 @@ class PixelatedAuthSessionWrapper(object):
 
     isLeaf = False
 
-    def __init__(self, portal, root_resource, anonymous_resource, credentialFactories):
+    def __init__(
+            self,
+            portal,
+            root_resource,
+            anonymous_resource,
+            credentialFactories):
         self._portal = portal
         self._credentialFactories = credentialFactories
         self._root_resource = root_resource
@@ -97,7 +103,8 @@ class PixelatedAuthSessionWrapper(object):
 
         def loginSucceeded(args):
             interface, avatar, logout = args
-            if avatar == checkers.ANONYMOUS and not pattern.match(request.path):
+            if avatar == checkers.ANONYMOUS and not pattern.match(
+                    request.path):
                 return self._anonymous_resource
             else:
                 return self._root_resource

@@ -27,6 +27,7 @@ Credentials = namedtuple('Credentials', 'username, password')
 
 
 class Authenticator(object):
+
     def __init__(self, leap_provider):
         self._leap_provider = leap_provider
         self.domain = leap_provider.server_name
@@ -42,16 +43,21 @@ class Authenticator(object):
         try:
             auth = yield self._bonafide_auth(username, password)
         except SRPAuthError:
-            raise UnauthorizedLogin("User typed wrong password/username combination.")
+            raise UnauthorizedLogin(
+                "User typed wrong password/username combination.")
         returnValue(auth)
 
     @inlineCallbacks
     def _bonafide_auth(self, user, password):
         srp_provider = Api(self._leap_provider.api_uri)
         credentials = Credentials(user, password)
-        srp_auth = Session(credentials, srp_provider, self._leap_provider.local_ca_crt)
+        srp_auth = Session(credentials, srp_provider,
+                           self._leap_provider.local_ca_crt)
         yield srp_auth.authenticate()
-        returnValue(Authentication(user, srp_auth.token, srp_auth.uuid, 'session_id', {'is_admin': False}))
+        returnValue(
+            Authentication(
+                user, srp_auth.token, srp_auth.uuid, 'session_id', {
+                    'is_admin': False}))
 
     def clean_username(self, username):
         if '@' not in username:
@@ -69,6 +75,7 @@ class Authenticator(object):
 
 
 class Authentication(object):
+
     def __init__(self, username, token, uuid, session_id, user_attributes):
         self.username = username
         self.token = token

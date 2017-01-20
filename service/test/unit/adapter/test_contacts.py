@@ -22,10 +22,12 @@ from pixelated.adapter.search.contacts import extract_mail_address
 class TestContacts(unittest.TestCase):
 
     def test_contacts_filter_duplication_by_largest(self):
-        contacts = ['John Large Name <john@name.example.com>', 'john@name.example.com', 'dont.delete@example.com']
+        contacts = ['John Large Name <john@name.example.com>',
+                    'john@name.example.com', 'dont.delete@example.com']
         contacts_filtered = address_duplication_filter(contacts)
         self.assertIn('dont.delete@example.com', contacts_filtered)
-        self.assertIn('John Large Name <john@name.example.com>', contacts_filtered)
+        self.assertIn('John Large Name <john@name.example.com>',
+                      contacts_filtered)
         self.assertNotIn('john@name.example.com', contacts_filtered)
 
     def test_extract_mail_address_from_contact(self):

@@ -20,6 +20,7 @@ class FunctionReturn(object):
     """
     Instead of returning a constant value a function is called
     """
+
     def __init__(self, function_answer):
         self.function_answer = function_answer
 

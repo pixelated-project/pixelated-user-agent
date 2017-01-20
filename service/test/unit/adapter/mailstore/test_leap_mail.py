@@ -21,27 +21,38 @@ from pixelated.adapter.mailstore.leap_mailstore import LeapMail, AttachmentInfo
 
 
 class TestLeapMail(TestCase):
+
     def test_leap_mail(self):
-        mail = LeapMail('', 'INBOX', {'From': 'test@example.test', 'Subject': 'A test Mail', 'To': 'receiver@example.test'})
+        mail = LeapMail('',
+                        'INBOX',
+                        {'From': 'test@example.test',
+                         'Subject': 'A test Mail',
+                         'To': 'receiver@example.test'})
 
         self.assertEqual('test@example.test', mail.from_sender)
         self.assertEqual(['receiver@example.test'], mail.to)
         self.assertEqual('A test Mail', mail.subject)
 
     def test_email_addresses_in_to_are_split_into_a_list(self):
-        mail = LeapMail('', 'INBOX', {'To': 'first@example.test,second@example.test'})
+        mail = LeapMail(
+            '', 'INBOX', {'To': 'first@example.test,second@example.test'})
 
-        self.assertEqual(['first@example.test', 'second@example.test'], mail.headers['To'])
+        self.assertEqual(
+            ['first@example.test', 'second@example.test'], mail.headers['To'])
 
     def test_email_addresses_in_cc_are_split_into_a_list(self):
-        mail = LeapMail('', 'INBOX', {'Cc': 'first@example.test,second@example.test'})
+        mail = LeapMail(
+            '', 'INBOX', {'Cc': 'first@example.test,second@example.test'})
 
-        self.assertEqual(['first@example.test', 'second@example.test'], mail.headers['Cc'])
+        self.assertEqual(
+            ['first@example.test', 'second@example.test'], mail.headers['Cc'])
 
     def test_email_addresses_in_bcc_are_split_into_a_list(self):
-        mail = LeapMail('', 'INBOX', {'Bcc': 'first@example.test,second@example.test'})
+        mail = LeapMail(
+            '', 'INBOX', {'Bcc': 'first@example.test,second@example.test'})
 
-        self.assertEqual(['first@example.test', 'second@example.test'], mail.headers['Bcc'])
+        self.assertEqual(
+            ['first@example.test', 'second@example.test'], mail.headers['Bcc'])
 
     def test_email_addresses_might_be_empty_array(self):
         mail = LeapMail('', 'INBOX', {'Cc': None})
@@ -49,7 +60,13 @@ class TestLeapMail(TestCase):
         self.assertEqual([], mail.headers['Cc'])
 
     def test_as_dict(self):
-        mail = LeapMail('doc id', 'INBOX', {'From': 'test@example.test', 'Subject': 'A test Mail', 'To': 'receiver@example.test,receiver2@other.test'}, ('foo', 'bar'))
+        mail = LeapMail('doc id',
+                        'INBOX',
+                        {'From': 'test@example.test',
+                         'Subject': 'A test Mail',
+                         'To': 'receiver@example.test,receiver2@other.test'},
+                        ('foo',
+                         'bar'))
         self.maxDiff = None
         expected = {
             'header': {
@@ -75,25 +92,40 @@ class TestLeapMail(TestCase):
 
     def test_as_dict_with_body(self):
         body = 'some body content'
-        mail = LeapMail('doc id', 'INBOX', {'From': 'test@example.test', 'Subject': 'A test Mail', 'To': 'receiver@example.test'}, ('foo', 'bar'), body=body)
+        mail = LeapMail('doc id',
+                        'INBOX',
+                        {'From': 'test@example.test',
+                         'Subject': 'A test Mail',
+                         'To': 'receiver@example.test'},
+                        ('foo',
+                            'bar'),
+                        body=body)
 
         self.assertEqual(body, mail.as_dict()['body'])
 
     def test_as_dict_with_attachments(self):
-        attachment_info = AttachmentInfo('id', 'name', 'encoding', ctype='text/plain', size=2)
+        attachment_info = AttachmentInfo(
+            'id', 'name', 'encoding', ctype='text/plain', size=2)
         mail = LeapMail('doc id', 'INBOX', attachments=[attachment_info])
 
-        self.assertEqual([{'ident': 'id', 'name': 'name', 'encoding': 'encoding', 'content-type': 'text/plain', 'size': 2}],
+        self.assertEqual([{'ident': 'id',
+                           'name': 'name',
+                           'encoding': 'encoding',
+                           'content-type': 'text/plain',
+                           'size': 2}],
                          mail.as_dict()['attachments'])
 
     def test_as_dict_headers_with_special_chars(self):
         expected_address = u'"\xc4lbert \xdcbr\xf6" <\xe4\xfc\xf6@example.mail>'
         expected_subject = u'H\xe4ll\xf6 W\xf6rld'
-        mail = LeapMail('', 'INBOX',
-                        {'From': '=?iso-8859-1?q?=22=C4lbert_=DCbr=F6=22_=3C=E4=FC=F6=40example=2Email=3E?=',
-                         'To': '=?iso-8859-1?q?=22=C4lbert_=DCbr=F6=22_=3C=E4=FC=F6=40example=2Email=3E?=',
-                         'Cc': '=?iso-8859-1?q?=22=C4lbert_=DCbr=F6=22_=3C=E4=FC=F6=40example=2Email=3E?=',
-                         'Subject': '=?iso-8859-1?q?H=E4ll=F6_W=F6rld?='})
+        mail = LeapMail(
+            '',
+            'INBOX',
+            {
+                'From': '=?iso-8859-1?q?=22=C4lbert_=DCbr=F6=22_=3C=E4=FC=F6=40example=2Email=3E?=',
+                'To': '=?iso-8859-1?q?=22=C4lbert_=DCbr=F6=22_=3C=E4=FC=F6=40example=2Email=3E?=',
+                'Cc': '=?iso-8859-1?q?=22=C4lbert_=DCbr=F6=22_=3C=E4=FC=F6=40example=2Email=3E?=',
+                'Subject': '=?iso-8859-1?q?H=E4ll=F6_W=F6rld?='})
 
         self.assertEqual(expected_address, mail.as_dict()['header']['from'])
         self.assertEqual([expected_address], mail.as_dict()['header']['to'])
@@ -105,11 +137,19 @@ class TestLeapMail(TestCase):
         mail = LeapMail('', 'INBOX',
                         {'Subject': subject})
 
-        self.assertEqual(u'Another test with Ümläüts', mail.as_dict()['header']['subject'])
+        self.assertEqual(u'Another test with Ümläüts',
+                         mail.as_dict()['header']['subject'])
 
     def test_raw_constructed_by_headers_and_body(self):
         body = 'some body content'
-        mail = LeapMail('doc id', 'INBOX', {'From': 'test@example.test', 'Subject': 'A test Mail', 'To': 'receiver@example.test'}, ('foo', 'bar'), body=body)
+        mail = LeapMail('doc id',
+                        'INBOX',
+                        {'From': 'test@example.test',
+                         'Subject': 'A test Mail',
+                         'To': 'receiver@example.test'},
+                        ('foo',
+                            'bar'),
+                        body=body)
 
         result = mail.raw
 
@@ -126,7 +166,9 @@ class TestLeapMail(TestCase):
     def test_security_casing(self):
         # No Encryption, no Signature
         mail = LeapMail('id', 'INBOX', {})
-        self.assertEqual({'locks': [], 'imprints': [{'state': 'no_signature_information'}]}, mail.security_casing)
+        self.assertEqual({'locks': [],
+                          'imprints': [{'state': 'no_signature_information'}]},
+                         mail.security_casing)
 
         # Encryption
         mail = LeapMail('id', 'INBOX', {'X-Leap-Encryption': 'decrypted'})
@@ -137,7 +179,8 @@ class TestLeapMail(TestCase):
 
         # Signature
         mail = LeapMail('id', 'INBOX', {'X-Leap-Signature': 'valid'})
-        self.assertEqual([{'seal': {'validity': 'valid'}, 'state': 'valid'}], mail.security_casing['imprints'])
+        self.assertEqual([{'seal': {'validity': 'valid'},
+                           'state': 'valid'}], mail.security_casing['imprints'])
 
         mail = LeapMail('id', 'INBOX', {'X-Leap-Signature': 'invalid'})
         self.assertEqual([], mail.security_casing['imprints'])

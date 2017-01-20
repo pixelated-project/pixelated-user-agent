@@ -49,7 +49,8 @@ class MailsUnreadResource(Resource):
 
         d = defer.gatherResults(deferreds, consumeErrors=True)
         d.addCallback(lambda _: respond_json_deferred(None, request))
-        d.addErrback(lambda _: respond_json_deferred(None, request, status_code=500))
+        d.addErrback(lambda _: respond_json_deferred(
+            None, request, status_code=500))
 
         return NOT_DONE_YET
 
@@ -69,7 +70,8 @@ class MailsReadResource(Resource):
 
         d = defer.gatherResults(deferreds, consumeErrors=True)
         d.addCallback(lambda _: respond_json_deferred(None, request))
-        d.addErrback(lambda _: respond_json_deferred(None, request, status_code=500))
+        d.addErrback(lambda _: respond_json_deferred(
+            None, request, status_code=500))
 
         return NOT_DONE_YET
 
@@ -111,7 +113,8 @@ class MailsRecoverResource(Resource):
             deferreds.append(self._mail_service.recover_mail(ident))
         d = defer.gatherResults(deferreds, consumeErrors=True)
         d.addCallback(lambda _: respond_json_deferred(None, request))
-        d.addErrback(lambda _: respond_json_deferred(None, request, status_code=500))
+        d.addErrback(lambda _: respond_json_deferred(
+            None, request, status_code=500))
         return NOT_DONE_YET
 
 
@@ -128,8 +131,10 @@ class MailsArchiveResource(Resource):
         for ident in idents:
             deferreds.append(self._mail_service.archive_mail(ident))
         d = defer.gatherResults(deferreds, consumeErrors=True)
-        d.addCallback(lambda _: respond_json_deferred({'successMessage': 'your-message-was-archived'}, request))
-        d.addErrback(lambda _: respond_json_deferred(None, request, status_code=500))
+        d.addCallback(lambda _: respond_json_deferred(
+            {'successMessage': 'your-message-was-archived'}, request))
+        d.addErrback(lambda _: respond_json_deferred(
+            None, request, status_code=500))
         return NOT_DONE_YET
 
 
@@ -138,10 +143,12 @@ class MailsResource(BaseResource):
     def _register_smtp_error_handler(self):
 
         def on_error(event, content):
-            delivery_error_mail = InputMail.delivery_error_template(delivery_address=event.content)
+            delivery_error_mail = InputMail.delivery_error_template(
+                delivery_address=event.content)
             self._mail_service.mailboxes.inbox.add(delivery_error_mail)
 
-        events.register(events.catalog.SMTP_SEND_MESSAGE_ERROR, callback=on_error)
+        events.register(events.catalog.SMTP_SEND_MESSAGE_ERROR,
+                        callback=on_error)
 
     def __init__(self, services_factory):
         BaseResource.__init__(self, services_factory)
@@ -161,7 +168,8 @@ class MailsResource(BaseResource):
         if action == 'unread':
             return MailsUnreadResource(_mail_service)
 
-    def _build_mails_response(self, (mails, total)):
+    def _build_mails_response(self, xxx_todo_changeme):
+        (mails, total) = xxx_todo_changeme
         return {
             "stats": {
                 "total": total,
@@ -172,7 +180,8 @@ class MailsResource(BaseResource):
     def render_GET(self, request):
 
         _mail_service = self.mail_service(request)
-        query, window_size, page = request.args.get('q')[0], request.args.get('w')[0], request.args.get('p')[0]
+        query, window_size, page = request.args.get('q')[0], request.args.get('w')[
+            0], request.args.get('p')[0]
         unicode_query = to_unicode(query)
         d = _mail_service.mails(unicode_query, window_size, page)
 
@@ -189,10 +198,13 @@ class MailsResource(BaseResource):
     def render_POST(self, request):
         def onError(error):
             if isinstance(error.value, SMTPDownException):
-                respond_json_deferred({'message': str(error.value)}, request, status_code=503)
+                respond_json_deferred(
+                    {'message': str(error.value)}, request, status_code=503)
             else:
-                log.error('error occurred while sending: %s' % error.getErrorMessage())
-                respond_json_deferred({'message': 'an error occurred while sending'}, request, status_code=422)
+                log.error('error occurred while sending: %s' %
+                          error.getErrorMessage())
+                respond_json_deferred(
+                    {'message': 'an error occurred while sending'}, request, status_code=422)
 
         deferred = self._handle_post(request)
         deferred.addErrback(onError)
@@ -201,8 +213,8 @@ class MailsResource(BaseResource):
 
     def render_PUT(self, request):
         def onError(error):
-                log.error('error saving draft: %s' % error.getErrorMessage())
-                respond_json_deferred("", request, status_code=422)
+            log.error('error saving draft: %s' % error.getErrorMessage())
+            respond_json_deferred("", request, status_code=422)
 
         deferred = self._handle_put(request)
         deferred.addErrback(onError)
@@ -211,7 +223,8 @@ class MailsResource(BaseResource):
 
     @defer.inlineCallbacks
     def _fetch_attachment_contents(self, content_dict, _mail_service):
-        attachments = content_dict.get('attachments', []) if content_dict else []
+        attachments = content_dict.get(
+            'attachments', []) if content_dict else []
         for attachment in attachments:
             retrieved_attachment = yield _mail_service.attachment(attachment['ident'])
             attachment['raw'] = retrieved_attachment['content']
@@ -234,7 +247,8 @@ class MailsResource(BaseResource):
         content_dict = json.loads(request.content.read())
         with_attachment_content = yield self._fetch_attachment_contents(content_dict, _mail_service)
 
-        _mail = InputMail.from_dict(with_attachment_content, from_address=_mail_service.account_email)
+        _mail = InputMail.from_dict(
+            with_attachment_content, from_address=_mail_service.account_email)
         draft_id = content_dict.get('ident')
         pixelated_mail = yield _draft_service.process_draft(draft_id, _mail)
 

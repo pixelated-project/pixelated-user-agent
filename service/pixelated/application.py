@@ -44,13 +44,19 @@ log = Logger()
 
 
 class UserAgentMode(object):
+
     def __init__(self, is_single_user):
         self.is_single_user = is_single_user
 
 
 @defer.inlineCallbacks
-def start_user_agent_in_single_user_mode(root_resource, services_factory, leap_home, leap_session):
-    log.info('Bootstrap done, loading services for user %s' % leap_session.user_auth.username)
+def start_user_agent_in_single_user_mode(
+        root_resource,
+        services_factory,
+        leap_home,
+        leap_session):
+    log.info('Bootstrap done, loading services for user %s' %
+             leap_session.user_auth.username)
 
     _services = services.Services(leap_session)
     yield _services.setup()
@@ -113,7 +119,10 @@ def add_top_level_system_callbacks(deferred, services_factory):
 
     def _log_user_out(event, user_data):
         log.info('Invalid soledad token, logging out %s' % user_data)
-        user_data = {'user_id': user_data['uuid']} if 'uuid' in user_data else {'user_id': user_data, 'using_email': True}
+        user_data = {
+            'user_id': user_data['uuid']} if 'uuid' in user_data else {
+            'user_id': user_data,
+            'using_email': True}
         services_factory.destroy_session(**user_data)
 
     def _log_user_out_on_token_expire(leap_session):
@@ -134,7 +143,8 @@ def _start_mode(args, resource, services_factory):
 
 def _start_in_multi_user_mode(args, root_resource, services_factory):
     try:
-        protected_resources = _setup_multi_user(args, root_resource, services_factory)
+        protected_resources = _setup_multi_user(
+            args, root_resource, services_factory)
         start_site(args, protected_resources)
         reactor.getThreadPool().adjustPoolsize(5, 15)
         return defer.succeed(None)
@@ -147,20 +157,36 @@ def _setup_multi_user(args, root_resource, services_factory):
         raise ValueError('Multi-user mode: provider name is required')
     init_monkeypatches()
     events_server.ensure_server()
-    provider = initialize_leap_provider(args.provider, args.leap_provider_cert, args.leap_provider_cert_fingerprint, args.leap_home)
-    protected_resource = set_up_protected_resources(root_resource, provider, services_factory, banner=args.banner)
+    provider = initialize_leap_provider(
+        args.provider,
+        args.leap_provider_cert,
+        args.leap_provider_cert_fingerprint,
+        args.leap_home)
+    protected_resource = set_up_protected_resources(
+        root_resource, provider, services_factory, banner=args.banner)
     return protected_resource
 
 
-def set_up_protected_resources(root_resource, provider, services_factory, banner=None, authenticator=None):
+def set_up_protected_resources(
+        root_resource,
+        provider,
+        services_factory,
+        banner=None,
+        authenticator=None):
     session_checker = SessionChecker(services_factory)
 
     realm = PixelatedRealm()
     _portal = portal.Portal(realm, [session_checker, AllowAnonymousAccess()])
 
-    anonymous_resource = LoginResource(services_factory, provider, disclaimer_banner=banner, authenticator=authenticator)
-    protected_resource = PixelatedAuthSessionWrapper(_portal, root_resource, anonymous_resource, [])
-    root_resource.initialize(provider, disclaimer_banner=banner, authenticator=authenticator)
+    anonymous_resource = LoginResource(
+        services_factory,
+        provider,
+        disclaimer_banner=banner,
+        authenticator=authenticator)
+    protected_resource = PixelatedAuthSessionWrapper(
+        _portal, root_resource, anonymous_resource, [])
+    root_resource.initialize(
+        provider, disclaimer_banner=banner, authenticator=authenticator)
     return protected_resource
 
 
@@ -173,7 +199,8 @@ def _start_in_single_user_mode(args, resource, services_factory):
 
     def _handle_error(exception):
         if(exception.type is InvalidAuthTokenError):
-            log.critical('Got an invalid soledad token, the user agent can\'t synchronize data, exiting')
+            log.critical(
+                'Got an invalid soledad token, the user agent can\'t synchronize data, exiting')
             os._exit(1)
         else:
             exception.raiseException()
@@ -210,7 +237,12 @@ def start_site(config, resource):
     site = PixelatedSite(resource)
     site.displayTracebacks = False
     if config.sslkey and config.sslcert:
-        reactor.listenSSL(config.port, site, _ssl_options(config.sslkey, config.sslcert),
-                          interface=config.host)
+        reactor.listenSSL(
+            config.port,
+            site,
+            _ssl_options(
+                config.sslkey,
+                config.sslcert),
+            interface=config.host)
     else:
         reactor.listenTCP(config.port, site, interface=config.host)

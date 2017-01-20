@@ -37,12 +37,17 @@ class Keymanager(object):
     def __init__(self, provider, soledad, email_address, token, uuid):
         nicknym_url = provider._discover_nicknym_server()
         self._email = email_address
-        self.keymanager = KeyManager(self._email, nicknym_url,
-                                     soledad,
-                                     token=token, ca_cert_path=provider.provider_api_cert, api_uri=provider.api_uri,
-                                     api_version=provider.api_version,
-                                     uid=uuid, gpgbinary=leap_config.gpg_binary,
-                                     combined_ca_bundle=provider.combined_cerfificates_path)
+        self.keymanager = KeyManager(
+            self._email,
+            nicknym_url,
+            soledad,
+            token=token,
+            ca_cert_path=provider.provider_api_cert,
+            api_uri=provider.api_uri,
+            api_version=provider.api_version,
+            uid=uuid,
+            gpgbinary=leap_config.gpg_binary,
+            combined_ca_bundle=provider.combined_cerfificates_path)
 
     @defer.inlineCallbacks
     def generate_openpgp_key(self):
@@ -53,7 +58,8 @@ class Keymanager(object):
             current_key = yield self._regenerate_key_and_send_to_leap()
 
         self._synchronize_remote_key(current_key)
-        logger.debug("Current key for {}: {}".format(self._email, current_key.fingerprint))
+        logger.debug("Current key for {}: {}".format(
+            self._email, current_key.fingerprint))
 
     @defer.inlineCallbacks
     def _synchronize_remote_key(self, current_key):

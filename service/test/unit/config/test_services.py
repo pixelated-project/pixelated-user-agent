@@ -60,7 +60,8 @@ class ServicesFactoryTest(unittest.TestCase):
         self.assertEqual(2, self.service_factory.online_sessions())
 
     @patch('pixelated.config.services.Services.setup')
-    def test_create_services_from_leap_session_sets_up_services_and_add_a_user_session(self, mock_setup_services):
+    def test_create_services_from_leap_session_sets_up_services_and_add_a_user_session(
+            self, mock_setup_services):
         leap_session = Mock()
         user_id = 'irrelevant'
         leap_session.user_auth.uuid = user_id
@@ -70,7 +71,8 @@ class ServicesFactoryTest(unittest.TestCase):
         self.assertTrue(mock_setup_services.called)
         self.assertTrue(self.service_factory.has_session(user_id))
 
-    def test_destroy_session_using_close_user_services_and_deletes_sessions(self):
+    def test_destroy_session_using_close_user_services_and_deletes_sessions(
+            self):
         user_id = 'irrelevant'
         some_service = Mock()
         self.service_factory.add_session(user_id, some_service)

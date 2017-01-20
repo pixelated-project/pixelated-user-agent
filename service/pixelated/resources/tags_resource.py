@@ -31,7 +31,8 @@ class TagsResource(BaseResource):
         query = request.args.get('q', [''])[0]
         skip_default_tags = request.args.get('skipDefaultTags', [False])[0]
 
-        d = deferToThread(lambda: _search_engine.tags(query=query, skip_default_tags=skip_default_tags))
+        d = deferToThread(lambda: _search_engine.tags(
+            query=query, skip_default_tags=skip_default_tags))
         d.addCallback(lambda tags: respond_json_deferred(tags, request))
         d.addErrback(handle_error_deferred, request)
 

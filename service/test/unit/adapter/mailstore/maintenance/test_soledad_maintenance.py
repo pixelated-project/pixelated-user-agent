@@ -40,8 +40,10 @@ class TestSoledadMaintenance(unittest.TestCase):
     def test_repair_delete_public_key_active_docs(self):
         soledad = mock()
         key = self._public_key(SOME_EMAIL_ADDRESS, SOME_FINGERPRINT)
-        active_doc = SoledadDocument(doc_id='some_doc', json=key.get_active_json())
-        when(soledad).get_all_docs().thenReturn(defer.succeed((1, [active_doc])))
+        active_doc = SoledadDocument(
+            doc_id='some_doc', json=key.get_active_json())
+        when(soledad).get_all_docs().thenReturn(
+            defer.succeed((1, [active_doc])))
 
         yield SoledadMaintenance(soledad).repair()
 
@@ -51,9 +53,11 @@ class TestSoledadMaintenance(unittest.TestCase):
     def test_repair_delete_public_key_docs(self):
         soledad = mock()
         key = self._public_key(SOME_EMAIL_ADDRESS, SOME_FINGERPRINT)
-        active_doc = SoledadDocument(doc_id='some_doc', json=key.get_active_json())
+        active_doc = SoledadDocument(
+            doc_id='some_doc', json=key.get_active_json())
         key_doc = SoledadDocument(doc_id='some_doc', json=key.get_json())
-        when(soledad).get_all_docs().thenReturn(defer.succeed((1, [key_doc, active_doc])))
+        when(soledad).get_all_docs().thenReturn(
+            defer.succeed((1, [key_doc, active_doc])))
 
         yield SoledadMaintenance(soledad).repair()
 
@@ -65,10 +69,13 @@ class TestSoledadMaintenance(unittest.TestCase):
         soledad = mock()
         key = self._public_key(SOME_EMAIL_ADDRESS, SOME_FINGERPRINT)
         private_key = self._private_key(SOME_EMAIL_ADDRESS, SOME_FINGERPRINT)
-        active_doc = SoledadDocument(doc_id='some_doc', json=key.get_active_json())
+        active_doc = SoledadDocument(
+            doc_id='some_doc', json=key.get_active_json())
         key_doc = SoledadDocument(doc_id='some_doc', json=key.get_json())
-        private_key_doc = SoledadDocument(doc_id='some_doc', json=private_key.get_json())
-        when(soledad).get_all_docs().thenReturn(defer.succeed((1, [key_doc, active_doc, private_key_doc])))
+        private_key_doc = SoledadDocument(
+            doc_id='some_doc', json=private_key.get_json())
+        when(soledad).get_all_docs().thenReturn(
+            defer.succeed((1, [key_doc, active_doc, private_key_doc])))
 
         yield SoledadMaintenance(soledad).repair()
 
@@ -80,9 +87,11 @@ class TestSoledadMaintenance(unittest.TestCase):
     def test_repair_only_deletes_key_docs(self):
         soledad = mock()
         key = self._public_key(SOME_EMAIL_ADDRESS, SOME_FINGERPRINT)
-        key_doc = SoledadDocument(doc_id='some_doc', json=key.get_active_json())
+        key_doc = SoledadDocument(
+            doc_id='some_doc', json=key.get_active_json())
         other_doc = SoledadDocument(doc_id='something', json='{}')
-        when(soledad).get_all_docs().thenReturn(defer.succeed((1, [key_doc, other_doc])))
+        when(soledad).get_all_docs().thenReturn(
+            defer.succeed((1, [key_doc, other_doc])))
 
         yield SoledadMaintenance(soledad).repair()
 
@@ -93,12 +102,15 @@ class TestSoledadMaintenance(unittest.TestCase):
         soledad = mock()
 
         private_key = self._private_key(SOME_EMAIL_ADDRESS, SOME_FINGERPRINT)
-        private_key_doc = SoledadDocument(doc_id='some_doc', json=private_key.get_active_json())
-        when(soledad).get_all_docs().thenReturn(defer.succeed((1, [private_key_doc])))
+        private_key_doc = SoledadDocument(
+            doc_id='some_doc', json=private_key.get_active_json())
+        when(soledad).get_all_docs().thenReturn(
+            defer.succeed((1, [private_key_doc])))
 
         yield SoledadMaintenance(soledad).repair()
 
-        verify(soledad).create_doc_from_json('{"encr_used": false, "sign_used": false, "validation": "Weak_Chain", "version": 1, "address": "foo@example.tld", "last_audited_at": 0, "fingerprint": "4914254E384E264C", "type": "OpenPGPKey-active", "private": false, "tags": ["keymanager-active"]}')
+        verify(soledad).create_doc_from_json(
+            '{"encr_used": false, "sign_used": false, "validation": "Weak_Chain", "version": 1, "address": "foo@example.tld", "last_audited_at": 0, "fingerprint": "4914254E384E264C", "type": "OpenPGPKey-active", "private": false, "tags": ["keymanager-active"]}')
 
     def _public_key(self, address, fingerprint):
         return self._gpgkey(address, fingerprint, private=False)

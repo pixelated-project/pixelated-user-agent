@@ -22,16 +22,25 @@ from twisted.logger import Logger
 logger = Logger()
 
 
-def _parse_charset_header(content_type_and_charset_header, default_charset='us-ascii'):
+def _parse_charset_header(
+        content_type_and_charset_header,
+        default_charset='us-ascii'):
     try:
-        return re.compile('.*charset="?([a-zA-Z0-9-]+)"?', re.MULTILINE | re.DOTALL).match(content_type_and_charset_header).group(1)
+        return re.compile(
+            '.*charset="?([a-zA-Z0-9-]+)"?',
+            re.MULTILINE | re.DOTALL).match(content_type_and_charset_header).group(1)
     except:
         return default_charset
 
 
 class BodyParser(object):
 
-    def __init__(self, content, content_type='text/plain; charset="us-ascii"', content_transfer_encoding=None, charset=None):
+    def __init__(
+            self,
+            content,
+            content_type='text/plain; charset="us-ascii"',
+            content_transfer_encoding=None,
+            charset=None):
         self._content = content
         self._content_type = content_type
         self._content_transfer_encoding = content_transfer_encoding
@@ -62,8 +71,10 @@ class BodyParser(object):
         if isinstance(self._content, unicode):
             try:
                 return encoded_text + self._content.encode(charset)
-            except UnicodeError, e:
-                logger.warn('Failed to encode content for charset %s. Ignoring invalid chars: %s' % (charset, e))
+            except UnicodeError as e:
+                logger.warn(
+                    'Failed to encode content for charset %s. Ignoring invalid chars: %s' %
+                    (charset, e))
                 return encoded_text + self._content.encode(charset, 'ignore')
         else:
             return encoded_text + self._content

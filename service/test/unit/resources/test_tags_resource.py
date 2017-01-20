@@ -22,6 +22,7 @@ from test.unit.resources import DummySite
 
 
 class TestTagsResource(unittest.TestCase):
+
     def setUp(self):
         self.services_factory = MagicMock()
         self.resource = TagsResource(self.services_factory)

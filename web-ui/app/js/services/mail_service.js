@@ -15,6 +15,8 @@
  * along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+
 define(
   [
     'flight/lib/component',
@@ -275,6 +277,20 @@ define(
         }
       };
 
+      this.downloadRaw = function (event, data) {
+          monitoredAjax(this, '/mail/' + data.mail.ident,
+          {type: 'POST'})
+          .done(function (data) {
+          var a=document.createElement('a');
+            a.href='data:text/plain;base64,'+btoa(data.textPlainBody);
+            a.textContent='download';
+            a.download='raw_mail_content.txt';
+            a.click();
+            return;
+           })
+          .fail(this.errorMessage('Failed to download'));
+      };
+
       this.nextPage = function () {
         if (this.attr.currentPage < (this.attr.numPages)) {
           this.updateCurrentPageNumber(this.attr.currentPage + 1);
@@ -327,6 +343,7 @@ define(
         this.on(document, events.ui.mails.refresh, this.refreshMails);
         this.on(document, events.ui.page.previous, this.previousPage);
         this.on(document, events.ui.page.next, this.nextPage);
+        this.on(document, events.ui.mail.downloadRaw, this.downloadRaw);
 
         this.fetchByTag(null, {tag: urlParams.getTag()});
       });

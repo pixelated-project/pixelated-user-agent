@@ -20,7 +20,8 @@ import pkg_resources
 
 
 def load_mail_from_file(mail_file, enforceUniqueMessageId=False):
-    mailset_dir = pkg_resources.resource_filename('test.unit.fixtures', 'mailset')
+    mailset_dir = pkg_resources.resource_filename(
+        'test.unit.fixtures', 'mailset')
     mail_file = os.path.join(mailset_dir, 'new', mail_file)
     with open(mail_file) as f:
         mail = Parser().parse(f)

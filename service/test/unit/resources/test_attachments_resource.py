@@ -35,7 +35,8 @@ class AttachmentsResourceTest(unittest.TestCase):
         self.services_factory.mode = UserAgentMode(is_single_user=True)
         self.services = mock()
         self.services.mail_service = self.mail_service
-        self.services_factory._services_by_user = {'someuserid': self.mail_service}
+        self.services_factory._services_by_user = {
+            'someuserid': self.mail_service}
         when(self.services_factory).services(ANY()).thenReturn(self.services)
 
         self.mails_resource = AttachmentsResource(self.services_factory)
@@ -53,17 +54,29 @@ class AttachmentsResourceTest(unittest.TestCase):
         _file.type = 'some mocked type'
         _file.filename = 'filename.txt'
         mock_fields.return_value = {'attachment': _file}
-        when(self.mail_service).save_attachment('some mocked value', 'some mocked type').thenReturn(defer.succeed(attachment_id))
+        when(
+            self.mail_service).save_attachment(
+            'some mocked value',
+            'some mocked type').thenReturn(
+            defer.succeed(attachment_id))
 
         d = self.web.get(request)
 
         def assert_response(_):
             self.assertEqual(201, request.code)
-            self.assertEqual('/attachment/%s' % attachment_id, request.responseHeaders.getRawHeaders("location")[0])
-            response_json = {'ident': attachment_id, 'content-type': 'some mocked type',
-                             'name': 'filename.txt', 'size': 17, 'encoding': 'base64'}
+            self.assertEqual(
+                '/attachment/%s' %
+                attachment_id,
+                request.responseHeaders.getRawHeaders("location")[0])
+            response_json = {
+                'ident': attachment_id,
+                'content-type': 'some mocked type',
+                'name': 'filename.txt',
+                'size': 17,
+                'encoding': 'base64'}
             self.assertEqual(response_json, json.loads(request.written[0]))
-            verify(self.mail_service).save_attachment('some mocked value', 'some mocked type')
+            verify(self.mail_service).save_attachment(
+                'some mocked value', 'some mocked type')
 
         d.addCallback(assert_response)
         return d
@@ -78,15 +91,21 @@ class AttachmentsResourceTest(unittest.TestCase):
         _file.value = 'some mocked value'
         _file.type = 'some mocked type'
         mock_fields.return_value = {'attachment': _file}
-        when(self.mail_service).save_attachment('some mocked value', 'some mocked type').thenReturn(defer.fail(Exception))
+        when(
+            self.mail_service).save_attachment(
+            'some mocked value',
+            'some mocked type').thenReturn(
+            defer.fail(Exception))
 
         d = self.web.get(request)
 
         def assert_response(_):
             self.assertEqual(500, request.code)
-            self.assertFalse(request.responseHeaders.hasHeader('Location'.lower()))
+            self.assertFalse(
+                request.responseHeaders.hasHeader('Location'.lower()))
             self.assertIn("message", json.loads(request.written[0]))
-            verify(self.mail_service).save_attachment('some mocked value', 'some mocked type')
+            verify(self.mail_service).save_attachment(
+                'some mocked value', 'some mocked type')
 
         d.addCallback(assert_response)
         return d

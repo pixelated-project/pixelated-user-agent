@@ -43,28 +43,45 @@ class SearchEngine(object):
             os.makedirs(self.index_folder)
         self._index = self._create_index()
 
-    def _add_to_tags(self, tags, group, skip_default_tags, count_type, query=None):
-        query_matcher = re.compile(".*%s.*" % query.lower()) if query else re.compile(".*")
+    def _add_to_tags(
+            self,
+            tags,
+            group,
+            skip_default_tags,
+            count_type,
+            query=None):
+        query_matcher = re.compile(
+            ".*%s.*" % query.lower()) if query else re.compile(".*")
 
         for tag, count in group.iteritems():
 
-            if skip_default_tags and tag in self.DEFAULT_TAGS or not query_matcher.match(tag):
+            if skip_default_tags and tag in self.DEFAULT_TAGS or not query_matcher.match(
+                    tag):
                 continue
 
             if not tags.get(tag):
-                tags[tag] = {'ident': tag, 'name': tag, 'default': False, 'counts': {'total': 0, 'read': 0},
-                             'mails': []}
+                tags[tag] = {
+                    'ident': tag,
+                    'name': tag,
+                    'default': False,
+                    'counts': {
+                        'total': 0,
+                        'read': 0},
+                    'mails': []}
             tags[tag]['counts'][count_type] += count
 
     def _search_tag_groups(self, is_filtering_tags):
         seen = None
         query_parser = QueryParser('tag', self._index.schema)
-        options = {'limit': None, 'groupedby': sorting.FieldFacet('tag', allow_overlap=True), 'maptype': sorting.Count}
+        options = {'limit': None, 'groupedby': sorting.FieldFacet(
+            'tag', allow_overlap=True), 'maptype': sorting.Count}
 
         with self._index.searcher() as searcher:
-            total = searcher.search(query_parser.parse('*'), **options).groups()
+            total = searcher.search(
+                query_parser.parse('*'), **options).groups()
             if not is_filtering_tags:
-                seen = searcher.search(query_parser.parse("* AND flags:%s" % Status.SEEN), **options).groups()
+                seen = searcher.search(query_parser.parse(
+                    "* AND flags:%s" % Status.SEEN), **options).groups()
         return seen, total
 
     def _init_tags_defaults(self):
@@ -86,14 +103,16 @@ class SearchEngine(object):
         tags = {}
         if not skip_default_tags:
             tags = self._init_tags_defaults()
-        self._add_to_tags(tags, total, skip_default_tags, count_type='total', query=query)
+        self._add_to_tags(tags, total, skip_default_tags,
+                          count_type='total', query=query)
         if seen:
             self._add_to_tags(tags, seen, skip_default_tags, count_type='read')
         return tags.values()
 
     def tags(self, query, skip_default_tags):
         is_filtering_tags = True if query else False
-        seen, total = self._search_tag_groups(is_filtering_tags=is_filtering_tags)
+        seen, total = self._search_tag_groups(
+            is_filtering_tags=is_filtering_tags)
         return self._build_tags(seen, total, skip_default_tags, query)
 
     def _mail_schema(self):
@@ -112,7 +131,10 @@ class SearchEngine(object):
 
     def _create_index(self):
         storage = EncryptedFileStorage(self.index_folder, self.key)
-        return FileIndex.create(storage, self._mail_schema(), indexname='mails')
+        return FileIndex.create(
+            storage,
+            self._mail_schema(),
+            indexname='mails')
 
     def index_mail(self, mail):
         if mail is not None:
@@ -162,7 +184,7 @@ class SearchEngine(object):
                     self._index_mail(writer, mail)
             if callback:
                 callback()
-        except Exception, e:
+        except Exception as e:
             traceback.print_exc(e)
             raise
 
@@ -174,12 +196,14 @@ class SearchEngine(object):
 
     def search(self, query, window=25, page=1, all_mails=False):
         query = self.prepare_query(query)
-        return self._search_all_mails(query) if all_mails else self._paginated_search_mails(query, window, page)
+        return self._search_all_mails(
+            query) if all_mails else self._paginated_search_mails(query, window, page)
 
     def _search_all_mails(self, query):
         with self._index.searcher() as searcher:
             sorting_facet = sorting.FieldFacet('date', reverse=True)
-            results = searcher.search(query, sortedby=sorting_facet, reverse=True, limit=None)
+            results = searcher.search(
+                query, sortedby=sorting_facet, reverse=True, limit=None)
             return unique([mail['ident'] for mail in results])
 
     def _paginated_search_mails(self, query, window, page):
@@ -187,10 +211,17 @@ class SearchEngine(object):
         window = int(window) if window is not None else 25
 
         with self._index.searcher() as searcher:
-            tags_facet = sorting.FieldFacet('tag', allow_overlap=True, maptype=sorting.Count)
+            tags_facet = sorting.FieldFacet(
+                'tag', allow_overlap=True, maptype=sorting.Count)
             sorting_facet = sorting.FieldFacet('date', reverse=True)
-            results = searcher.search_page(query, page, pagelen=window, groupedby=tags_facet, sortedby=sorting_facet)
-            return unique([mail['ident'] for mail in results]), sum(results.results.groups().values())
+            results = searcher.search_page(
+                query,
+                page,
+                pagelen=window,
+                groupedby=tags_facet,
+                sortedby=sorting_facet)
+            return unique([mail['ident'] for mail in results]), sum(
+                results.results.groups().values())
 
     def prepare_query(self, query):
         query = (
@@ -198,7 +229,8 @@ class SearchEngine(object):
             .replace('-in:', 'AND NOT tag:')
             .replace('in:all', '*')
         )
-        return MultifieldParser(['body', 'subject', 'raw'], self._index.schema).parse(query)
+        return MultifieldParser(
+            ['body', 'subject', 'raw'], self._index.schema).parse(query)
 
     def remove_from_index(self, mail_id):
         with AsyncWriter(self._index) as writer:

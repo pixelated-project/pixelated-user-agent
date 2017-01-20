@@ -29,5 +29,6 @@ class TestStatus(unittest.TestCase):
         self.assertEquals('replied', status)
 
     def test_bulk_conversion(self):
-        statuses = Status.from_flags(['\\Answered', '\\Seen', '\\Recent', 'tag_a_custom'])
+        statuses = Status.from_flags(
+            ['\\Answered', '\\Seen', '\\Recent', 'tag_a_custom'])
         self.assertEquals(set(['read', 'replied', 'recent']), statuses)

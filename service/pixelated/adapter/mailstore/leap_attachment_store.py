@@ -35,8 +35,9 @@ class LeapAttachmentStore(object):
         results = yield self.soledad.get_from_index('by-type-and-payloadhash', 'cnt', attachment_id) if attachment_id else []
         if results:
             content = ContentDocWrapper(**results[0].content)
-            defer.returnValue({'content-type': content.content_type, 'content': self._try_decode(
-                content.raw, content.content_transfer_encoding)})
+            defer.returnValue({'content-type': content.content_type,
+                               'content': self._try_decode(content.raw,
+                                                           content.content_transfer_encoding)})
         else:
             raise ValueError('No attachment with id %s found!' % attachment_id)
 
@@ -61,21 +62,31 @@ class LeapAttachmentStore(object):
 
         return bytearray(data)
 
-    def _attachment_to_cdoc(self, content, content_type, encoder=encoders.encode_base64):
+    def _attachment_to_cdoc(
+            self,
+            content,
+            content_type,
+            encoder=encoders.encode_base64):
         major, sub = content_type.split('/')
         attachment = MIMENonMultipart(major, sub)
         attachment.set_payload(content)
         encoder(attachment)
-        attachment.add_header('Content-Disposition', 'attachment', filename='does_not_matter.txt')
+        attachment.add_header('Content-Disposition',
+                              'attachment', filename='does_not_matter.txt')
 
         pseudo_mail = MIMEMultipart()
         pseudo_mail.attach(attachment)
 
-        tmp_mail = SoledadMailAdaptor().get_msg_from_string(MessageClass=Message, raw_msg=pseudo_mail.as_string())
+        tmp_mail = SoledadMailAdaptor().get_msg_from_string(
+            MessageClass=Message, raw_msg=pseudo_mail.as_string())
 
         cdoc = tmp_mail.get_wrapper().cdocs[1]
         return cdoc
 
-    def _calc_attachment_id_(self, content, content_type, encoder=encoders.encode_base64):
+    def _calc_attachment_id_(
+            self,
+            content,
+            content_type,
+            encoder=encoders.encode_base64):
         cdoc = self._attachment_to_cdoc(content, content_type, encoder)
         return cdoc.phash

@@ -41,7 +41,8 @@ def build_mail_with_attachment(subject):
     mail['Subject'] = subject
     mail.attach(MIMEText(u'a utf8 message', _charset='utf-8'))
     attachment = MIMEApplication('pretend to be binary attachment data')
-    attachment.add_header('Content-Disposition', 'attachment', filename='filename.txt')
+    attachment.add_header('Content-Disposition',
+                          'attachment', filename='filename.txt')
     mail.attach(attachment)
 
     return mail
@@ -49,18 +50,21 @@ def build_mail_with_attachment(subject):
 
 @wait_for(timeout=10.0)
 def load_mail_into_soledad(context, mail):
-    return context.single_user_client.mail_store.add_mail('INBOX', mail.as_string())
+    return context.single_user_client.mail_store.add_mail(
+        'INBOX', mail.as_string())
 
 
 @then(u'I see the mail has an attachment')
 def step_impl(context):
-    attachments_list = find_elements_by_css_selector(context, '.mail-read-view__attachments-item')
+    attachments_list = find_elements_by_css_selector(
+        context, '.mail-read-view__attachments-item')
     assert len(attachments_list) == 1
 
 
 @when(u'I find an attachment icon')
 def find_icon(context):
-    assert find_element_by_css_selector(context, '#attachment-button .fa.fa-paperclip')
+    assert find_element_by_css_selector(
+        context, '#attachment-button .fa.fa-paperclip')
 
 
 @when(u'I try to upload a file bigger than 5MB')
@@ -74,7 +78,8 @@ def upload_big_file(context):
 
 @then(u'I see an upload error message')
 def show_upload_error_message(context):
-    upload_error_message = find_elements_by_css_selector(context, '#upload-error-message')
+    upload_error_message = find_elements_by_css_selector(
+        context, '#upload-error-message')
     error_messages = [e.text for e in upload_error_message]
     assert "Upload failed. This file exceeds the 1MB limit." in error_messages
 
@@ -89,7 +94,8 @@ def dismiss_error_message(context):
 
 @then(u'It should not show the error message anymore')
 def should_not_show_upload_error_message(context):
-    upload_error_message_is_present = page_has_css(context, '#upload-error-message')
+    upload_error_message_is_present = page_has_css(
+        context, '#upload-error-message')
     assert not upload_error_message_is_present
 
 
@@ -98,17 +104,20 @@ def upload_attachment(context):
     base_dir = "test/functional/features/files/"
     fname = "5mb.data"
     fill_by_css_selector(context, '#fileupload', base_dir + fname)
-    attachment_list_item = find_element_by_css_selector(context, '#attachment-list-item li a')
+    attachment_list_item = find_element_by_css_selector(
+        context, '#attachment-list-item li a')
     assert attachment_list_item.text == "%s (5.00 Mb)" % fname
 
 
 @when(u'remove the file')
 def click_remove_icon(context):
-    remove_icon = find_element_by_css_selector(context, '#attachment-list-item i.remove-icon')
+    remove_icon = find_element_by_css_selector(
+        context, '#attachment-list-item i.remove-icon')
     remove_icon.click()
 
 
 @then(u'I should not see it attached')
 def assert_attachment_removed(context):
-    attachments_list_li = context.browser.find_elements_by_css_selector('#attachment-list-item li a')
+    attachments_list_li = context.browser.find_elements_by_css_selector(
+        '#attachment-list-item li a')
     assert len(attachments_list_li) == 0

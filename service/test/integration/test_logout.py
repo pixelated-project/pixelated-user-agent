@@ -28,7 +28,8 @@ class MultiUserLogoutTest(MultiUserSoledadTestBase):
         yield self.adaptor.initialize_store(self.app_test_client.soledad)
 
     @defer.inlineCallbacks
-    def test_logout_deletes_services_stop_background_reactor_tasks_and_closes_soledad(self):
+    def test_logout_deletes_services_stop_background_reactor_tasks_and_closes_soledad(
+            self):
         response, login_request = yield self.app_test_client.login()
         yield response
 

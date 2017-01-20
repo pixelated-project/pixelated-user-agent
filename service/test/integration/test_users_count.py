@@ -45,5 +45,6 @@ class UsersResourceTest(MultiUserSoledadTestBase):
         yield response
 
         self.assertEqual(200, request.code)     # redirected
-        self.assertEqual('{"count": 1}', request.getWrittenData())     # redirected
+        self.assertEqual(
+            '{"count": 1}', request.getWrittenData())     # redirected
         verify(self.app_test_client.user_auth).is_admin()

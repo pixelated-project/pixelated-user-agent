@@ -45,6 +45,7 @@ logger = Logger()
 
 
 class LeapSessionFactory(object):
+
     def __init__(self, provider):
         self._provider = provider
 
@@ -74,9 +75,11 @@ class LeapSessionFactory(object):
 
         smtp_client_cert = self._download_smtp_cert(auth)
         smtp_host, smtp_port = self._provider.smtp_info()
-        smtp_config = LeapSMTPConfig(account_email, smtp_client_cert, smtp_host, smtp_port)
+        smtp_config = LeapSMTPConfig(
+            account_email, smtp_client_cert, smtp_host, smtp_port)
 
-        leap_session = LeapSession(self._provider, auth, mail_store, soledad, keymanager, smtp_config)
+        leap_session = LeapSession(
+            self._provider, auth, mail_store, soledad, keymanager, smtp_config)
 
         defer.returnValue(leap_session)
 
@@ -101,7 +104,7 @@ class LeapSessionFactory(object):
                                                   auth_token=user_token,
                                                   defer_encryption=False)
             defer.returnValue(soledad)
-        except (WrongMacError, UnknownMacMethodError), e:
+        except (WrongMacError, UnknownMacMethodError) as e:
             raise SoledadWrongPassphraseException(e)
 
     @defer.inlineCallbacks
@@ -115,7 +118,8 @@ class LeapSessionFactory(object):
         defer.returnValue(keymanager)
 
     def _download_smtp_cert(self, auth):
-        cert = SmtpClientCertificate(self._provider, auth, self._user_path(auth.uuid))
+        cert = SmtpClientCertificate(
+            self._provider, auth, self._user_path(auth.uuid))
         return cert.cert_path()
 
     def _user_path(self, user_uuid):
@@ -134,7 +138,8 @@ class LeapSessionFactory(object):
         try:
             os.makedirs(self._soledad_path(user_uuid))
         except OSError as exc:
-            if exc.errno == errno.EEXIST and os.path.isdir(self._soledad_path(user_uuid)):
+            if exc.errno == errno.EEXIST and os.path.isdir(
+                    self._soledad_path(user_uuid)):
                 pass
             else:
                 raise
@@ -142,7 +147,14 @@ class LeapSessionFactory(object):
 
 class LeapSession(object):
 
-    def __init__(self, provider, user_auth, mail_store, soledad, keymanager, smtp_config):
+    def __init__(
+            self,
+            provider,
+            user_auth,
+            mail_store,
+            soledad,
+            keymanager,
+            smtp_config):
         self.smtp_config = smtp_config
         self.provider = provider
         self.user_auth = user_auth
@@ -154,7 +166,8 @@ class LeapSession(object):
         self.account = None
         self._has_been_initially_synced = False
         self._is_closed = False
-        register(events.KEYMANAGER_FINISHED_KEY_GENERATION, self._set_fresh_account, uid=self.account_email())
+        register(events.KEYMANAGER_FINISHED_KEY_GENERATION,
+                 self._set_fresh_account, uid=self.account_email())
 
     @defer.inlineCallbacks
     def first_required_sync(self):
@@ -187,7 +200,8 @@ class LeapSession(object):
 
     def close(self):
         self.stop_background_jobs()
-        unregister(events.KEYMANAGER_FINISHED_KEY_GENERATION, uid=self.account_email())
+        unregister(events.KEYMANAGER_FINISHED_KEY_GENERATION,
+                   uid=self.account_email())
         self.soledad.close()
         self._close_account()
         self.remove_from_cache()
@@ -206,12 +220,13 @@ class LeapSession(object):
         SessionCache.remove_session(key)
 
     @defer.inlineCallbacks
-    def _create_incoming_mail_fetcher(self, keymanager, soledad, account, user_mail):
+    def _create_incoming_mail_fetcher(
+            self, keymanager, soledad, account, user_mail):
         inbox = yield account.callWhenReady(lambda _: account.get_collection_by_mailbox('INBOX'))
         defer.returnValue(IncomingMail(keymanager.keymanager,
-                          soledad,
-                          inbox,
-                          user_mail))
+                                       soledad,
+                                       inbox,
+                                       user_mail))
 
     def stop_background_jobs(self):
         if self.incoming_mail_fetcher:
@@ -253,6 +268,7 @@ class SessionCache(object):
 
 
 class SmtpClientCertificate(object):
+
     def __init__(self, provider, auth, user_path):
         self._provider = provider
         self._auth = auth
@@ -286,7 +302,8 @@ class SmtpClientCertificate(object):
             "keys", "client", "smtp.pem")
 
     def download(self):
-        cert_url = '%s/%s/smtp_cert' % (self._provider.api_uri, self._provider.api_version)
+        cert_url = '%s/%s/smtp_cert' % (self._provider.api_uri,
+                                        self._provider.api_version)
         headers = {}
         headers["Authorization"] = 'Token token="{0}"'.format(self._auth.token)
         params = {'address': self._auth.username}
@@ -311,5 +328,6 @@ class SmtpClientCertificate(object):
 
 
 class SoledadWrongPassphraseException(Exception):
+
     def __init__(self, *args, **kwargs):
         super(SoledadWrongPassphraseException, self).__init__(*args, **kwargs)

@@ -48,8 +48,10 @@ class MarkAsReadUnreadTest(SoledadTestBase):
 
     @defer.inlineCallbacks
     def test_mark_many_mails_as_unread(self):
-        input_mail = MailBuilder().with_status([Status.SEEN]).build_input_mail()
-        input_mail2 = MailBuilder().with_status([Status.SEEN]).build_input_mail()
+        input_mail = MailBuilder().with_status(
+            [Status.SEEN]).build_input_mail()
+        input_mail2 = MailBuilder().with_status(
+            [Status.SEEN]).build_input_mail()
 
         mail1 = yield self.app_test_client.add_mail_to_inbox(input_mail)
         mail2 = yield self.app_test_client.add_mail_to_inbox(input_mail2)

@@ -48,18 +48,28 @@ def mail_dict():
 def duplicates_in_fields_mail_dict():
     return {
         'header': {
-            'to': ['to@pixelated.org', 'another@pixelated.org', 'third@pixelated.org', 'third@pixelated.org'],
-            'cc': ['cc@pixelated.org', 'another@pixelated.org', 'third@pixelated.org', 'cc@pixelated.org'],
-            'bcc': ['bcc@pixelated.org', 'another@pixelated.org', 'bcc@pixelated.org'],
-            'subject': 'Subject'
-        },
+            'to': [
+                'to@pixelated.org',
+                'another@pixelated.org',
+                'third@pixelated.org',
+                'third@pixelated.org'],
+            'cc': [
+                'cc@pixelated.org',
+                'another@pixelated.org',
+                'third@pixelated.org',
+                'cc@pixelated.org'],
+            'bcc': [
+                'bcc@pixelated.org',
+                'another@pixelated.org',
+                'bcc@pixelated.org'],
+            'subject': 'Subject'},
         'body': 'Body',
         'ident': '',
-        'tags': []
-    }
+        'tags': []}
 
 
 class TestDoc(object):
+
     def __init__(self, content):
         self.content = content
 
@@ -67,9 +77,16 @@ class TestDoc(object):
         return self.content[key]
 
 
-def leap_mail(uid=0, flags=LEAP_FLAGS, headers=None, extra_headers={}, mbox_uuid='INBOX', body='body',
-              chash='chash'):
-    fdoc = TestDoc({'flags': flags, 'mbox_uuid': mbox_uuid, 'type': 'flags', 'uid': uid, 'chash': chash})
+def leap_mail(
+        uid=0,
+        flags=LEAP_FLAGS,
+        headers=None,
+        extra_headers={},
+        mbox_uuid='INBOX',
+        body='body',
+        chash='chash'):
+    fdoc = TestDoc({'flags': flags, 'mbox_uuid': mbox_uuid,
+                    'type': 'flags', 'uid': uid, 'chash': chash})
 
     if headers is None:
         headers = {}
@@ -98,6 +115,7 @@ class TestRequest:
 
 
 class PixRequestMock(DummyRequest):
+
     def __init__(self, path):
         DummyRequest.__init__(self, path)
         self.path = '/' + "/".join(path)
@@ -120,7 +138,13 @@ class PixRequestMock(DummyRequest):
         return self.cookies.get(key)
 
 
-def request_mock(path='', method='GET', body='', headers={}, ajax=True, csrf='token'):
+def request_mock(
+        path='',
+        method='GET',
+        body='',
+        headers={},
+        ajax=True,
+        csrf='token'):
     dummy = PixRequestMock(path[1:].split('/'))
     for name, val in headers.iteritems():
         dummy.requestHeaders.setRawHeaders(name.lower(), [val])
@@ -131,7 +155,8 @@ def request_mock(path='', method='GET', body='', headers={}, ajax=True, csrf='to
         for key, val in body.items():
             dummy.addArg(key, val)
     if ajax:
-        dummy.requestHeaders.setRawHeaders('x-requested-with', ['XMLHttpRequest'])
+        dummy.requestHeaders.setRawHeaders(
+            'x-requested-with', ['XMLHttpRequest'])
         dummy.requestHeaders.setRawHeaders('x-xsrf-token', [csrf])
         dummy.addCookie('XSRF-TOKEN', csrf)
 

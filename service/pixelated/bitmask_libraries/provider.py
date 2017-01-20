@@ -29,6 +29,7 @@ REQUESTS_TIMEOUT = 15
 
 
 class LeapProvider(object):
+
     def __init__(self, server_name):
         self.server_name = server_name
         self.local_ca_crt = '%s/ca.crt' % leap_config.leap_home
@@ -36,11 +37,25 @@ class LeapProvider(object):
 
     @property
     def provider_api_cert(self):
-        return str(os.path.join(leap_config.leap_home, 'providers', self.server_name, 'keys', 'client', 'api.pem'))
+        return str(
+            os.path.join(
+                leap_config.leap_home,
+                'providers',
+                self.server_name,
+                'keys',
+                'client',
+                'api.pem'))
 
     @property
     def combined_cerfificates_path(self):
-        return str(os.path.join(leap_config.leap_home, 'providers', self.server_name, 'keys', 'client', 'ca_bundle'))
+        return str(
+            os.path.join(
+                leap_config.leap_home,
+                'providers',
+                self.server_name,
+                'keys',
+                'client',
+                'ca_bundle'))
 
     @property
     def api_uri(self):
@@ -124,7 +139,9 @@ class LeapProvider(object):
         digest = get_digest(cert_data, method)
 
         if fingerprint.strip() != digest:
-            raise Exception('Certificate fingerprints don\'t match! Expected [%s] but got [%s]' % (fingerprint.strip(), digest))
+            raise Exception(
+                'Certificate fingerprints don\'t match! Expected [%s] but got [%s]' %
+                (fingerprint.strip(), digest))
 
     def smtp_info(self):
         hosts = self.smtp_json['hosts']
@@ -135,8 +152,12 @@ class LeapProvider(object):
     def _validated_get(self, url):
         session = requests.session()
         try:
-            session.mount('https://', EnforceTLSv1Adapter(assert_fingerprint=LeapCertificate.LEAP_FINGERPRINT))
-            response = session.get(url, verify=LeapCertificate(self).provider_web_cert, timeout=REQUESTS_TIMEOUT)
+            session.mount(
+                'https://',
+                EnforceTLSv1Adapter(
+                    assert_fingerprint=LeapCertificate.LEAP_FINGERPRINT))
+            response = session.get(url, verify=LeapCertificate(
+                self).provider_web_cert, timeout=REQUESTS_TIMEOUT)
             response.raise_for_status()
             return response
         finally:
@@ -151,14 +172,20 @@ class LeapProvider(object):
     def fetch_soledad_json(self):
         service_url = "%s/%s/config/soledad-service.json" % (
             self.api_uri, self.api_version)
-        response = requests.get(service_url, verify=self.provider_api_cert, timeout=REQUESTS_TIMEOUT)
+        response = requests.get(
+            service_url,
+            verify=self.provider_api_cert,
+            timeout=REQUESTS_TIMEOUT)
         response.raise_for_status()
         return json.loads(response.content)
 
     def fetch_smtp_json(self):
         service_url = '%s/%s/config/smtp-service.json' % (
             self.api_uri, self.api_version)
-        response = requests.get(service_url, verify=self.provider_api_cert, timeout=REQUESTS_TIMEOUT)
+        response = requests.get(
+            service_url,
+            verify=self.provider_api_cert,
+            timeout=REQUESTS_TIMEOUT)
         response.raise_for_status()
         return json.loads(response.content)
 
@@ -187,15 +214,17 @@ class LeapProvider(object):
             return leap_ca_bundle
 
         with open(self.combined_cerfificates_path, 'w') as fout:
-            fin = fileinput.input(files=(leap_ca_bundle, self.provider_api_cert))
+            fin = fileinput.input(
+                files=(leap_ca_bundle, self.provider_api_cert))
             for line in fin:
                 fout.write(line)
             fin.close()
 
     def setup_ca_bundle(self):
-        path = os.path.join(leap_config.leap_home, 'providers', self.server_name, 'keys', 'client')
+        path = os.path.join(leap_config.leap_home, 'providers',
+                            self.server_name, 'keys', 'client')
         if not os.path.isdir(path):
-            os.makedirs(path, 0700)
+            os.makedirs(path, 0o700)
         self._download_cert(self.provider_api_cert)
 
     def _download_cert(self, cert_file_name):

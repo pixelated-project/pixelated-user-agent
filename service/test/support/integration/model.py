@@ -21,6 +21,7 @@ from pixelated.adapter.model.status import Status
 
 
 class MailBuilder:
+
     def __init__(self):
         self.mail = {
             'header': {
@@ -28,11 +29,9 @@ class MailBuilder:
                 'cc': ['recipient@cc.com'],
                 'bcc': ['recipient@bcc.com'],
                 'subject': 'Hi! This the subject',
-                'date': date.mail_date_now()
-            },
+                'date': date.mail_date_now()},
             'body': "Hello,\nThis is the body of this message\n\nRegards,\n\n--\nPixelated.\n",
-            'status': []
-        }
+            'status': []}
 
     def with_body(self, body):
         self.mail['body'] = body
@@ -79,13 +78,15 @@ class MailBuilder:
         return json.dumps(self.mail)
 
     def build_input_mail(self):
-        return InputMail.from_dict(self.mail, from_address='Formatted Sender <sender@from.com>')
+        return InputMail.from_dict(
+            self.mail, from_address='Formatted Sender <sender@from.com>')
 
     def build_leap_mail(self):
         return LeapMail.from_dict(self.mail)
 
 
 class ResponseMail:
+
     def __init__(self, mail_dict):
         self.mail_dict = mail_dict
 

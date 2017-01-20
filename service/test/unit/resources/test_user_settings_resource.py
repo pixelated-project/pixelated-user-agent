@@ -42,7 +42,8 @@ class TestUserSettingsResource(unittest.TestCase):
         self.services_factory.mode = UserAgentMode(is_single_user=True)
         self.services.mail_service = self.mail_service
         self.services.keymanager = self.keymanager
-        self.services_factory._services_by_user = {'someuserid': self.keymanager}
+        self.services_factory._services_by_user = {
+            'someuserid': self.keymanager}
         self.resource = UserSettingsResource(self.services_factory)
         when(self.services_factory).services(any()).thenReturn(self.services)
         self.web = DummySite(self.resource)
@@ -51,7 +52,8 @@ class TestUserSettingsResource(unittest.TestCase):
         key = OpenPGPKey(MAIL_ADDRESS)
         key.fingerprint = FINGERPRINT
         request = DummyRequest(['/user-settings'])
-        when(self.keymanager).get_key(MAIL_ADDRESS).thenReturn(defer.succeed(key))
+        when(self.keymanager).get_key(
+            MAIL_ADDRESS).thenReturn(defer.succeed(key))
 
         d = self.web.get(request)
 
@@ -67,7 +69,8 @@ class TestUserSettingsResource(unittest.TestCase):
         key = OpenPGPKey(MAIL_ADDRESS)
         key.fingerprint = FINGERPRINT
         request = DummyRequest(['/user-settings'])
-        when(self.keymanager).get_key(MAIL_ADDRESS).thenReturn(defer.fail(Failure))
+        when(self.keymanager).get_key(
+            MAIL_ADDRESS).thenReturn(defer.fail(Failure))
 
         d = self.web.get(request)
 

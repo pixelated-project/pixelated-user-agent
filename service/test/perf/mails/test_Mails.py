@@ -24,7 +24,8 @@ class Mails(FunkLoadTestCase):
     def setUpBench(self):
         client = AppTestClient()
         client.add_multiple_to_mailbox(100, 'INBOX')
-        self.call_to_terminate = client.run_on_a_thread(logfile='results/app.log')
+        self.call_to_terminate = client.run_on_a_thread(
+            logfile='results/app.log')
 
     def tearDownBench(self):
         self.call_to_terminate()

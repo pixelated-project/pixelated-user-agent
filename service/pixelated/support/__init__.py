@@ -35,7 +35,8 @@ def _stop_stopwatch(start):
     if time_duration < 0.00000001:    # avoid division by zero
         time_duration = 0.00000001
 
-    estimate_percent_io = ((time_duration - clock_duration) / time_duration) * 100.0
+    estimate_percent_io = (
+        (time_duration - clock_duration) / time_duration) * 100.0
 
     return time_duration, clock_duration, estimate_percent_io
 
@@ -48,8 +49,11 @@ def log_time(f):
 
         result = f(*args, **kwds)
 
-        time_duration, clock_duration, estimate_percent_io = _stop_stopwatch(start)
-        log.info('Needed %fs (%fs cpu time, %.2f%% spent outside process) to execute  %s' % (time_duration, clock_duration, estimate_percent_io, f))
+        time_duration, clock_duration, estimate_percent_io = _stop_stopwatch(
+            start)
+        log.info(
+            'Needed %fs (%fs cpu time, %.2f%% spent outside process) to execute  %s' %
+            (time_duration, clock_duration, estimate_percent_io, f))
 
         return result
 
@@ -59,8 +63,11 @@ def log_time(f):
 def log_time_deferred(f):
 
     def log_time(result, start):
-        time_duration, clock_duration, estimate_percent_io = _stop_stopwatch(start)
-        log.info('after callback: Needed %fs (%fs cpu time, %.2f%% spent outside process) to execute  %s' % (time_duration, clock_duration, estimate_percent_io, f))
+        time_duration, clock_duration, estimate_percent_io = _stop_stopwatch(
+            start)
+        log.info(
+            'after callback: Needed %fs (%fs cpu time, %.2f%% spent outside process) to execute  %s' %
+            (time_duration, clock_duration, estimate_percent_io, f))
         return result
 
     @wraps(f)

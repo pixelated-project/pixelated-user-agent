@@ -80,7 +80,10 @@ class SessionTest(AbstractLeapTest):
         with patch('pixelated.config.sessions.register') as register_mock:
             session = self._create_session()
 
-            register_mock.assert_called_once_with(KEYMANAGER_FINISHED_KEY_GENERATION, session._set_fresh_account, uid=email)
+            register_mock.assert_called_once_with(
+                KEYMANAGER_FINISHED_KEY_GENERATION,
+                session._set_fresh_account,
+                uid=email)
 
     @patch('pixelated.config.sessions.register')
     def test_close_unregisters_from_generate_keys_events(self, _):
@@ -91,7 +94,8 @@ class SessionTest(AbstractLeapTest):
         with patch('pixelated.config.sessions.unregister') as unregister_mock:
             session.close()
 
-            unregister_mock.assert_called_once_with(KEYMANAGER_FINISHED_KEY_GENERATION, uid=email)
+            unregister_mock.assert_called_once_with(
+                KEYMANAGER_FINISHED_KEY_GENERATION, uid=email)
 
     @patch('pixelated.config.sessions.register')
     def test_close_stops_soledad(self, _):
@@ -193,7 +197,13 @@ class SessionTest(AbstractLeapTest):
                 yield leap_session_factory.setup_soledad('token', u'uuid', 'passphrase', None)
 
     def _create_session(self):
-        return LeapSession(self.provider, self.auth, self.mail_store, self.soledad_session, self.keymanager, self.smtp_mock)
+        return LeapSession(
+            self.provider,
+            self.auth,
+            self.mail_store,
+            self.soledad_session,
+            self.keymanager,
+            self.smtp_mock)
 
 
 def _execute_func(func):

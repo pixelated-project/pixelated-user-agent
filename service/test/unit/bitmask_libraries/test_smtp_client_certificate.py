@@ -35,7 +35,8 @@ def not_found_mock(url, request):
             'content': 'foobar'}
 
 
-@urlmatch(netloc='api.some-server.test:4430', path='/1/smtp_cert', method='POST')
+@urlmatch(netloc='api.some-server.test:4430',
+          path='/1/smtp_cert', method='POST')
 def smtp_cert_mock(url, request):
     if request.body == 'address=%s' % USERNAME:
         return {
@@ -58,24 +59,33 @@ class TestSmtpClientCertificate(unittest.TestCase):
         self.provider.server_name = 'some.host.tld'
         self.provider.domain = 'some-provider.tld'
         self.auth = Authentication(USERNAME, 'token', 'uuid', 'session_id', {})
-        self.pem_path = os.path.join(self.tmp_dir.name, 'providers', 'some-provider.tld', 'keys', 'client', 'smtp.pem')
+        self.pem_path = os.path.join(
+            self.tmp_dir.name,
+            'providers',
+            'some-provider.tld',
+            'keys',
+            'client',
+            'smtp.pem')
 
     def tearDown(self):
         self.tmp_dir.dissolve()
         unstub()
 
     def test_download_certificate(self):
-        cert = SmtpClientCertificate(self.provider, self.auth, self.tmp_dir.name)
+        cert = SmtpClientCertificate(
+            self.provider, self.auth, self.tmp_dir.name)
         when(cert).download_to(ANY()).thenReturn(None)
         result = cert.cert_path()
 
         self.assertEqual(self.pem_path, result)
 
-    def test_download_certificate_if_redownload_necessary_e_g_certificate_expired(self):
+    def test_download_certificate_if_redownload_necessary_e_g_certificate_expired(
+            self):
         self.pretend_all_paths_exist()
         when(certs).should_redownload(self.pem_path).thenReturn(True)
 
-        cert = SmtpClientCertificate(self.provider, self.auth, self.tmp_dir.name)
+        cert = SmtpClientCertificate(
+            self.provider, self.auth, self.tmp_dir.name)
         when(cert).download_to(ANY()).thenReturn(None)
         result = cert.cert_path()
 
@@ -87,13 +97,15 @@ class TestSmtpClientCertificate(unittest.TestCase):
     def test_skip_download_if_already_downloaded_and_still_valid(self):
         when(os.path).exists(self.pem_path).thenReturn(True)
         when(certs).should_redownload(ANY()).thenReturn(False)
-        cert = SmtpClientCertificate(self.provider, self.auth, self.tmp_dir.name)
+        cert = SmtpClientCertificate(
+            self.provider, self.auth, self.tmp_dir.name)
         result = cert.cert_path()
 
         self.assertEqual(self.pem_path, result)
 
     def test_download_to(self):
-        cert = SmtpClientCertificate(self.provider, self.auth, self.tmp_dir.name)
+        cert = SmtpClientCertificate(
+            self.provider, self.auth, self.tmp_dir.name)
 
         with NamedTemporaryFile() as tmp_file:
             with HTTMock(smtp_cert_mock, not_found_mock):

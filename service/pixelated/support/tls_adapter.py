@@ -34,14 +34,19 @@ def latest_available_ssl_version():
 class EnforceTLSv1Adapter(HTTPAdapter):
     __slots__ = ('_assert_hostname', '_assert_fingerprint')
 
-    def __init__(self, assert_hostname=VERIFY_HOSTNAME, assert_fingerprint=None):
+    def __init__(
+            self,
+            assert_hostname=VERIFY_HOSTNAME,
+            assert_fingerprint=None):
         self._assert_hostname = assert_hostname
         self._assert_fingerprint = assert_fingerprint
         super(EnforceTLSv1Adapter, self).__init__()
 
     def init_poolmanager(self, connections, maxsize, block=False):
-        self.poolmanager = PoolManager(num_pools=connections, maxsize=maxsize,
-                                       block=block,
-                                       assert_hostname=self._assert_hostname,
-                                       assert_fingerprint=self._assert_fingerprint,
-                                       cert_reqs=ssl.CERT_REQUIRED)
+        self.poolmanager = PoolManager(
+            num_pools=connections,
+            maxsize=maxsize,
+            block=block,
+            assert_hostname=self._assert_hostname,
+            assert_fingerprint=self._assert_fingerprint,
+            cert_reqs=ssl.CERT_REQUIRED)

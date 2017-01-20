@@ -60,7 +60,11 @@ class MailSenderTest(unittest.TestCase):
         self._keymanager_mock = mock()
         self._remote_smtp_host = 'some.host.test'
         self._remote_smtp_port = 1234
-        self._smtp_config = LeapSMTPConfig('someone@somedomain.tld', self._cert_path, self._remote_smtp_host, self._remote_smtp_port)
+        self._smtp_config = LeapSMTPConfig(
+            'someone@somedomain.tld',
+            self._cert_path,
+            self._remote_smtp_host,
+            self._remote_smtp_port)
         self.sender = MailSender(self._smtp_config, self._keymanager_mock)
 
     def tearDown(self):
@@ -68,69 +72,91 @@ class MailSenderTest(unittest.TestCase):
 
     @defer.inlineCallbacks
     def test_iterates_over_recipients(self):
-        input_mail = InputMail.from_dict(mail_dict(), from_address='pixelated@org')
+        input_mail = InputMail.from_dict(
+            mail_dict(), from_address='pixelated@org')
 
-        when(OutgoingMail).send_message(any(), any()).thenReturn(defer.succeed(None))
+        when(OutgoingMail).send_message(
+            any(), any()).thenReturn(defer.succeed(None))
 
         yield self.sender.sendmail(input_mail)
 
-        for recipient in flatten([input_mail.to, input_mail.cc, input_mail.bcc]):
-            verify(OutgoingMail).send_message(any(), TwistedSmtpUserCapture(recipient))
+        for recipient in flatten(
+                [input_mail.to, input_mail.cc, input_mail.bcc]):
+            verify(OutgoingMail).send_message(
+                any(), TwistedSmtpUserCapture(recipient))
 
     @defer.inlineCallbacks
     def test_send_leaves_mail_in_tact(self):
         input_mail_dict = mail_dict()
-        input_mail = InputMail.from_dict(input_mail_dict, from_address='pixelated@org')
+        input_mail = InputMail.from_dict(
+            input_mail_dict, from_address='pixelated@org')
 
-        when(OutgoingMail).send_message(any(), any()).thenReturn(defer.succeed(None))
+        when(OutgoingMail).send_message(
+            any(), any()).thenReturn(defer.succeed(None))
 
         yield self.sender.sendmail(input_mail)
 
         self.assertEqual(input_mail.to, input_mail_dict["header"]["to"])
         self.assertEqual(input_mail.cc, input_mail_dict["header"]["cc"])
         self.assertEqual(input_mail.bcc, input_mail_dict["header"]["bcc"])
-        self.assertEqual(input_mail.subject, input_mail_dict["header"]["subject"])
+        self.assertEqual(input_mail.subject, input_mail_dict[
+                         "header"]["subject"])
 
     @defer.inlineCallbacks
     def test_problem_with_email_raises_exception(self):
-        input_mail = InputMail.from_dict(mail_dict(), from_address='pixelated@org')
+        input_mail = InputMail.from_dict(
+            mail_dict(), from_address='pixelated@org')
 
-        when(OutgoingMail).send_message(any(), any()).thenReturn(defer.fail(Exception('pretend something went wrong')))
+        when(OutgoingMail).send_message(any(), any()).thenReturn(
+            defer.fail(Exception('pretend something went wrong')))
 
         try:
             yield self.sender.sendmail(input_mail)
             self.fail('Exception expected!')
-        except MailSenderException, e:
-            for recipient in flatten([input_mail.to, input_mail.cc, input_mail.bcc]):
+        except MailSenderException as e:
+            for recipient in flatten(
+                    [input_mail.to, input_mail.cc, input_mail.bcc]):
                 self.assertTrue(recipient in e.email_error_map)
 
     @defer.inlineCallbacks
     def test_keymanager_encrypt_problem_raises_exception(self):
-        input_mail = InputMail.from_dict(mail_dict(), from_address='pixelated@org')
+        input_mail = InputMail.from_dict(
+            mail_dict(), from_address='pixelated@org')
 
         when(OutgoingMail)._maybe_attach_key(any(), any(), any()).thenReturn(
             defer.succeed(None))
         when(OutgoingMail)._fix_headers(any(), any(), any()).thenReturn(
             defer.succeed((None, mock())))
-        when(self._keymanager_mock).encrypt(any(), any(), sign=any(),
-                                            fetch_remote=any()).thenReturn(defer.fail(Exception('pretend key expired')))
+        when(
+            self._keymanager_mock).encrypt(
+            any(),
+            any(),
+            sign=any(),
+            fetch_remote=any()).thenReturn(
+            defer.fail(
+                Exception('pretend key expired')))
 
         with patch('leap.bitmask.mail.outgoing.service.emit_async'):
             try:
                 yield self.sender.sendmail(input_mail)
                 self.fail('Exception expected!')
-            except MailSenderException, e:
-                for recipient in flatten([input_mail.to, input_mail.cc, input_mail.bcc]):
+            except MailSenderException as e:
+                for recipient in flatten(
+                        [input_mail.to, input_mail.cc, input_mail.bcc]):
                     self.assertTrue(recipient in e.email_error_map)
 
     @defer.inlineCallbacks
     def test_iterates_over_recipients_and_send_whitout_bcc_field(self):
-        input_mail = InputMail.from_dict(mail_dict(), from_address='pixelated@org')
+        input_mail = InputMail.from_dict(
+            mail_dict(), from_address='pixelated@org')
         bccs = input_mail.bcc
 
-        when(OutgoingMail).send_message(any(), any()).thenReturn(defer.succeed(None))
+        when(OutgoingMail).send_message(
+            any(), any()).thenReturn(defer.succeed(None))
 
         yield self.sender.sendmail(input_mail)
 
-        for recipient in flatten([input_mail.to, input_mail.cc, input_mail.bcc]):
-            verify(OutgoingMail).send_message(MailToSmtpFormatCapture(recipient, bccs), TwistedSmtpUserCapture(recipient))
+        for recipient in flatten(
+                [input_mail.to, input_mail.cc, input_mail.bcc]):
+            verify(OutgoingMail).send_message(MailToSmtpFormatCapture(
+                recipient, bccs), TwistedSmtpUserCapture(recipient))

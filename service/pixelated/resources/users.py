@@ -26,5 +26,6 @@ class UsersResource(BaseResource):
 
     def render_GET(self, request):
         if self.is_admin(request):
-            return respond_json({"count": self._services_factory.online_sessions()}, request)
+            return respond_json(
+                {"count": self._services_factory.online_sessions()}, request)
         return UnAuthorizedResource().render_GET(request)
