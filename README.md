@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/pixelated/pixelated-user-agent.png?label=ready&title=Ready)](https://waffle.io/pixelated/pixelated-user-agent)
 Pixelated User Agent
 ====================
 
