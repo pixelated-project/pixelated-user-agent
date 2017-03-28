@@ -21,29 +21,22 @@ import { translate } from 'react-i18next';
 import InputField from 'src/common/input_field/input_field';
 import SubmitButton from 'src/common/submit_button/submit_button';
 
-import './forms.scss';
-
-export const AdminRecoveryCodeForm = ({ t, next }) => (
-  <form className='admin-code-form' onSubmit={next}>
+export const NewPasswordForm = ({ t }) => (
+  <form>
     <img
       className='account-recovery-progress'
-      src='/public/images/account-recovery/step_1.svg'
-      alt={t('account-recovery.admin-form.image-description')}
+      src='/public/images/account-recovery/step_3.svg'
+      alt={t('account-recovery.new-password.image-description')}
     />
-    <h1>{t('account-recovery.admin-form.title')}</h1>
-    <ul>
-      <li>{t('account-recovery.admin-form.tip1')}</li>
-      <li>{t('account-recovery.admin-form.tip2')}</li>
-      <li>{t('account-recovery.admin-form.tip3')}</li>
-    </ul>
-    <InputField name='admin-code' label={t('account-recovery.admin-form.input-label')} />
-    <SubmitButton buttonText={t('account-recovery.admin-form.button')} />
+    <h1>{t('account-recovery.new-password-form.title')}</h1>
+    <InputField name='new-password' label={t('account-recovery.new-password-form.input-label1')} />
+    <InputField name='confirm-password' label={t('account-recovery.new-password-form.input-label2')} />
+    <SubmitButton buttonText={t('account-recovery.new-password-form.button')} />
   </form>
 );
 
-AdminRecoveryCodeForm.propTypes = {
-  t: React.PropTypes.func.isRequired,
-  next: React.PropTypes.func.isRequired
+NewPasswordForm.propTypes = {
+  t: React.PropTypes.func.isRequired
 };
 
-export default translate('', { wait: true })(AdminRecoveryCodeForm);
+export default translate('', { wait: true })(NewPasswordForm);

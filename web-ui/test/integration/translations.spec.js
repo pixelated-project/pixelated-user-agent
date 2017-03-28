@@ -20,6 +20,14 @@ describe('Translations', () => {
 
       expect(app.text()).toNotContain('untranslated', 'Unstranslated message found in the text: ' + app.text());
     });
+
+    it('translates all keys on third step', () => {
+      const app = mount(<App i18n={testI18n} child={<AccountRecoveryPage />} />);
+      app.find('form.admin-code-form').simulate('submit');
+      app.find('form.user-code-form').simulate('submit');
+
+      expect(app.text()).toNotContain('untranslated', 'Unstranslated message found in the text: ' + app.text());
+    });
   });
 
   context('Backup Account Page', () => {

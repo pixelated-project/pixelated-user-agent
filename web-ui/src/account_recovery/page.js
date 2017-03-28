@@ -21,6 +21,7 @@ import DocumentTitle from 'react-document-title';
 import Header from 'src/common/header/header';
 import AdminRecoveryCodeForm from 'src/account_recovery/forms/admin_recovery_code_form';
 import UserRecoveryCodeForm from 'src/account_recovery/forms/user_recovery_code_form';
+import NewPasswordForm from 'src/account_recovery/forms/new_password_form';
 import Footer from 'src/common/footer/footer';
 
 import 'font-awesome/scss/font-awesome.scss';
@@ -41,7 +42,8 @@ export class Page extends React.Component {
 
   steps = {
     0: <AdminRecoveryCodeForm next={this.nextStep} />,
-    1: <UserRecoveryCodeForm />
+    1: <UserRecoveryCodeForm next={this.nextStep} />,
+    2: <NewPasswordForm />
   }
 
   mainContent = () => this.steps[this.state.step];

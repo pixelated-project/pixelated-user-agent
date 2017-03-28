@@ -84,6 +84,7 @@
     "account-recovery": {
       "page-title": "Pixelated Account Recovery",
       "admin-form": {
+        "image-description": "Admin Recovery Code - Step 1 of 4",
         "title": "Contact your account administrator and ask for their part of the recovery code",
         "tip1": "The safest way to do this is in person.",
         "tip2": "You can call or text if you need to.",
@@ -92,7 +93,18 @@
         "button": "Next"
       },
       "user-form": {
-        "title": "Remember your backup account?"
+        "image-description": "User Recovery Code - Step 2 of 4",
+        "title": "Remember your backup account?",
+        "description": "When you created your account you received a message - it was sent by team@pixelated-project.org. You'll need the recovery code that is in it.",
+        "input-label": "type here your backup code",
+        "button": "Next"
+      },
+      "new-password-form": {
+        "image-description": "New Password - Step 3 of 4",
+        "title": "Now, create a new password",
+        "input-label1": "create new password",
+        "input-label2": "confirm your new password",
+        "button": "Next"
       }
     },
     "backup-account": {

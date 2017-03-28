@@ -18,14 +18,28 @@
 import React from 'react';
 import { translate } from 'react-i18next';
 
-export const UserRecoveryCodeForm = ({ t }) => (
-  <form>
+import InputField from 'src/common/input_field/input_field';
+import SubmitButton from 'src/common/submit_button/submit_button';
+
+import './forms.scss';
+
+export const UserRecoveryCodeForm = ({ t, next }) => (
+  <form className='user-code-form' onSubmit={next}>
+    <img
+      className='account-recovery-progress'
+      src='/public/images/account-recovery/step_2.svg'
+      alt={t('account-recovery.user-form.image-description')}
+    />
     <h1>{t('account-recovery.user-form.title')}</h1>
+    <p>{t('account-recovery.user-form.description')}</p>
+    <InputField name='admin-code' label={t('account-recovery.user-form.input-label')} />
+    <SubmitButton buttonText={t('account-recovery.user-form.button')} />
   </form>
 );
 
 UserRecoveryCodeForm.propTypes = {
-  t: React.PropTypes.func.isRequired
+  t: React.PropTypes.func.isRequired,
+  next: React.PropTypes.func.isRequired
 };
 
 export default translate('', { wait: true })(UserRecoveryCodeForm);
