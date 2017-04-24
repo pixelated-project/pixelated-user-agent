@@ -19,7 +19,13 @@ var commonConfiguration = {
 };
 
 var commonPlugins = [
-  new webpack.optimize.UglifyJsPlugin(),
+  new webpack.optimize.UglifyJsPlugin({
+    comments: false,
+    compress: {
+      warnings: false,
+      drop_console: true
+    }
+  }),
   new webpack.optimize.DedupePlugin(),
   new webpack.DefinePlugin({
     'process.env': {
