@@ -1,0 +1,25 @@
+# To build packages locally using docker and gitlab-ci-multi-runner please follow
+# https://github.com/pixelated/pixelated-user-agent/wiki/Debian-package#build-debian-packages-locally
+
+stages:
+  - package
+
+package:
+  stage: package
+  image: "0xacab.org:4567/pixelated/pixelated-user-agent/buildpackage:latest"
+  artifacts:
+    paths:
+    - '*_*.xz'
+    - '*_*.dsc'
+    - '*_amd64.changes'
+    - '*.deb'
+    - 'results/*'
+    - '*.log'
+  script:
+    - build-build-package
+    # Test the package with lintian. Don't fail on warnings/errors.
+    - sh -c 'build-test-lintian || :'
+    - ls -la
+    # When running locally with `gitlab-runner exec` copy artifacts to mounted
+    # docker volume
+    - sh -c '( [ -d /tmp/docker_volume ] && cp -r /builds/project-0 /tmp/docker_volume ) || :'

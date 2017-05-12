@@ -1,0 +1,18 @@
+# Set custom enviroment variables here
+# or use gitlab CI to export them either
+# in your .gitlab-ci.yml file or via
+# secret variables from the web interface
+# https://docs.gitlab.com/ce/ci/variables/README.html
+
+export DEBFULLNAME=${DEBFULLNAME:-"Pixelated automated build"}
+
+export REPOS=${REPOS:-"snapshots"}
+
+export COMPONENTS=${COMPONENTS:-"$REPOS"}
+
+export ARCH=${ARCH:-"amd64"}
+export DIST=${DIST:-"jessie"}
+
+# Lintian vars
+LINTIAN_DEFAULT_OPTS=(-X filename-length)
+export LINTIAN_OPTS=("${LINTIAN_OPTS:-${LINTIAN_DEFAULT_OPTS[@]}}")
