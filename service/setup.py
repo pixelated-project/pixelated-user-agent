@@ -15,8 +15,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 
-from setuptools import setup
+import datetime
 import os
+from setuptools import setup
+import time
+
+now = datetime.datetime.now()
+timestamp = time.strftime('%Y%m%d', now.timetuple())
 
 
 def read(fname):
@@ -24,7 +29,7 @@ def read(fname):
 
 
 setup(name='pixelated-user-agent',
-      version='0.1',
+      version='0.1.%s' % timestamp,
       description='API to serve the pixelated front-end requests',
       long_description=read('README.md'),
       author='Thoughtworks',

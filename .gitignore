@@ -38,3 +38,6 @@ _trial_temp
 web-ui/coverage
 .nyc_output
 web-ui/npm-debug.log.*
+web-ui/pixelated_www/*
+web-ui/build/*
+!web-ui/pixelated_www/__init__.py

@@ -31,6 +31,15 @@ install:
 	cp -r dist/* $(DESTDIR)/usr/share/pixelated-user-agent
 
 
+pydist-clean: clean
+	rm -rf build/
+
+
+pydist-wheel:
+	cp -r dist/* pixelated_www/
+	python setup.py bdist_wheel
+
+
 all: clean compile install
 
 .PHONY: clean compile install all
