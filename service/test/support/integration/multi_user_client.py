@@ -16,7 +16,7 @@
 from leap.bitmask.bonafide._srp import SRPAuthError
 from mock import patch
 from mockito import mock, when, any as ANY
-from pixelated.authentication import Authenticator, Authentication
+from pixelated.authentication import Authenticator, Authentication, Credentials
 from twisted.internet import defer
 
 from pixelated.application import UserAgentMode, set_up_protected_resources
@@ -50,12 +50,12 @@ class MultiUserClient(AppTestClient):
         self.credentials_checker = StubSRPChecker(leap_provider)
         self.resource = set_up_protected_resources(root_resource, leap_provider, self.service_factory)
 
-    def _mock_bonafide_auth(self, username, password):
-        if username == 'username' and password == 'password':
-            self.credentials_checker.add_user(username, password)
-            when(Authenticator)._bonafide_auth(username, password).thenReturn(self.user_auth)
+    def _mock_bonafide_auth(self, credentials):
+        if credentials.username == 'username' and credentials.password == 'password':
+            self.credentials_checker.add_user(credentials.username, credentials.password)
+            when(Authenticator)._bonafide_auth(credentials).thenReturn(self.user_auth)
         else:
-            when(Authenticator)._bonafide_auth(username, password).thenRaise(SRPAuthError)
+            when(Authenticator)._bonafide_auth(credentials).thenRaise(SRPAuthError)
 
     def login(self, username='username', password='password'):
         session = Authentication(username, 'some_user_token', 'some_user_uuid', 'session_id', {'is_admin': False})
@@ -69,7 +69,8 @@ class MultiUserClient(AppTestClient):
         self.services = self._test_account.services
         self.user_auth = session
 
-        self._mock_bonafide_auth(username, password)
+        credentials = Credentials(username, password)
+        self._mock_bonafide_auth(credentials)
 
         when(LeapSessionFactory).create(username, password, session).thenReturn(leap_session)
         with patch('mockito.invocation.AnswerSelector', AnswerSelector):

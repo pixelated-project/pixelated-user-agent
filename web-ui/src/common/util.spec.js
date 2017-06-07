@@ -6,11 +6,9 @@ import Util from 'src/common/util';
 
 describe('Utils', () => {
   describe('.hasQueryParameter', () => {
-    global.window = {
-      location: {
-        search: '?auth-error&lng=pt-BR'
-      }
-    };
+    before(() => {
+      global.window = { location: { search: '?auth-error&lng=pt-BR' } };
+    });
 
     it('checks if param included in query parameters', () => {
       expect(Util.hasQueryParameter('auth-error')).toBe(true);
@@ -18,6 +16,24 @@ describe('Utils', () => {
 
     it('checks if param not included in query parameters', () => {
       expect(Util.hasQueryParameter('error')).toBe(false);
+    });
+  });
+
+  describe('.getQueryParameter', () => {
+    before(() => {
+      global.window = { location: { search: '?auth-error&lng=pt-BR' } };
+    });
+
+    it('gets value of param included in query parameters', () => {
+      expect(Util.getQueryParameter('lng')).toBe('pt-BR');
+    });
+
+    it('returns empty if param does not have value', () => {
+      expect(Util.getQueryParameter('auth-error')).toBe(null);
+    });
+
+    it('returns undefined if param is not included in query parameters', () => {
+      expect(Util.getQueryParameter('username')).toBe(undefined);
     });
   });
 

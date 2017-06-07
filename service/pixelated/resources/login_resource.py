@@ -17,7 +17,6 @@
 import os
 from xml.sax import SAXParseException
 
-from pixelated.authentication import Authenticator
 from pixelated.config.leap import BootstrapUserServices
 from pixelated.resources import BaseResource, UnAuthorizedResource, IPixelatedSession
 from pixelated.resources.account_recovery_resource import AccountRecoveryResource
@@ -29,7 +28,7 @@ from twisted.internet import defer
 from twisted.logger import Logger
 from twisted.python.filepath import FilePath
 from twisted.web import util
-from twisted.web.http import UNAUTHORIZED, OK
+from twisted.web.http import OK
 from twisted.web.resource import NoResource
 from twisted.web.server import NOT_DONE_YET
 from twisted.web.static import File
@@ -96,7 +95,7 @@ class LoginResource(BaseResource):
         if path == 'status':
             return LoginStatusResource(self._services_factory)
         if path == AccountRecoveryResource.BASE_URL:
-            return AccountRecoveryResource(self._services_factory)
+            return AccountRecoveryResource(self._services_factory, self._provider)
         if not self.is_logged_in(request):
             return UnAuthorizedResource()
         return NoResource()
@@ -121,12 +120,12 @@ class LoginResource(BaseResource):
 
         def render_error(error):
             if error.type is UnauthorizedLogin:
-                log.info('Unauthorized login for %s. User typed wrong username/password combination.' % request.args['username'][0])
+                log.info('Unauthorized login for %s. %s' % (request.args['username'][0], error.getErrorMessage()))
+                content = util.redirectTo("/login?auth-error", request)
             else:
-                log.error('Authentication error for %s' % request.args['username'][0])
-                log.error('%s' % error)
-            request.setResponseCode(UNAUTHORIZED)
-            content = util.redirectTo("/login?auth-error", request)
+                log.error('Authentication error for %s: %s \n %s' % (request.args['username'][0], error.getErrorMessage(), error.getTraceback()))
+                content = util.redirectTo("/login?error", request)
+
             request.write(content)
             request.finish()
 

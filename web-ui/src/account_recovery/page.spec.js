@@ -5,6 +5,7 @@ import React from 'react';
 import { Page } from 'src/account_recovery/page';
 import Header from 'src/common/header/header';
 import Footer from 'src/common/footer/footer';
+import SnackbarNotification from 'src/common/snackbar_notification/snackbar_notification';
 
 import AdminRecoveryCodeFormWrapper from './admin_recovery_code_form/admin_recovery_code_form';
 import UserRecoveryCodeFormWrapper from './user_recovery_code_form/user_recovery_code_form';
@@ -14,11 +15,24 @@ import BackupAccountStepWrapper from './backup_account_step/backup_account_step'
 describe('Account Recovery Page', () => {
   let page;
   let pageInstance;
+  const mockTranslations = key => key;
 
   beforeEach(() => {
-    const mockTranslations = key => key;
+    global.window = { location: { search: '?username=alice' } };
     page = shallow(<Page t={mockTranslations} />);
     pageInstance = page.instance();
+  });
+
+  it('gets username from url', () => {
+    expect(pageInstance.state.username).toEqual('alice');
+  });
+
+  it('gets username from url as empty string', () => {
+    global.window = { location: { search: '' } };
+    page = shallow(<Page t={mockTranslations} />);
+    pageInstance = page.instance();
+
+    expect(pageInstance.state.username).toEqual('');
   });
 
   it('renders account recovery page title', () => {
@@ -72,6 +86,13 @@ describe('Account Recovery Page', () => {
       expect(page.find(NewPasswordFormWrapper).length).toEqual(1);
     });
 
+    it('renders new password form with error handler', () => {
+      pageInstance.nextStep();
+      pageInstance.nextStep();
+
+      expect(page.find(NewPasswordFormWrapper).props().onError).toBeA(Function);
+    });
+
     it('returns to user code form on new password form back link', () => {
       pageInstance.nextStep();
       pageInstance.nextStep();
@@ -86,6 +107,30 @@ describe('Account Recovery Page', () => {
       pageInstance.nextStep();
 
       expect(page.find(BackupAccountStepWrapper).length).toEqual(1);
+    });
+  });
+
+  context('on error', () => {
+    beforeEach(() => {
+      pageInstance.errorHandler('error message');
+    });
+
+    it('returns snackbar component on error', () => {
+      const snackbar = pageInstance.showSnackbarOnError(pageInstance.props.t);
+      expect(snackbar).toEqual(<SnackbarNotification message='error message' isError />);
+    });
+
+    it('returns nothing when there is no error', () => {
+      pageInstance.errorHandler('');
+      const snackbar = pageInstance.showSnackbarOnError(pageInstance.props.t);
+      expect(snackbar).toEqual(undefined);
+    });
+
+    it('renders snackbar notification on error', () => {
+      const snackbar = page.find(SnackbarNotification);
+      expect(snackbar).toExist();
+      expect(snackbar.props().message).toEqual('error message');
+      expect(snackbar.props().isError).toEqual(true);
     });
   });
 });

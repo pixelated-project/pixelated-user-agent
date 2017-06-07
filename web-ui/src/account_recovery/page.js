@@ -24,6 +24,8 @@ import UserRecoveryCodeForm from 'src/account_recovery/user_recovery_code_form/u
 import NewPasswordForm from 'src/account_recovery/new_password_form/new_password_form';
 import BackupAccountStep from 'src/account_recovery/backup_account_step/backup_account_step';
 import Footer from 'src/common/footer/footer';
+import Util from 'src/common/util';
+import SnackbarNotification from 'src/common/snackbar_notification/snackbar_notification';
 
 import 'font-awesome/scss/font-awesome.scss';
 import './page.scss';
@@ -33,23 +35,29 @@ export class Page extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { step: 0, userCode: '' };
+    this.state = { step: 0, userCode: '', username: this.setUsername(), errorMessage: '' };
   }
+
+  setUsername = () => (Util.getQueryParameter('username') || '');
 
   nextStep = (event) => {
     if (event) {
       event.preventDefault();
     }
     this.setState({ step: this.state.step + 1 });
-  }
+  };
 
   previousStep = () => {
     this.setState({ step: this.state.step - 1 });
-  }
+  };
 
   saveUserCode = (event) => {
     this.setState({ userCode: event.target.value });
-  }
+  };
+
+  errorHandler = (errorMessage) => {
+    this.setState({ errorMessage });
+  };
 
   steps = () => ({
     0: <AdminRecoveryCodeForm next={this.nextStep} />,
@@ -64,11 +72,20 @@ export class Page extends React.Component {
         previous={this.previousStep}
         userCode={this.state.userCode}
         next={this.nextStep}
+        username={this.state.username}
+        onError={this.errorHandler}
       />),
     3: <BackupAccountStep />
-  })
+  });
 
   mainContent = () => this.steps()[this.state.step];
+
+  showSnackbarOnError = (t) => {
+    if (this.state.errorMessage) {
+      return <SnackbarNotification message={t(this.state.errorMessage)} isError />;
+    }
+    return undefined; // To satisfy eslint error - consistent-return
+  };
 
   render() {
     const t = this.props.t;
@@ -81,6 +98,7 @@ export class Page extends React.Component {
               {this.mainContent()}
             </div>
           </section>
+          {this.showSnackbarOnError(t)}
           <Footer />
         </div>
       </DocumentTitle>

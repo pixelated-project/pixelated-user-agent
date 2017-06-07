@@ -68,6 +68,7 @@
         "general": "Problemas ao se comunicar com o servidor",
         "parse": "Obteve uma resposta inválida do servidor",
         "auth": "E-mail ou senha inválidos",
+        "recovery-auth": "E-mail ou código de recuperação inválidos",
         "login": {
             "title": "Ops, algo deu errado :(",
             "message": "Tente entrar novamente em alguns minutos. Se o problema persistir, contate o administrador da sua conta."

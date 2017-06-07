@@ -14,19 +14,22 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Pixelated. If not, see <http://www.gnu.org/licenses/>.
 
-from mock import MagicMock
+from mock import MagicMock, patch
+
+from twisted.internet import defer
 from twisted.trial import unittest
 from twisted.web.test.requesthelper import DummyRequest
-from twisted.internet import defer
+from twisted.cred.error import UnauthorizedLogin
 
-from pixelated.resources.account_recovery_resource import AccountRecoveryResource, InvalidPasswordError
+from pixelated.resources.account_recovery_resource import AccountRecoveryResource
 from test.unit.resources import DummySite
 
 
 class TestAccountRecoveryResource(unittest.TestCase):
     def setUp(self):
         self.services_factory = MagicMock()
-        self.resource = AccountRecoveryResource(self.services_factory)
+        self.provider = MagicMock()
+        self.resource = AccountRecoveryResource(self.services_factory, self.provider)
         self.web = DummySite(self.resource)
 
     def test_get(self):
@@ -41,68 +44,78 @@ class TestAccountRecoveryResource(unittest.TestCase):
         d.addCallback(assert_200_when_user_logged_in)
         return d
 
-    def test_post_returns_successfully(self):
+    @patch('pixelated.resources.account_recovery_resource.AccountRecoveryAuthenticator.authenticate')
+    def test_post_returns_successfully(self, mock_authenticate):
         request = DummyRequest(['/account-recovery'])
         request.method = 'POST'
-        self.resource._handle_post = MagicMock(return_value=defer.succeed(None))
+        request.content = MagicMock()
+        request.content.getvalue.return_value = '{"username": "alice", "userCode": "abc123", "password": "12345678", "confirmPassword": "12345678"}'
+        mock_authenticate.return_value = defer.succeed('')
 
         d = self.web.get(request)
 
         def assert_successful_response(_):
             self.assertEqual(200, request.responseCode)
+            mock_authenticate.assert_called_with('alice', 'abc123')
 
         d.addCallback(assert_successful_response)
         return d
 
-    def test_post_returns_failure(self):
+    @patch('pixelated.resources.account_recovery_resource.AccountRecoveryAuthenticator.authenticate')
+    def test_post_returns_unauthorized(self, mock_authenticate):
         request = DummyRequest(['/account-recovery'])
         request.method = 'POST'
-        self.resource._handle_post = MagicMock(return_value=defer.fail(InvalidPasswordError))
+        request.content = MagicMock()
+        request.content.getvalue.return_value = '{"username": "alice", "userCode": "abc123", "password": "12345678", "confirmPassword": "12345678"}'
+        mock_authenticate.return_value = defer.fail(UnauthorizedLogin())
 
         d = self.web.get(request)
 
         def assert_error_response(_):
-            self.assertEqual(500, request.responseCode)
+            self.assertEqual(401, request.responseCode)
+            mock_authenticate.assert_called_with('alice', 'abc123')
+
+        d.addErrback(assert_error_response)
+        return d
+
+    def test_post_returns_failure_by_empty_usercode(self):
+        request = DummyRequest(['/account-recovery'])
+        request.method = 'POST'
+        request.content = MagicMock()
+        request.content.getvalue.return_value = '{"username": "alice", "userCode": "", "password": "1234", "confirmPassword": "1234"}'
+
+        d = self.web.get(request)
+
+        def assert_error_response(_):
+            self.assertEqual(400, request.responseCode)
 
         d.addCallback(assert_error_response)
         return d
 
-    def test_handle_post_successfully(self):
-        request = MagicMock()
-        self.resource._get_post_form = MagicMock()
-        self.resource._validate_password = MagicMock(return_value=True)
+    def test_post_returns_failure_by_password_length(self):
+        request = DummyRequest(['/account-recovery'])
+        request.method = 'POST'
+        request.content = MagicMock()
+        request.content.getvalue.return_value = '{"username": "alice", "userCode": "abc123", "password": "1234", "confirmPassword": "1234"}'
 
-        d = self.resource._handle_post(request)
+        d = self.web.get(request)
 
-        def assert_successful(success):
-            self.assertEqual(success, 'Done!')
+        def assert_error_response(_):
+            self.assertEqual(400, request.responseCode)
 
-        d.addCallback(assert_successful)
+        d.addCallback(assert_error_response)
         return d
 
-    @defer.inlineCallbacks
-    def test_handle_post_failed(self):
-        request = MagicMock()
-        self.resource._get_post_form = MagicMock()
-        self.resource._validate_password = MagicMock(return_value=False)
+    def test_post_returns_failure_by_password_confirmation(self):
+        request = DummyRequest(['/account-recovery'])
+        request.method = 'POST'
+        request.content = MagicMock()
+        request.content.getvalue.return_value = '{"username": "alice", "userCode": "abc123", "password": "12345678", "confirmPassword": "1234"}'
 
-        with self.assertRaises(InvalidPasswordError):
-            yield self.resource._handle_post(request)
+        d = self.web.get(request)
 
-    def test_get_post_form(self):
-        request = MagicMock()
-        request.content.getvalue.return_value = '{"userCode": "abc", "password": "123", "confirmPassword": "456"}'
-        form = self.resource._get_post_form(request)
+        def assert_error_response(_):
+            self.assertEqual(400, request.responseCode)
 
-        self.assertEqual(form.get('userCode'), 'abc')
-        self.assertEqual(form.get('password'), '123')
-        self.assertEqual(form.get('confirmPassword'), '456')
-
-    def test_validate_password_successfully(self):
-        self.assertTrue(self.resource._validate_password('12345678', '12345678'))
-
-    def test_validate_password_failed_by_confirmation(self):
-        self.assertFalse(self.resource._validate_password('12345678', '1234'))
-
-    def test_validate_password_failed_by_length(self):
-        self.assertFalse(self.resource._validate_password('1234', '1234'))
+        d.addCallback(assert_error_response)
+        return d

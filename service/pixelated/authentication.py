@@ -27,36 +27,40 @@ Credentials = namedtuple('Credentials', 'username, password')
 
 
 class Authenticator(object):
-    def __init__(self, leap_provider):
+    def __init__(self, leap_provider, recovery_session=False):
         self._leap_provider = leap_provider
         self.domain = leap_provider.server_name
         self.bonafide_session = None
+        self.recovery_session = recovery_session
 
     @inlineCallbacks
     def authenticate(self, username, password):
         username = self.clean_username(username)
-        auth = yield self._srp_auth(username, password)
+        credentials = Credentials(username, password)
+        auth = yield self._srp_auth(credentials)
         returnValue(auth)
 
     @inlineCallbacks
-    def _srp_auth(self, username, password):
+    def _srp_auth(self, credentials):
         try:
-            auth = yield self._bonafide_auth(username, password)
+            auth = yield self._bonafide_auth(credentials)
         except SRPAuthError:
-            raise UnauthorizedLogin("User typed wrong password/username combination.")
+            self._auth_error()
         returnValue(auth)
 
     @inlineCallbacks
-    def _bonafide_auth(self, user, password):
+    def _bonafide_auth(self, credentials):
         srp_provider = Api(self._leap_provider.api_uri)
-        credentials = Credentials(user, password)
         self.bonafide_session = Session(credentials, srp_provider, self._leap_provider.local_ca_crt)
-        yield self.bonafide_session.authenticate()
-        returnValue(Authentication(user,
+        yield self.bonafide_session.authenticate(recovery=self.recovery_session)
+        returnValue(Authentication(credentials.username,
                                    self.bonafide_session.token,
                                    self.bonafide_session.uuid,
                                    'session_id',
                                    {'is_admin': False}))
+
+    def _auth_error(self):
+        raise UnauthorizedLogin("User typed wrong username/password combination.")
 
     def clean_username(self, username):
         if '@' not in username:

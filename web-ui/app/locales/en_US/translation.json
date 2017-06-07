@@ -68,6 +68,7 @@
         "general": "Problems talking to server",
         "parse": "Got invalid response from server",
         "auth": "Invalid email or password",
+        "recovery-auth": "Invalid email or recovery code",
         "login": {
             "title": "Oh, something went wrong :(",
             "message": "Try to login again in a few minutes. If the problem persists, contact your account administrator."

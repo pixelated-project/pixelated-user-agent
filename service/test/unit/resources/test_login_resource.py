@@ -56,6 +56,11 @@ class TestLoginResource(unittest.TestCase):
         d.addCallback(assert_successful)
         return d
 
+    def test_get_child_for_account_recovery_path(self):
+        request = DummyRequest(['account-recovery'])
+        result = self.resource.getChild('account-recovery', request)
+        self.assertEqual(result._authenticator._leap_provider, self.portal)
+
     @patch('pixelated.resources.session.PixelatedSession.is_logged_in')
     def test_there_are_no_grand_children_resources_when_logged_in(self, mock_is_logged_in):
         request = DummyRequest(['/login/grand_children'])

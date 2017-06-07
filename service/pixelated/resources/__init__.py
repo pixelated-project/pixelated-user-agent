@@ -17,15 +17,22 @@
 import json
 import os
 
-from twisted.web.http import UNAUTHORIZED
+from twisted.web.http import UNAUTHORIZED, BAD_REQUEST, INTERNAL_SERVER_ERROR, SERVICE_UNAVAILABLE
 from twisted.web.resource import Resource
 from twisted.logger import Logger
+from twisted.cred.error import UnauthorizedLogin
 
 from pixelated.resources.session import IPixelatedSession
 
-from twisted.web.http import INTERNAL_SERVER_ERROR, SERVICE_UNAVAILABLE
-
 log = Logger()
+
+
+class InvalidPasswordError(Exception):
+    pass
+
+
+class EmptyFieldsError(Exception):
+    pass
 
 
 class SetEncoder(json.JSONEncoder):
@@ -70,6 +77,15 @@ def _get_static_folder():
     if not os.path.exists(static_folder):
         static_folder = os.path.join('/', 'usr', 'share', 'pixelated-user-agent')
     return static_folder
+
+
+def get_error_response_code(error_type):
+    status_codes = {
+        InvalidPasswordError: BAD_REQUEST,
+        EmptyFieldsError: BAD_REQUEST,
+        UnauthorizedLogin: UNAUTHORIZED
+    }
+    return status_codes.get(error_type, INTERNAL_SERVER_ERROR)
 
 
 class BaseResource(Resource):

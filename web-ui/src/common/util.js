@@ -1,8 +1,14 @@
+import queryString from 'query-string';
 import browser from 'helpers/browser';
 
 export const hasQueryParameter = (param) => {
   const decodedUri = decodeURIComponent(window.location.search.substring(1));
   return !(decodedUri.split('&').indexOf(param) < 0);
+};
+
+export const getQueryParameter = (param) => {
+  const parsed = queryString.parse(window.location.search);
+  return parsed[param];
 };
 
 export const submitForm = (event, url, body = {}) => {
@@ -23,5 +29,6 @@ export const submitForm = (event, url, body = {}) => {
 
 export default {
   hasQueryParameter,
+  getQueryParameter,
   submitForm
 };

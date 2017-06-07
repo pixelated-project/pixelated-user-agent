@@ -8,13 +8,23 @@ describe('NewPasswordForm', () => {
   let newPasswordForm;
   let mockPrevious;
   let mockNext;
+  let mockOnError;
   let mockTranslations;
 
   beforeEach(() => {
     mockTranslations = key => key;
     mockPrevious = expect.createSpy();
+    mockNext = expect.createSpy();
+    mockOnError = expect.createSpy();
     newPasswordForm = shallow(
-      <NewPasswordForm t={mockTranslations} previous={mockPrevious} userCode='def234' />
+      <NewPasswordForm
+        t={mockTranslations}
+        previous={mockPrevious}
+        next={mockNext}
+        onError={mockOnError}
+        userCode='def234'
+        username='alice'
+      />
     );
   });
 
@@ -42,31 +52,88 @@ describe('NewPasswordForm', () => {
   });
 
   describe('Submit', () => {
-    beforeEach((done) => {
-      mockNext = expect.createSpy().andCall(() => done());
-      newPasswordForm = shallow(
-        <NewPasswordForm t={mockTranslations} previous={mockPrevious} userCode='def234' next={mockNext} />
-      );
-      fetchMock.post('/account-recovery', 200);
+    const submitForm = () => {
       newPasswordForm.find('InputField[name="new-password"]').simulate('change', { target: { value: '123' } });
       newPasswordForm.find('InputField[name="confirm-password"]').simulate('change', { target: { value: '456' } });
       newPasswordForm.find('form').simulate('submit', { preventDefault: expect.createSpy() });
+    };
+
+    const createNewPasswordForm = () => {
+      newPasswordForm = shallow(
+        <NewPasswordForm
+          t={mockTranslations}
+          previous={mockPrevious}
+          next={mockNext}
+          onError={mockOnError}
+          userCode='def234'
+          username='alice'
+        />
+      );
+    };
+
+    context('on success', () => {
+      beforeEach((done) => {
+        mockNext = expect.createSpy().andCall(() => done());
+        createNewPasswordForm();
+        fetchMock.post('/account-recovery', 200);
+        submitForm();
+      });
+
+      it('posts to account recovery', () => {
+        expect(fetchMock.called('/account-recovery')).toBe(true, 'POST was not called');
+      });
+
+      it('sends username as content', () => {
+        expect(fetchMock.lastOptions('/account-recovery').body).toContain('"username":"alice"');
+      });
+
+      it('sends user code as content', () => {
+        expect(fetchMock.lastOptions('/account-recovery').body).toContain('"userCode":"def234"');
+      });
+
+      it('sends password as content', () => {
+        expect(fetchMock.lastOptions('/account-recovery').body).toContain('"password":"123"');
+      });
+
+      it('sends confirm password as content', () => {
+        expect(fetchMock.lastOptions('/account-recovery').body).toContain('"confirmPassword":"456"');
+      });
+
+      it('calls next handler on success', () => {
+        expect(mockNext).toHaveBeenCalled();
+      });
+
+      afterEach(fetchMock.restore);
     });
 
-    it('posts to account recovery', () => {
-      expect(fetchMock.called('/account-recovery')).toBe(true, 'POST was not called');
+    context('on unauthorized error', () => {
+      beforeEach((done) => {
+        mockOnError.andCall(() => done());
+        createNewPasswordForm();
+        fetchMock.post('/account-recovery', 401);
+        submitForm();
+      });
+
+      it('shows error message on 401', () => {
+        expect(mockOnError).toHaveBeenCalledWith('error.recovery-auth');
+      });
+
+      afterEach(fetchMock.restore);
     });
 
-    it('sends user code as content', () => {
-      expect(fetchMock.lastOptions('/account-recovery').body).toContain('"userCode":"def234"');
-    });
+    context('on server error', () => {
+      beforeEach((done) => {
+        mockOnError.andCall(() => done());
+        createNewPasswordForm();
+        fetchMock.post('/account-recovery', 500);
+        submitForm();
+      });
 
-    it('sends password as content', () => {
-      expect(fetchMock.lastOptions('/account-recovery').body).toContain('"password":"123"');
-    });
+      it('shows error message on 500', () => {
+        expect(mockOnError).toHaveBeenCalledWith('error.general');
+      });
 
-    it('sends confirm password as content', () => {
-      expect(fetchMock.lastOptions('/account-recovery').body).toContain('"confirmPassword":"456"');
+      afterEach(fetchMock.restore);
     });
   });
 
@@ -152,10 +219,6 @@ describe('NewPasswordForm', () => {
         newPasswordFormInstance.validatePassword('', '12345678');
         expect(newPasswordForm.find('SubmitButton').props().disabled).toBe(true);
       });
-    });
-
-    it('calls next handler on success', () => {
-      expect(mockNext).toHaveBeenCalled();
     });
   });
 });
