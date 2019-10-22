@@ -54,7 +54,7 @@
     "jsdom": "9.10.0"
   },
   "dependencies": {
-    "bower": "1.7.9",
+    "bower": "1.8.8",
     "font-awesome": "4.7.0",
     "i18next": "6.1.2",
     "i18next-browser-languagedetector": "1.0.1",
