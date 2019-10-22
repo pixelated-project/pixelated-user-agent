@@ -5,7 +5,7 @@ pyasn1==0.1.9
 requests==2.11.1
 srp==1.0.6
 whoosh==2.6.0
-Twisted==16.1.1
+Twisted==19.7.0
 -e 'git+https://0xacab.org/leap/leap_pycommon.git@master#egg=leap.common'
 -e 'git+https://0xacab.org/pixelated/bitmask-dev.git@development#egg=leap.bitmask'
 -e 'git+https://0xacab.org/pixelated/soledad.git@development#egg=leap.soledad.common&subdirectory=common/'
