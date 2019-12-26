@@ -27,7 +27,7 @@
     "expect": "1.20.2",
     "fetch-mock": "5.9.4",
     "file-loader": "0.10.0",
-    "handlebars": "4.0.5",
+    "handlebars": "4.5.3",
     "he": "1.1.0",
     "html-minifier": "2.1.6",
     "imagemin": "5.2.1",
